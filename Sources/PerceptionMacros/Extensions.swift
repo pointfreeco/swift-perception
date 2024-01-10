@@ -159,10 +159,10 @@ extension TypeSyntax {
         substituted += ","
       case .identifier(let identifier):
         let type: TypeSyntax = "\(raw: identifier)"
-        guard let substituedType = type.genericSubstitution(parameters) else {
+        guard let substitutedType = type.genericSubstitution(parameters) else {
           return nil
         }
-        substituted += substituedType
+        substituted += substitutedType
         break
       default:
         // ignore?
@@ -222,7 +222,7 @@ extension DeclGroupSyntax {
     return standins
   }
 
-  func hasMemberFunction(equvalentTo other: FunctionDeclSyntax) -> Bool {
+  func hasMemberFunction(equivalentTo other: FunctionDeclSyntax) -> Bool {
     for member in memberBlock.members {
       if let function = member.as(MemberBlockItemSyntax.self)?.decl.as(FunctionDeclSyntax.self) {
         if function.isEquivalent(to: other) {
@@ -257,7 +257,7 @@ extension DeclGroupSyntax {
   func addIfNeeded(_ decl: DeclSyntax?, to declarations: inout [DeclSyntax]) {
     guard let decl else { return }
     if let fn = decl.as(FunctionDeclSyntax.self) {
-      if !hasMemberFunction(equvalentTo: fn) {
+      if !hasMemberFunction(equivalentTo: fn) {
         declarations.append(decl)
       }
     } else if let property = decl.as(VariableDeclSyntax.self) {

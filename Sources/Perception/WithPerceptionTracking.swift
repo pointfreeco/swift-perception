@@ -38,11 +38,11 @@ public enum _PerceptionLocals {
 /// }
 /// ```
 ///
-/// If a field of a `@Percetible` model is accessed in a view while _not_ inside
+/// If a field of a `@Perceptible` model is accessed in a view while _not_ inside
 /// ``WithPerceptionTracking``, then a runtime warning will helpfully be triggered:
 ///
 /// > 🟣 Runtime Warning: Perceptible state was accessed but is not being tracked. Track changes to
-/// state by wrapping your view in a 'WithPerceptionTracking' view.
+/// > state by wrapping your view in a 'WithPerceptionTracking' view.
 ///
 /// To debug this, expand the warning in the Issue Navigator of Xcode (cmd+5), and click through the
 /// stack frames displayed to find the line in your view where you are accessing state without being

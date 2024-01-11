@@ -9,6 +9,7 @@
   @available(macOS, introduced: 10.15, obsoleted: 14)
   @available(tvOS, introduced: 13, obsoleted: 17)
   @available(watchOS, introduced: 6, obsoleted: 10)
+  @available(visionOS, unavailable)
   @dynamicMemberLookup
   @propertyWrapper
   public struct Bindable<Value> {

@@ -54,21 +54,21 @@ public enum _PerceptionLocals {
 @MainActor
 public struct WithPerceptionTracking<Content: View>: View {
   @State var id = 0
-  let _content: () -> Content
+  private let content: () -> Content
   public init(@ViewBuilder content: @escaping () -> Content) {
-    self._content = content
+    self.content = content
   }
   public var body: Content {
     if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
       return _PerceptionLocals.$isInPerceptionTracking.withValue(true) {
-        self.content()
+        self.instrumentedBody()
       }
     } else {
       // NB: View will not re-render when 'id' changes unless we access it in the view.
       let _ = self.id
       return withPerceptionTracking {
         _PerceptionLocals.$isInPerceptionTracking.withValue(true) {
-          self.content()
+          self.instrumentedBody()
         }
       } onChange: {
         Task { @MainActor in
@@ -78,13 +78,13 @@ public struct WithPerceptionTracking<Content: View>: View {
     }
   }
 
-  private func content() -> Content {
+  private func instrumentedBody() -> Content {
     #if DEBUG
       return _PerceptionLocals.$isInPerceptionTracking.withValue(true) {
-        self._content()
+        self.content()
       }
     #else
-      return self._content()
+      return self.content()
     #endif
   }
 }

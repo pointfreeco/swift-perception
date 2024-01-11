@@ -80,6 +80,8 @@ extension PerceptionRegistrar {
     _ subject: Subject,
     keyPath: KeyPath<Subject, Member>
   ) {
+    perceptionCheck()
+    
     #if canImport(Observation)
       if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
         func `open`<T: Observable>(_ subject: T) {
@@ -92,7 +94,6 @@ extension PerceptionRegistrar {
           open(subject)
         }
       } else {
-        perceptionCheck()
         self.perceptionRegistrar.access(subject, keyPath: keyPath)
       }
     #endif
@@ -194,7 +195,7 @@ extension PerceptionRegistrar: Hashable {
 
 #if DEBUG
   private func perceptionCheck() {
-    if #unavailable(iOS 17, macOS 14, tvOS 17, watchOS 10),
+    if
       !_PerceptionLocals.isInPerceptionTracking,
       !_PerceptionLocals.skipPerceptionChecking,
       isInSwiftUIBody()

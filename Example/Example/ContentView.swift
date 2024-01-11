@@ -24,6 +24,15 @@ struct ContentView: View {
     WithPerceptionTracking {
       let _ = print("\(Self.self): tracked change.")
       Form {
+        List {
+          ForEach(Array(1...10), id: \.self) {
+            Text("\($0)")
+          }
+          .onDelete { _ in
+            //_ = model.count
+          }
+        }
+
         if model.isDisplayingCount {
           Text(model.count.description)
         } else {

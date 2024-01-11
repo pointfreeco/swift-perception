@@ -2,9 +2,12 @@ import SwiftUI
 
 @main
 struct ExampleApp: App {
+  static let model = CounterModel()
+
   var body: some Scene {
     WindowGroup {
-      ContentView(model: CounterModel())
+      ContentView()
+        .perceptibleObject(ExampleApp.model)
     }
   }
 }

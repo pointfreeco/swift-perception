@@ -18,9 +18,11 @@ class CounterModel {
 }
 
 struct ContentView: View {
-  @Perception.Bindable var model: CounterModel
+  @PerceptibleObject var model: CounterModel
 
   var body: some View {
+    @Perception.Bindable var model = model
+
     WithPerceptionTracking {
       let _ = print("\(Self.self): tracked change.")
       Form {
@@ -53,5 +55,6 @@ struct ContentView: View {
 }
 
 #Preview {
-  ContentView(model: CounterModel())
+  ContentView()
+    .perceptibleObject(CounterModel())
 }

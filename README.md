@@ -69,6 +69,35 @@ set up correctly:
 > 🟣 Runtime Warning: Perceptible state was accessed but is not being tracked. Track changes to
 > state by wrapping your view in a 'WithPerceptionTracking' view.
 
+### Bindable
+
+SwiftUI's `@Bindable` property wrapper has also been backported to support perceptible objects. You
+can simply qualify the property wrapper with the `Perception` module:
+
+```swift
+struct FeatureView: View {
+  @Perception.Bindable var model: FeatureModel
+
+  // ...
+}
+```
+
+### Environment
+
+SwiftUI's `@Environment` property wrapper and `environment` view modifier's support for observation
+has also been backported to support perceptible objects using the exact same APIs:
+
+```swift
+struct FeatureView: View {
+  @Environment(Settings.self) var settings
+
+  // ...
+}
+
+// In some parent view:
+.environment(settings)
+```
+
 ## Community
 
 If you want to discuss this library or have a question about how to use it to solve

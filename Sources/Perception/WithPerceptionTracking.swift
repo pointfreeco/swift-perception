@@ -1,14 +1,5 @@
 import SwiftUI
 
-@available(iOS, deprecated: 17)
-@available(macOS, deprecated: 14)
-@available(tvOS, deprecated: 17)
-@available(watchOS, deprecated: 10)
-public enum _PerceptionLocals {
-  @TaskLocal public static var isInPerceptionTracking = false
-  @TaskLocal public static var skipPerceptionChecking = false
-}
-
 /// Observes changes to perceptible models.
 ///
 /// Use this view to automatically subscribe to the changes of any fields in ``Perceptible()``
@@ -58,16 +49,12 @@ public struct WithPerceptionTracking<Content> {
 
   public var body: Content {
     if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
-      return _PerceptionLocals.$isInPerceptionTracking.withValue(true) {
-        self.instrumentedBody()
-      }
+      return self.instrumentedBody()
     } else {
       // NB: View will not re-render when 'id' changes unless we access it in the view.
       let _ = self.id
       return withPerceptionTracking {
-        _PerceptionLocals.$isInPerceptionTracking.withValue(true) {
-          self.instrumentedBody()
-        }
+        self.instrumentedBody()
       } onChange: {
         Task { @MainActor in
           self.id += 1
@@ -168,4 +155,13 @@ extension WithPerceptionTracking: View where Content: View {
   public init(@ViewBuilder content: @escaping () -> Content) {
     self.content = content
   }
+}
+
+@available(iOS, deprecated: 17)
+@available(macOS, deprecated: 14)
+@available(tvOS, deprecated: 17)
+@available(watchOS, deprecated: 10)
+public enum _PerceptionLocals {
+  @TaskLocal public static var isInPerceptionTracking = false
+  @TaskLocal public static var skipPerceptionChecking = false
 }

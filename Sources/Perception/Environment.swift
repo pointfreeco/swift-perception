@@ -1,33 +1,28 @@
 import SwiftUI
 
+@available(iOS, introduced: 13, obsoleted: 17)
+@available(macOS, introduced: 10.15, obsoleted: 14)
+@available(tvOS, introduced: 13, obsoleted: 17)
+@available(watchOS, introduced: 6, obsoleted: 10)
+@available(visionOS, unavailable)
 extension Environment {
-  @available(iOS, introduced: 13, obsoleted: 17)
-  @available(macOS, introduced: 10.15, obsoleted: 14)
-  @available(tvOS, introduced: 13, obsoleted: 17)
-  @available(watchOS, introduced: 6, obsoleted: 10)
-  @available(visionOS, unavailable)
   @_disfavoredOverload
   public init(_ objectType: Value.Type) where Value: AnyObject & Perceptible {
     self.init(\.[unwrap: \Value.self])
   }
 
-  @available(iOS, introduced: 13, obsoleted: 17)
-  @available(macOS, introduced: 10.15, obsoleted: 14)
-  @available(tvOS, introduced: 13, obsoleted: 17)
-  @available(watchOS, introduced: 6, obsoleted: 10)
-  @available(visionOS, unavailable)
   @_disfavoredOverload
   public init<T: AnyObject & Perceptible>(_ objectType: T.Type) where Value == T? {
     self.init(\.[\T.self])
   }
 }
 
+@available(iOS, introduced: 13, obsoleted: 17)
+@available(macOS, introduced: 10.15, obsoleted: 14)
+@available(tvOS, introduced: 13, obsoleted: 17)
+@available(watchOS, introduced: 6, obsoleted: 10)
+@available(visionOS, unavailable)
 extension View {
-  @available(iOS, introduced: 13, obsoleted: 17)
-  @available(macOS, introduced: 10.15, obsoleted: 14)
-  @available(tvOS, introduced: 13, obsoleted: 17)
-  @available(watchOS, introduced: 6, obsoleted: 10)
-  @available(visionOS, unavailable)
   @_disfavoredOverload
   public func environment<T: AnyObject & Perceptible>(_ object: T?) -> some View {
     self.environment(\.[\T.self], object)

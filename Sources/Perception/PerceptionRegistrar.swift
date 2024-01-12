@@ -214,10 +214,9 @@ extension PerceptionRegistrar: Hashable {
       let mangledSymbol = callStackSymbol.utf8
         .drop(while: { $0 != .init(ascii: "$") })
         .prefix(while: { $0 != .init(ascii: " ") })
-      let mangledSymbolString = String(Substring(mangledSymbol))
       guard
         mangledSymbol.isMangledViewBodyGetter,
-        let demangled = mangledSymbolString.demangled,
+        let demangled = String(Substring(mangledSymbol)).demangled,
         !demangled.isActionClosure
       else {
         continue

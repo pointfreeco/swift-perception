@@ -118,11 +118,11 @@ extension WithPerceptionTracking: TableColumnContent where Content: TableColumnC
     self.content = content
   }
 
-  public var tableColumnBody: Never {
+  nonisolated public var tableColumnBody: Never {
     fatalError()
   }
 
-  public static func _makeContent(
+  nonisolated public static func _makeContent(
     content: _GraphValue<WithPerceptionTracking<Content>>, inputs: _TableColumnInputs
   ) -> _TableColumnOutputs {
     Content._makeContent(content: content[\.body], inputs: inputs)
@@ -141,7 +141,7 @@ extension WithPerceptionTracking: TableRowContent where Content: TableRowContent
     self.content = content
   }
 
-  public var tableRowBody: Never {
+  nonisolated public var tableRowBody: Never {
     fatalError()
   }
 }

@@ -1,3 +1,4 @@
+import Combine
 import Perception
 import SwiftUI
 import XCTest
@@ -268,14 +269,72 @@ final class RuntimeWarningTests: XCTestCase {
     self.render(FeatureView())
   }
 
-  private func expectFailure() {
-    if #unavailable(iOS 17, macOS 14, tvOS 17, watchOS 10) {
-      XCTExpectFailure {
-        $0.compactDescription == """
-          Perceptible state was accessed but is not being tracked. Track changes to state by \
-          wrapping your view in a 'WithPerceptionTracking' view.
-          """
+  func testActionClosure_CallMethodWithArguments() {
+    struct FeatureView: View {
+      @State var model = Model()
+      var body: some View {
+        Text("Hi")
+          .onAppear { _ = foo(42) }
       }
+      func foo(_: Int) -> Bool {
+        _ = self.model.count
+        return true
+      }
+    }
+
+    self.render(FeatureView())
+  }
+
+  func testActionClosure_WithArguments() {
+    struct FeatureView: View {
+      @State var model = Model()
+      var body: some View {
+        Text("Hi")
+          .onReceive(Just(1)) { _ in
+            _ = self.model.count
+          }
+      }
+    }
+
+    self.render(FeatureView())
+  }
+
+  func testActionClosure_WithArguments_ImplicitClosure() {
+    struct FeatureView: View {
+      @State var model = Model()
+      var body: some View {
+        Text("Hi")
+          .onReceive(Just(1), perform: self.foo)
+      }
+      func foo(_: Int) {
+        _ = self.model.count
+      }
+    }
+
+    self.render(FeatureView())
+  }
+
+  func testImplicitActionClosure() {
+    struct FeatureView: View {
+      @State var model = Model()
+      var body: some View {
+        Text("Hi")
+          .onAppear(perform: foo)
+      }
+      func foo() {
+        _ = self.model.count
+      }
+    }
+
+    self.render(FeatureView())
+  }
+
+  private func expectFailure() {
+    XCTExpectFailure {
+      $0.compactDescription == """
+        Perceptible state was accessed but is not being tracked. Track changes to state by \
+        wrapping your view in a 'WithPerceptionTracking' view.
+        """
     }
   }
 

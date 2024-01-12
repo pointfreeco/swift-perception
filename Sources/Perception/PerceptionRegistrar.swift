@@ -80,6 +80,8 @@ extension PerceptionRegistrar {
     _ subject: Subject,
     keyPath: KeyPath<Subject, Member>
   ) {
+    perceptionCheck()
+    
     #if canImport(Observation)
       if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
         func `open`<T: Observable>(_ subject: T) {
@@ -92,7 +94,6 @@ extension PerceptionRegistrar {
           open(subject)
         }
       } else {
-        perceptionCheck()
         self.perceptionRegistrar.access(subject, keyPath: keyPath)
       }
     #endif
@@ -194,7 +195,7 @@ extension PerceptionRegistrar: Hashable {
 
 #if DEBUG
   private func perceptionCheck() {
-    if #unavailable(iOS 17, macOS 14, tvOS 17, watchOS 10),
+    if
       !_PerceptionLocals.isInPerceptionTracking,
       !_PerceptionLocals.skipPerceptionChecking,
       isInSwiftUIBody()
@@ -214,8 +215,8 @@ extension PerceptionRegistrar: Hashable {
         .drop(while: { $0 != .init(ascii: "$") })
         .prefix(while: { $0 != .init(ascii: " ") })
       guard
+        mangledSymbol.isMangledViewBodyGetter,
         let demangled = String(Substring(mangledSymbol)).demangled,
-        demangled.contains("body.getter : "),
         !demangled.isActionClosure
       else {
         continue
@@ -228,11 +229,12 @@ extension PerceptionRegistrar: Hashable {
   extension String {
     fileprivate var isActionClosure: Bool {
       var view = self[...].utf8
-      guard view.starts(with: "closure #".utf8) else { return false }
+      guard
+        view.starts(with: "closure #".utf8) || view.starts(with: "implicit closure #".utf8)
+      else { return false }
       view = view.drop(while: { $0 != .init(ascii: "-") })
       return view.starts(with: "-> () in ".utf8)
     }
-
     fileprivate var demangled: String? {
       return self.utf8CString.withUnsafeBufferPointer { mangledNameUTF8CStr in
         let demangledNamePtr = swift_demangle(
@@ -291,3 +293,26 @@ extension PerceptionRegistrar: Hashable {
     apply()
   }
 #endif
+
+extension Substring.UTF8View {
+  fileprivate var isMangledViewBodyGetter: Bool {
+    self._contains("V4bodyQrvg".utf8)
+  }
+  fileprivate func _contains(_ other: String.UTF8View) -> Bool {
+    guard let first = other.first
+    else { return false }
+    let otherCount = other.count
+    var input = self
+    while let index = input.firstIndex(where: { first == $0 }) {
+      input = input[index...]
+      if
+        input.count >= otherCount,
+        zip(input, other).allSatisfy(==)
+      {
+        return true
+      }
+      input.removeFirst()
+    }
+    return false
+  }
+}

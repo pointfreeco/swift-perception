@@ -43,9 +43,7 @@ extension EnvironmentValues {
     get { self[PerceptibleKey<T>.self] }
     set { self[PerceptibleKey<T>.self] = newValue }
   }
-}
 
-extension EnvironmentValues {
   fileprivate subscript<T: Perceptible>(unwrap _: KeyPath<T, T>) -> T {
     get {
       guard let object = self[\T.self] else {

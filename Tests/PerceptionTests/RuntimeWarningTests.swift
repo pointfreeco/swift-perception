@@ -269,13 +269,11 @@ final class RuntimeWarningTests: XCTestCase {
   }
 
   private func expectFailure() {
-    if #unavailable(iOS 17, macOS 14, tvOS 17, watchOS 10) {
-      XCTExpectFailure {
-        $0.compactDescription == """
-          Perceptible state was accessed but is not being tracked. Track changes to state by \
-          wrapping your view in a 'WithPerceptionTracking' view.
-          """
-      }
+    XCTExpectFailure {
+      $0.compactDescription == """
+        Perceptible state was accessed but is not being tracked. Track changes to state by \
+        wrapping your view in a 'WithPerceptionTracking' view.
+        """
     }
   }
 

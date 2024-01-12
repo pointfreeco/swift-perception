@@ -28,6 +28,7 @@ extension View {
   @available(tvOS, introduced: 13, obsoleted: 17)
   @available(watchOS, introduced: 6, obsoleted: 10)
   @available(visionOS, unavailable)
+  @_disfavoredOverload
   public func environment<T: AnyObject & Perceptible>(_ object: T?) -> some View {
     self.environment(\.[\T.self], object)
   }

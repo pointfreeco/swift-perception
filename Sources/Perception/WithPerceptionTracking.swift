@@ -54,7 +54,7 @@ public enum _PerceptionLocals {
 @MainActor
 public struct WithPerceptionTracking<Content> {
   @State var id = 0
-  private let content: () -> Content
+  let content: () -> Content
 
   public var body: Content {
     if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {

@@ -63,6 +63,8 @@ public struct WithPerceptionTracking<Content> {
     }
   }
 
+  @_transparent
+  @inline(__always)
   private func instrumentedBody() -> Content {
     #if DEBUG
       return _PerceptionLocals.$isInPerceptionTracking.withValue(true) {

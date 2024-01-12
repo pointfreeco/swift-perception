@@ -1,7 +1,5 @@
 version: 1
 builder:
   configs:
-  - documentation_targets:
-    - Perception
-    - PerceptionMacros
-    swift_version: 5.9
+  - documentation_targets: [Perception]
+    swift_version: 5.8

@@ -14,6 +14,7 @@ import Foundation
 @available(watchOS, deprecated: 10, renamed: "ObservationRegistrar")
 public struct PerceptionRegistrar: Sendable {
   private let _rawValue: AnySendable
+  private let isPerceptionCheckingEnabled: Bool
 
   /// Creates an instance of the observation registrar.
   ///
@@ -21,7 +22,7 @@ public struct PerceptionRegistrar: Sendable {
   /// ``PerceptionRegistrar`` when using the
   /// ``Perception/Perceptible()`` macro to indicate observably
   /// of a type.
-  public init() {
+  public init(isPerceptionCheckingEnabled: Bool = Perception.isPerceptionCheckingEnabled) {
     if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
       #if canImport(Observation)
         self._rawValue = AnySendable(ObservationRegistrar())
@@ -31,6 +32,7 @@ public struct PerceptionRegistrar: Sendable {
     } else {
       self._rawValue = AnySendable(_PerceptionRegistrar())
     }
+    self.isPerceptionCheckingEnabled = isPerceptionCheckingEnabled
   }
 
   #if canImport(Observation)
@@ -80,8 +82,10 @@ extension PerceptionRegistrar {
     _ subject: Subject,
     keyPath: KeyPath<Subject, Member>
   ) {
-    perceptionCheck()
-    
+    if self.isPerceptionCheckingEnabled {
+      perceptionCheck()
+    }
+
     #if canImport(Observation)
       if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
         func `open`<T: Observable>(_ subject: T) {

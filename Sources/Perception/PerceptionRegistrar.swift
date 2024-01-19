@@ -4,7 +4,6 @@ import Foundation
   import Observation
 #endif
 
-
 /// Provides storage for tracking and access to data changes.
 ///
 /// You don't need to create an instance of `PerceptionRegistrar` when using
@@ -200,48 +199,47 @@ extension PerceptionRegistrar: Hashable {
 }
 
 #if DEBUG
-extension PerceptionRegistrar {
-  fileprivate func perceptionCheck(file: StaticString, line: UInt) {
-    if
-      self.isPerceptionCheckingEnabled,
-      Perception.isPerceptionCheckingEnabled,
-      !_PerceptionLocals.isInPerceptionTracking,
-      !_PerceptionLocals.skipPerceptionChecking,
-      self.isInSwiftUIBody(file: file, line: line)
-    {
-      runtimeWarn(
-        """
-        Perceptible state was accessed but is not being tracked. Track changes to state by \
-        wrapping your view in a 'WithPerceptionTracking' view.
-        """
-      )
-    }
-  }
-
-  fileprivate func isInSwiftUIBody(file: StaticString, line: UInt) -> Bool {
-    self.perceptionChecks.withValue { perceptionChecks in
-      if let result = perceptionChecks[FileLine(file: file, line: line)] {
-        return result
+  extension PerceptionRegistrar {
+    fileprivate func perceptionCheck(file: StaticString, line: UInt) {
+      if self.isPerceptionCheckingEnabled,
+        Perception.isPerceptionCheckingEnabled,
+        !_PerceptionLocals.isInPerceptionTracking,
+        !_PerceptionLocals.skipPerceptionChecking,
+        self.isInSwiftUIBody(file: file, line: line)
+      {
+        runtimeWarn(
+          """
+          Perceptible state was accessed but is not being tracked. Track changes to state by \
+          wrapping your view in a 'WithPerceptionTracking' view.
+          """
+        )
       }
-      for callStackSymbol in Thread.callStackSymbols {
-        let mangledSymbol = callStackSymbol.utf8
-          .drop(while: { $0 != .init(ascii: "$") })
-          .prefix(while: { $0 != .init(ascii: " ") })
+    }
 
-        guard
-          mangledSymbol.isMangledViewBodyGetter,
-          let demangled = String(Substring(mangledSymbol)).demangled,
-          !demangled.isActionClosure
-        else {
-          continue
+    fileprivate func isInSwiftUIBody(file: StaticString, line: UInt) -> Bool {
+      self.perceptionChecks.withValue { perceptionChecks in
+        if let result = perceptionChecks[FileLine(file: file, line: line)] {
+          return result
         }
-        return true
+        for callStackSymbol in Thread.callStackSymbols {
+          let mangledSymbol = callStackSymbol.utf8
+            .drop(while: { $0 != .init(ascii: "$") })
+            .prefix(while: { $0 != .init(ascii: " ") })
+
+          guard
+            mangledSymbol.isMangledViewBodyGetter,
+            let demangled = String(Substring(mangledSymbol)).demangled,
+            !demangled.isActionClosure
+          else {
+            continue
+          }
+          return true
+        }
+        perceptionChecks[FileLine(file: file, line: line)] = false
+        return false
       }
-      perceptionChecks[FileLine(file: file, line: line)] = false
-      return false
     }
   }
-}
 
   extension String {
     fileprivate var isActionClosure: Bool {
@@ -322,8 +320,7 @@ extension Substring.UTF8View {
     var input = self
     while let index = input.firstIndex(where: { first == $0 }) {
       input = input[index...]
-      if
-        input.count >= otherCount,
+      if input.count >= otherCount,
         zip(input, other).allSatisfy(==)
       {
         return true
@@ -333,9 +330,6 @@ extension Substring.UTF8View {
     return false
   }
 }
-
-
-import Foundation
 
 /// A generic wrapper for isolating a mutable value with a lock.
 ///

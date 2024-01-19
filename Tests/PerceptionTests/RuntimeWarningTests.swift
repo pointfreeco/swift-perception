@@ -20,25 +20,21 @@ final class RuntimeWarningTests: XCTestCase {
   }
 
   func testNotInPerceptionBody_InSwiftUIBody() {
-    self.expectFailure()
-
     struct FeatureView: View {
       let model = Model()
       var body: some View {
-        Text(self.model.count.description)
+        Text(expectRuntimeWarning { self.model.count }.description)
       }
     }
     self.render(FeatureView())
   }
 
   func testNotInPerceptionBody_InSwiftUIBody_Wrapper() {
-    self.expectFailure()
-
     struct FeatureView: View {
       let model = Model()
       var body: some View {
         Wrapper {
-          Text(self.model.count.description)
+          Text(expectRuntimeWarning { self.model.count }.description)
         }
       }
     }
@@ -72,13 +68,11 @@ final class RuntimeWarningTests: XCTestCase {
   }
 
   func testNotInPerceptionBody_SwiftUIBinding() {
-    self.expectFailure()
-
     struct FeatureView: View {
       @State var model = Model()
       var body: some View {
-        VStack {
-          TextField("", text: self.$model.text)
+        Form {
+          TextField("", text: expectRuntimeWarning { self.$model.text })
         }
       }
     }
@@ -98,8 +92,6 @@ final class RuntimeWarningTests: XCTestCase {
   }
 
   func testNotInPerceptionBody_ForEach() {
-    self.expectFailure()
-
     struct FeatureView: View {
       @State var model = Model(
         list: [
@@ -109,8 +101,8 @@ final class RuntimeWarningTests: XCTestCase {
         ]
       )
       var body: some View {
-        ForEach(model.list) { model in
-          Text(model.count.description)
+        ForEach(expectRuntimeWarning { model.list }) { model in
+          Text(expectRuntimeWarning { model.count }.description)
         }
       }
     }
@@ -119,8 +111,6 @@ final class RuntimeWarningTests: XCTestCase {
   }
 
   func testInnerInPerceptionBody_ForEach() {
-    self.expectFailure()
-
     struct FeatureView: View {
       @State var model = Model(
         list: [
@@ -130,7 +120,7 @@ final class RuntimeWarningTests: XCTestCase {
         ]
       )
       var body: some View {
-        ForEach(model.list) { model in
+        ForEach(expectRuntimeWarning { model.list }) { model in
           WithPerceptionTracking {
             Text(model.count.description)
           }
@@ -142,8 +132,6 @@ final class RuntimeWarningTests: XCTestCase {
   }
 
   func testOuterInPerceptionBody_ForEach() {
-    self.expectFailure()
-
     struct FeatureView: View {
       @State var model = Model(
         list: [
@@ -155,7 +143,7 @@ final class RuntimeWarningTests: XCTestCase {
       var body: some View {
         WithPerceptionTracking {
           ForEach(model.list) { model in
-            Text(model.count.description)
+            Text(expectRuntimeWarning { model.count }.description)
           }
         }
       }
@@ -188,29 +176,26 @@ final class RuntimeWarningTests: XCTestCase {
   }
 
   func testNotInPerceptionBody_Sheet() {
-    self.expectFailure()
-
     struct FeatureView: View {
       @State var model = Model(child: Model())
       var body: some View {
         Text("Parent")
-          .sheet(item: $model.child) { child in
-            Text(child.count.description)
+          .sheet(item: expectRuntimeWarning { $model.child }) { child in
+            Text(expectRuntimeWarning { child.count }.description)
           }
       }
     }
 
+    // TODO
     self.render(FeatureView())
   }
 
   func testInnerInPerceptionBody_Sheet() {
-    self.expectFailure()
-
     struct FeatureView: View {
       @State var model = Model(child: Model())
       var body: some View {
         Text("Parent")
-          .sheet(item: $model.child) { child in
+          .sheet(item: expectRuntimeWarning { $model.child }) { child in
             WithPerceptionTracking {
               Text(child.count.description)
             }
@@ -222,15 +207,13 @@ final class RuntimeWarningTests: XCTestCase {
   }
 
   func testOuterInPerceptionBody_Sheet() {
-    self.expectFailure()
-
     struct FeatureView: View {
       @State var model = Model(child: Model())
       var body: some View {
         WithPerceptionTracking {
           Text("Parent")
             .sheet(item: $model.child) { child in
-              Text(child.count.description)
+              Text(expectRuntimeWarning { child.count }.description)
             }
         }
       }
@@ -356,13 +339,12 @@ final class RuntimeWarningTests: XCTestCase {
   }
 
   func testParentAccessingChildState_ParentNotObserving_ChildObserving() {
-    self.expectFailure()
-
     struct ChildView: View {
       let model: Model
       var body: some View {
         WithPerceptionTracking {
           Text(model.count.description)
+            .onAppear { let _ = model.count }
         }
       }
     }
@@ -374,8 +356,11 @@ final class RuntimeWarningTests: XCTestCase {
         self.model = Model(list: [self.childModel])
       }
       var body: some View {
-        ChildView(model: self.childModel)
-        Text(childModel.count.description)
+        VStack {
+          ChildView(model: self.childModel)
+          Text(expectRuntimeWarning { childModel.count }.description)
+        }
+        .onAppear { let _ = childModel.count }
       }
     }
 
@@ -383,12 +368,10 @@ final class RuntimeWarningTests: XCTestCase {
   }
 
   func testParentAccessingChildState_ParentObserving_ChildNotObserving() {
-    self.expectFailure()
-
     struct ChildView: View {
       let model: Model
       var body: some View {
-        Text(model.count.description)
+        Text(expectRuntimeWarning { model.count }.description)
       }
     }
     struct FeatureView: View {
@@ -410,12 +393,10 @@ final class RuntimeWarningTests: XCTestCase {
   }
 
   func testParentAccessingChildState_ParentNotObserving_ChildNotObserving() {
-    self.expectFailure()
-
     struct ChildView: View {
       let model: Model
       var body: some View {
-        Text(model.count.description)
+        Text(expectRuntimeWarning { model.count }.description)
       }
     }
     struct FeatureView: View {
@@ -427,7 +408,7 @@ final class RuntimeWarningTests: XCTestCase {
       }
       var body: some View {
         ChildView(model: self.childModel)
-        Text(childModel.count.description)
+        Text(expectRuntimeWarning { childModel.count }.description)
       }
     }
 
@@ -461,18 +442,18 @@ final class RuntimeWarningTests: XCTestCase {
     self.render(FeatureView())
   }
 
-  private func expectFailure() {
-    XCTExpectFailure {
-      $0.compactDescription == """
-        Perceptible state was accessed but is not being tracked. Track changes to state by \
-        wrapping your view in a 'WithPerceptionTracking' view.
-        """
-    }
-  }
-
   private func render(_ view: some View) {
     let image = ImageRenderer(content: view).cgImage
     _ = image
+  }
+}
+
+private func expectRuntimeWarning<R>(failingBlock: () -> R) -> R {
+  XCTExpectFailure(failingBlock: failingBlock) {
+    $0.compactDescription == """
+        Perceptible state was accessed but is not being tracked. Track changes to state by \
+        wrapping your view in a 'WithPerceptionTracking' view.
+        """
   }
 }
 

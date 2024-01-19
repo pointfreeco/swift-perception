@@ -14,8 +14,10 @@ import Foundation
 @available(watchOS, deprecated: 10, renamed: "ObservationRegistrar")
 public struct PerceptionRegistrar: Sendable {
   private let _rawValue: AnySendable
-  private let isPerceptionCheckingEnabled: Bool
-  fileprivate let perceptionChecks = LockIsolated<[FileLine: Bool]>([:])
+  #if DEBUG
+    private let isPerceptionCheckingEnabled: Bool
+    fileprivate let perceptionChecks = LockIsolated<[Location: Bool]>([:])
+  #endif
 
   /// Creates an instance of the observation registrar.
   ///
@@ -33,7 +35,9 @@ public struct PerceptionRegistrar: Sendable {
     } else {
       self._rawValue = AnySendable(_PerceptionRegistrar())
     }
-    self.isPerceptionCheckingEnabled = isPerceptionCheckingEnabled
+    #if DEBUG
+      self.isPerceptionCheckingEnabled = isPerceptionCheckingEnabled
+    #endif
   }
 
   #if canImport(Observation)
@@ -85,8 +89,9 @@ extension PerceptionRegistrar {
     file: StaticString = #file,
     line: UInt = #line
   ) {
-    self.perceptionCheck(file: file, line: line)
-
+    #if DEBUG
+      self.perceptionCheck(file: file, line: line)
+    #endif
     #if canImport(Observation)
       if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
         func `open`<T: Observable>(_ subject: T) {
@@ -218,7 +223,7 @@ extension PerceptionRegistrar: Hashable {
 
     fileprivate func isInSwiftUIBody(file: StaticString, line: UInt) -> Bool {
       self.perceptionChecks.withValue { perceptionChecks in
-        if let result = perceptionChecks[FileLine(file: file, line: line)] {
+        if let result = perceptionChecks[Location(file: file, line: line)] {
           return result
         }
         for callStackSymbol in Thread.callStackSymbols {
@@ -235,7 +240,7 @@ extension PerceptionRegistrar: Hashable {
           }
           return true
         }
-        perceptionChecks[FileLine(file: file, line: line)] = false
+        perceptionChecks[Location(file: file, line: line)] = false
         return false
       }
     }
@@ -277,12 +282,6 @@ extension PerceptionRegistrar: Hashable {
     outputBufferSize: UnsafeMutablePointer<UInt>?,
     flags: UInt32
   ) -> UnsafeMutablePointer<CChar>?
-#else
-  extension PerceptionRegistrar {
-    @_transparent
-    @inline(__always)
-    private func perceptionCheck(file: StaticString, line: UInt) {}
-  }
 #endif
 
 #if DEBUG
@@ -311,58 +310,52 @@ extension PerceptionRegistrar: Hashable {
   }
 #endif
 
-extension Substring.UTF8View {
-  fileprivate var isMangledViewBodyGetter: Bool {
-    self._contains("V4bodyQrvg".utf8)
-  }
-  fileprivate func _contains(_ other: String.UTF8View) -> Bool {
-    guard let first = other.first
-    else { return false }
-    let otherCount = other.count
-    var input = self
-    while let index = input.firstIndex(where: { first == $0 }) {
-      input = input[index...]
-      if input.count >= otherCount,
-        zip(input, other).allSatisfy(==)
-      {
-        return true
+#if DEBUG
+  extension Substring.UTF8View {
+    fileprivate var isMangledViewBodyGetter: Bool {
+      self._contains("V4bodyQrvg".utf8)
+    }
+    fileprivate func _contains(_ other: String.UTF8View) -> Bool {
+      guard let first = other.first
+      else { return false }
+      let otherCount = other.count
+      var input = self
+      while let index = input.firstIndex(where: { first == $0 }) {
+        input = input[index...]
+        if input.count >= otherCount,
+          zip(input, other).allSatisfy(==)
+        {
+          return true
+        }
+        input.removeFirst()
       }
-      input.removeFirst()
-    }
-    return false
-  }
-}
-
-private final class LockIsolated<Value>: @unchecked Sendable {
-  private var _value: Value
-  private let lock = NSRecursiveLock()
-  init(_ value: @autoclosure @Sendable () throws -> Value) rethrows {
-    self._value = try value()
-  }
-  func withValue<T: Sendable>(
-    _ operation: @Sendable (inout Value) throws -> T
-  ) rethrows -> T {
-    try self.lock.sync {
-      var value = self._value
-      defer { self._value = value }
-      return try operation(&value)
+      return false
     }
   }
-}
-extension NSRecursiveLock {
-  @inlinable @discardableResult
-  @_spi(Internals) public func sync<R>(work: () throws -> R) rethrows -> R {
-    self.lock()
-    defer { self.unlock() }
-    return try work()
-  }
-}
 
-private struct FileLine: Hashable {
-  let file: String
-  let line: UInt
-  init(file: StaticString, line: UInt) {
-    self.file = file.description
-    self.line = line
+  private final class LockIsolated<Value>: @unchecked Sendable {
+    private var _value: Value
+    private let lock = NSRecursiveLock()
+    init(_ value: @autoclosure @Sendable () throws -> Value) rethrows {
+      self._value = try value()
+    }
+    func withValue<T: Sendable>(
+      _ operation: @Sendable (inout Value) throws -> T
+    ) rethrows -> T {
+      try self.lock.withLock {
+        var value = self._value
+        defer { self._value = value }
+        return try operation(&value)
+      }
+    }
   }
-}
+
+  private struct Location: Hashable {
+    let file: String
+    let line: UInt
+    init(file: StaticString, line: UInt) {
+      self.file = file.description
+      self.line = line
+    }
+  }
+#endif

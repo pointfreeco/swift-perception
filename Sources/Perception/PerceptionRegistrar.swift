@@ -81,8 +81,8 @@ extension PerceptionRegistrar {
   public func access<Subject: Perceptible, Member>(
     _ subject: Subject,
     keyPath: KeyPath<Subject, Member>,
-    file: StaticString,
-    line: UInt
+    file: StaticString = #file,
+    line: UInt = #line
   ) {
     if self.isPerceptionCheckingEnabled {
       perceptionCheck(file: file, line: line)
@@ -200,7 +200,7 @@ extension PerceptionRegistrar: Hashable {
 }
 
 #if DEBUG
-  private func perceptionCheck(file: StaticString/* = #file*/, line: UInt/* = #line*/) {
+  private func perceptionCheck(file: StaticString, line: UInt) {
     if
       isPerceptionCheckingEnabled,
       !_PerceptionLocals.isInPerceptionTracking,
@@ -216,6 +216,7 @@ extension PerceptionRegistrar: Hashable {
     }
   }
 
+// TODO: lock
 private var resultsByFileLine: [FileLine: Bool] = [:]
 struct FileLine: Hashable {
   let file: String

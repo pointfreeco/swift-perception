@@ -372,6 +372,7 @@ final class RuntimeWarningTests: XCTestCase {
       let model: Model
       var body: some View {
         Text(expectRuntimeWarning { model.count }.description)
+          .onAppear { let _ = model.count }
       }
     }
     struct FeatureView: View {
@@ -386,6 +387,7 @@ final class RuntimeWarningTests: XCTestCase {
           ChildView(model: self.childModel)
           Text(childModel.count.description)
         }
+        .onAppear { let _ = childModel.count }
       }
     }
 
@@ -397,6 +399,7 @@ final class RuntimeWarningTests: XCTestCase {
       let model: Model
       var body: some View {
         Text(expectRuntimeWarning { model.count }.description)
+          .onAppear { let _ = model.count }
       }
     }
     struct FeatureView: View {
@@ -407,8 +410,11 @@ final class RuntimeWarningTests: XCTestCase {
         self.model = Model(list: [self.childModel])
       }
       var body: some View {
-        ChildView(model: self.childModel)
-        Text(expectRuntimeWarning { childModel.count }.description)
+        VStack {
+          ChildView(model: self.childModel)
+          Text(expectRuntimeWarning { childModel.count }.description)
+        }
+        .onAppear { let _ = childModel.count }
       }
     }
 
@@ -421,6 +427,7 @@ final class RuntimeWarningTests: XCTestCase {
       var body: some View {
         WithPerceptionTracking {
           Text(model.count.description)
+            .onAppear { let _ = model.count }
         }
       }
     }
@@ -436,6 +443,7 @@ final class RuntimeWarningTests: XCTestCase {
           ChildView(model: self.childModel)
           Text(childModel.count.description)
         }
+        .onAppear { let _ = childModel.count }
       }
     }
 

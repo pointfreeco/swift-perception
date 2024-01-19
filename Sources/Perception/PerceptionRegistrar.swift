@@ -80,10 +80,12 @@ extension PerceptionRegistrar {
   @_disfavoredOverload
   public func access<Subject: Perceptible, Member>(
     _ subject: Subject,
-    keyPath: KeyPath<Subject, Member>
+    keyPath: KeyPath<Subject, Member>,
+    file: StaticString,
+    line: UInt
   ) {
     if self.isPerceptionCheckingEnabled {
-      perceptionCheck()
+      perceptionCheck(file: file, line: line)
     }
 
     #if canImport(Observation)
@@ -198,12 +200,12 @@ extension PerceptionRegistrar: Hashable {
 }
 
 #if DEBUG
-  private func perceptionCheck() {
+  private func perceptionCheck(file: StaticString/* = #file*/, line: UInt/* = #line*/) {
     if
       isPerceptionCheckingEnabled,
       !_PerceptionLocals.isInPerceptionTracking,
       !_PerceptionLocals.skipPerceptionChecking,
-      isInSwiftUIBody()
+      isInSwiftUIBody(file, line)
     {
       runtimeWarn(
         """
@@ -214,11 +216,25 @@ extension PerceptionRegistrar: Hashable {
     }
   }
 
-  private let isInSwiftUIBody: () -> Bool = memoize {
+private var resultsByFileLine: [FileLine: Bool] = [:]
+struct FileLine: Hashable {
+  let file: String
+  let line: UInt
+  init(file: StaticString, line: UInt) {
+    self.file = file.description
+    self.line = line
+  }
+}
+
+  private let isInSwiftUIBody: (StaticString, UInt) -> Bool = { file, line in
+    if let result = resultsByFileLine[FileLine(file: file, line: line)] {
+      return result
+    }
     for callStackSymbol in Thread.callStackSymbols {
       let mangledSymbol = callStackSymbol.utf8
         .drop(while: { $0 != .init(ascii: "$") })
         .prefix(while: { $0 != .init(ascii: " ") })
+
       guard
         mangledSymbol.isMangledViewBodyGetter,
         let demangled = String(Substring(mangledSymbol)).demangled,
@@ -228,6 +244,7 @@ extension PerceptionRegistrar: Hashable {
       }
       return true
     }
+    resultsByFileLine[FileLine(file: file, line: line)] = false
     return false
   }
 

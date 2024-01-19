@@ -6,6 +6,7 @@ class CounterModel {
   var count = 0
   var isDisplayingCount = true
   var isPresentingSheet = false
+  var text = ""
   func decrementButtonTapped() {
     count -= 1
   }
@@ -24,6 +25,7 @@ struct ContentView: View {
     WithPerceptionTracking {
       let _ = print("\(Self.self): tracked change.")
       Form {
+        TextField("Text", text: $model.text)
         if model.isDisplayingCount {
           Text(model.count.description)
         } else {

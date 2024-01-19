@@ -278,9 +278,11 @@ extension PerceptionRegistrar: Hashable {
     flags: UInt32
   ) -> UnsafeMutablePointer<CChar>?
 #else
-  @_transparent
-  @inline(__always)
-  private func perceptionCheck() {}
+  extension PerceptionRegistrar {
+    @_transparent
+    @inline(__always)
+    private func perceptionCheck(file: StaticString, line: UInt) {}
+  }
 #endif
 
 #if DEBUG
@@ -331,7 +333,7 @@ extension Substring.UTF8View {
   }
 }
 
-fileprivate final class LockIsolated<Value>: @unchecked Sendable {
+private final class LockIsolated<Value>: @unchecked Sendable {
   private var _value: Value
   private let lock = NSRecursiveLock()
   init(_ value: @autoclosure @Sendable () throws -> Value) rethrows {

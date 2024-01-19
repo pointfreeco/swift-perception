@@ -186,7 +186,6 @@ final class RuntimeWarningTests: XCTestCase {
       }
     }
 
-    // TODO
     self.render(FeatureView())
   }
 

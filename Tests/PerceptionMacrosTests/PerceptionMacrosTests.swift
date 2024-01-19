@@ -47,9 +47,11 @@
           private let _$perceptionRegistrar = Perception.PerceptionRegistrar()
 
           internal nonisolated func access<Member>(
-              keyPath: KeyPath<Feature , Member>
+              keyPath: KeyPath<Feature , Member>,
+              file: StaticString = #file,
+              line: UInt = #line
           ) {
-            _$perceptionRegistrar.access(self, keyPath: keyPath)
+            _$perceptionRegistrar.access(self, keyPath: keyPath, file: file, line: line)
           }
 
           internal nonisolated func withMutation<Member, MutationResult>(

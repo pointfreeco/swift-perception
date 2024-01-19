@@ -329,6 +329,86 @@ final class RuntimeWarningTests: XCTestCase {
     self.render(FeatureView())
   }
 
+  func testRegistrarDisablePerceptionTracking() {
+    struct FeatureView: View {
+      let model = Model()
+      let registrar = PerceptionRegistrar(isPerceptionCheckingEnabled: false)
+      var body: some View {
+        let _ = registrar.access(model, keyPath: \.count)
+        Text("Hi")
+      }
+    }
+    self.render(FeatureView())
+  }
+
+  func testGlobalDisablePerceptionTracking() {
+    let previous = Perception.isPerceptionCheckingEnabled
+    Perception.isPerceptionCheckingEnabled = false
+    defer { Perception.isPerceptionCheckingEnabled = previous }
+
+    struct FeatureView: View {
+      let model = Model()
+      var body: some View {
+        Text(model.count.description)
+      }
+    }
+    self.render(FeatureView())
+  }
+
+  func testParentAccessingChildState_ParentNotObserving_ChildObserving() {
+    self.expectFailure()
+
+    struct ChildView: View {
+      let model: Model
+      var body: some View {
+        WithPerceptionTracking {
+          Text(model.count.description)
+        }
+      }
+    }
+    struct FeatureView: View {
+      let model: Model
+      let childModel: Model
+      init() {
+        self.childModel = Model()
+        self.model = Model(list: [self.childModel])
+      }
+      var body: some View {
+        ChildView(model: self.childModel)
+        Text(childModel.count.description)
+      }
+    }
+
+    self.render(FeatureView())
+  }
+
+  func testParentAccessingChildState_ParentObserving_ChildNotObserving() {
+    self.expectFailure()
+
+    struct ChildView: View {
+      let model: Model
+      var body: some View {
+        Text(model.count.description)
+      }
+    }
+    struct FeatureView: View {
+      let model: Model
+      let childModel: Model
+      init() {
+        self.childModel = Model()
+        self.model = Model(list: [self.childModel])
+      }
+      var body: some View {
+        WithPerceptionTracking {
+          ChildView(model: self.childModel)
+          Text(childModel.count.description)
+        }
+      }
+    }
+
+    self.render(FeatureView())
+  }
+
   private func expectFailure() {
     XCTExpectFailure {
       $0.compactDescription == """

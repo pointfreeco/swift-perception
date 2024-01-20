@@ -465,6 +465,25 @@
       try await Task.sleep(for: .milliseconds(100))
     }
 
+    func testAccessInOnAppearWithAsyncTask_Implicit() async throws {
+      @MainActor
+      struct FeatureView: View {
+        let model = Model()
+        var body: some View {
+          Text("Hi")
+            .onAppear {
+              Task(operation: self.perform)
+            }
+        }
+        @Sendable
+        func perform() async {
+          _ = model.count
+        }
+      }
+      self.render(FeatureView())
+      try await Task.sleep(for: .milliseconds(100))
+    }
+
     func testAccessInTask() async throws {
       @MainActor
       struct FeatureView: View {

@@ -239,7 +239,6 @@ extension PerceptionRegistrar: Hashable {
           else {
             continue
           }
-          print(demangled)
           return true
         }
         perceptionChecks[Location(file: file, line: line)] = false
@@ -255,7 +254,16 @@ extension PerceptionRegistrar: Hashable {
         with: " suspend resume partial function for closure".utf8
       )
       || fragment.starts(
+        with: " suspend resume partial function for implicit closure".utf8
+      )
+      || fragment.starts(
         with: " await resume partial function for partial apply forwarder for closure".utf8
+      )
+      || fragment.starts(
+        with: " await resume partial function for partial apply forwarder for implicit closure".utf8
+      )
+      || fragment.starts(
+        with: " await resume partial function for implicit closure".utf8
       )
     }
     fileprivate var isActionClosure: Bool {

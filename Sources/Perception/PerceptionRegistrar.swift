@@ -14,6 +14,10 @@ import Foundation
 @available(watchOS, deprecated: 10, renamed: "ObservationRegistrar")
 public struct PerceptionRegistrar: Sendable {
   private let _rawValue: AnySendable
+  #if DEBUG
+    private let isPerceptionCheckingEnabled: Bool
+    fileprivate let perceptionChecks = LockIsolated<[Location: Bool]>([:])
+  #endif
 
   /// Creates an instance of the observation registrar.
   ///
@@ -21,7 +25,7 @@ public struct PerceptionRegistrar: Sendable {
   /// ``PerceptionRegistrar`` when using the
   /// ``Perception/Perceptible()`` macro to indicate observably
   /// of a type.
-  public init() {
+  public init(isPerceptionCheckingEnabled: Bool = Perception.isPerceptionCheckingEnabled) {
     if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
       #if canImport(Observation)
         self._rawValue = AnySendable(ObservationRegistrar())
@@ -31,6 +35,9 @@ public struct PerceptionRegistrar: Sendable {
     } else {
       self._rawValue = AnySendable(_PerceptionRegistrar())
     }
+    #if DEBUG
+      self.isPerceptionCheckingEnabled = isPerceptionCheckingEnabled
+    #endif
   }
 
   #if canImport(Observation)
@@ -78,10 +85,13 @@ extension PerceptionRegistrar {
   @_disfavoredOverload
   public func access<Subject: Perceptible, Member>(
     _ subject: Subject,
-    keyPath: KeyPath<Subject, Member>
+    keyPath: KeyPath<Subject, Member>,
+    file: StaticString = #file,
+    line: UInt = #line
   ) {
-    perceptionCheck()
-    
+    #if DEBUG
+      self.perceptionCheck(file: file, line: line)
+    #endif
     #if canImport(Observation)
       if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
         func `open`<T: Observable>(_ subject: T) {
@@ -194,37 +204,46 @@ extension PerceptionRegistrar: Hashable {
 }
 
 #if DEBUG
-  private func perceptionCheck() {
-    if
-      isPerceptionCheckingEnabled,
-      !_PerceptionLocals.isInPerceptionTracking,
-      !_PerceptionLocals.skipPerceptionChecking,
-      isInSwiftUIBody()
-    {
-      runtimeWarn(
-        """
-        Perceptible state was accessed but is not being tracked. Track changes to state by \
-        wrapping your view in a 'WithPerceptionTracking' view.
-        """
-      )
-    }
-  }
-
-  private let isInSwiftUIBody: () -> Bool = memoize {
-    for callStackSymbol in Thread.callStackSymbols {
-      let mangledSymbol = callStackSymbol.utf8
-        .drop(while: { $0 != .init(ascii: "$") })
-        .prefix(while: { $0 != .init(ascii: " ") })
-      guard
-        mangledSymbol.isMangledViewBodyGetter,
-        let demangled = String(Substring(mangledSymbol)).demangled,
-        !demangled.isActionClosure
-      else {
-        continue
+  extension PerceptionRegistrar {
+    fileprivate func perceptionCheck(file: StaticString, line: UInt) {
+      if self.isPerceptionCheckingEnabled,
+        Perception.isPerceptionCheckingEnabled,
+        !_PerceptionLocals.isInPerceptionTracking,
+        !_PerceptionLocals.skipPerceptionChecking,
+        self.isInSwiftUIBody(file: file, line: line)
+      {
+        runtimeWarn(
+          """
+          Perceptible state was accessed but is not being tracked. Track changes to state by \
+          wrapping your view in a 'WithPerceptionTracking' view.
+          """
+        )
       }
-      return true
     }
-    return false
+
+    fileprivate func isInSwiftUIBody(file: StaticString, line: UInt) -> Bool {
+      self.perceptionChecks.withValue { perceptionChecks in
+        if let result = perceptionChecks[Location(file: file, line: line)] {
+          return result
+        }
+        for callStackSymbol in Thread.callStackSymbols {
+          let mangledSymbol = callStackSymbol.utf8
+            .drop(while: { $0 != .init(ascii: "$") })
+            .prefix(while: { $0 != .init(ascii: " ") })
+
+          guard
+            mangledSymbol.isMangledViewBodyGetter,
+            let demangled = String(Substring(mangledSymbol)).demangled,
+            !demangled.isActionClosure
+          else {
+            continue
+          }
+          return true
+        }
+        perceptionChecks[Location(file: file, line: line)] = false
+        return false
+      }
+    }
   }
 
   extension String {
@@ -263,10 +282,6 @@ extension PerceptionRegistrar: Hashable {
     outputBufferSize: UnsafeMutablePointer<UInt>?,
     flags: UInt32
   ) -> UnsafeMutablePointer<CChar>?
-#else
-  @_transparent
-  @inline(__always)
-  private func perceptionCheck() {}
 #endif
 
 #if DEBUG
@@ -295,25 +310,52 @@ extension PerceptionRegistrar: Hashable {
   }
 #endif
 
-extension Substring.UTF8View {
-  fileprivate var isMangledViewBodyGetter: Bool {
-    self._contains("V4bodyQrvg".utf8)
-  }
-  fileprivate func _contains(_ other: String.UTF8View) -> Bool {
-    guard let first = other.first
-    else { return false }
-    let otherCount = other.count
-    var input = self
-    while let index = input.firstIndex(where: { first == $0 }) {
-      input = input[index...]
-      if
-        input.count >= otherCount,
-        zip(input, other).allSatisfy(==)
-      {
-        return true
-      }
-      input.removeFirst()
+#if DEBUG
+  extension Substring.UTF8View {
+    fileprivate var isMangledViewBodyGetter: Bool {
+      self._contains("V4bodyQrvg".utf8)
     }
-    return false
+    fileprivate func _contains(_ other: String.UTF8View) -> Bool {
+      guard let first = other.first
+      else { return false }
+      let otherCount = other.count
+      var input = self
+      while let index = input.firstIndex(where: { first == $0 }) {
+        input = input[index...]
+        if input.count >= otherCount,
+          zip(input, other).allSatisfy(==)
+        {
+          return true
+        }
+        input.removeFirst()
+      }
+      return false
+    }
   }
-}
+
+  private final class LockIsolated<Value>: @unchecked Sendable {
+    private var _value: Value
+    private let lock = NSRecursiveLock()
+    init(_ value: @autoclosure @Sendable () throws -> Value) rethrows {
+      self._value = try value()
+    }
+    func withValue<T: Sendable>(
+      _ operation: @Sendable (inout Value) throws -> T
+    ) rethrows -> T {
+      try self.lock.withLock {
+        var value = self._value
+        defer { self._value = value }
+        return try operation(&value)
+      }
+    }
+  }
+
+  private struct Location: Hashable {
+    let file: String
+    let line: UInt
+    init(file: StaticString, line: UInt) {
+      self.file = file.description
+      self.line = line
+    }
+  }
+#endif

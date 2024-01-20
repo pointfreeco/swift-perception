@@ -250,12 +250,12 @@ extension PerceptionRegistrar: Hashable {
 
   extension String {
     fileprivate var isSuspendingClosure: Bool {
-      let fragment = self.drop(while: { $0 != ")" }).dropFirst()
+      let fragment = self.utf8.drop(while: { $0 != .init(ascii: ")") }).dropFirst()
       return fragment.starts(
-        with: " suspend resume partial function for closure"
+        with: " suspend resume partial function for closure".utf8
       )
       || fragment.starts(
-        with: " await resume partial function for partial apply forwarder for closure"
+        with: " await resume partial function for partial apply forwarder for closure".utf8
       )
     }
     fileprivate var isActionClosure: Bool {

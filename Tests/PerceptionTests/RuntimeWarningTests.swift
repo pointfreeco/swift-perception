@@ -450,7 +450,7 @@
       self.render(FeatureView())
     }
 
-    func testAccessInTask() async throws {
+    func testAccessInOnAppearWithAsyncTask() async throws {
       @MainActor
       struct FeatureView: View {
         let model = Model()
@@ -458,6 +458,21 @@
           Text("Hi")
             .onAppear {
               Task { @MainActor in _ = model.count }
+            }
+        }
+      }
+      self.render(FeatureView())
+      try await Task.sleep(for: .milliseconds(100))
+    }
+
+    func testAccessInTask() async throws {
+      @MainActor
+      struct FeatureView: View {
+        let model = Model()
+        var body: some View {
+          Text("Hi")
+            .task { @MainActor in
+              _ = model.count
             }
         }
       }

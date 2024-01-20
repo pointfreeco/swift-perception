@@ -450,6 +450,21 @@
       self.render(FeatureView())
     }
 
+    func testAccessInTask() async throws {
+      @MainActor
+      struct FeatureView: View {
+        let model = Model()
+        var body: some View {
+          Text("Hi")
+            .onAppear {
+              Task { @MainActor in _ = model.count }
+            }
+        }
+      }
+      self.render(FeatureView())
+      try await Task.sleep(for: .milliseconds(100))
+    }
+
     private func render(_ view: some View) {
       let image = ImageRenderer(content: view).cgImage
       _ = image

@@ -234,10 +234,12 @@ extension PerceptionRegistrar: Hashable {
           guard
             mangledSymbol.isMangledViewBodyGetter,
             let demangled = String(Substring(mangledSymbol)).demangled,
+            !demangled.isSuspendingClosure,
             !demangled.isActionClosure
           else {
             continue
           }
+          print(demangled)
           return true
         }
         perceptionChecks[Location(file: file, line: line)] = false
@@ -247,6 +249,15 @@ extension PerceptionRegistrar: Hashable {
   }
 
   extension String {
+    fileprivate var isSuspendingClosure: Bool {
+      let fragment = self.drop(while: { $0 != ")" }).dropFirst()
+      return fragment.starts(
+        with: " suspend resume partial function for closure"
+      )
+      || fragment.starts(
+        with: " await resume partial function for partial apply forwarder for closure"
+      )
+    }
     fileprivate var isActionClosure: Bool {
       var view = self[...].utf8
       guard

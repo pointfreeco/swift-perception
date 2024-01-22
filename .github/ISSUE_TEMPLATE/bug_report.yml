@@ -21,7 +21,7 @@ body:
   attributes:
     label: Checklist
     options:
-    - label: I have determined that this bug is not reproducible using Swift's observation tools.
+    - label: I have determined that this bug is not reproducible using Swift's observation tools. If the bug is reproducible using the `@Observable` macro or another tool from the `Observation` framework, please [file it directly with Apple](https://github.com/apple/swift/issues/new/choose).
       required: false
     - label: If possible, I've reproduced the issue using the `main` branch of this package.
       required: false

@@ -234,6 +234,7 @@ extension PerceptionRegistrar: Hashable {
           guard
             mangledSymbol.isMangledViewBodyGetter,
             let demangled = String(Substring(mangledSymbol)).demangled,
+            !demangled.isSuspendingClosure,
             !demangled.isActionClosure
           else {
             continue
@@ -247,6 +248,24 @@ extension PerceptionRegistrar: Hashable {
   }
 
   extension String {
+    fileprivate var isSuspendingClosure: Bool {
+      let fragment = self.utf8.drop(while: { $0 != .init(ascii: ")") }).dropFirst()
+      return fragment.starts(
+        with: " suspend resume partial function for closure".utf8
+      )
+      || fragment.starts(
+        with: " suspend resume partial function for implicit closure".utf8
+      )
+      || fragment.starts(
+        with: " await resume partial function for partial apply forwarder for closure".utf8
+      )
+      || fragment.starts(
+        with: " await resume partial function for partial apply forwarder for implicit closure".utf8
+      )
+      || fragment.starts(
+        with: " await resume partial function for implicit closure".utf8
+      )
+    }
     fileprivate var isActionClosure: Bool {
       var view = self[...].utf8
       guard

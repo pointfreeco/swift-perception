@@ -16,7 +16,7 @@ final class PerceptionTrackingTests: XCTestCase {
     XCTAssertEqual(model.count2, 0)
     self.wait(for: [expectation], timeout: 0)
   }
-  
+
   func testMutateNonAccessedField() {
     let model = Model()
     withPerceptionTracking {

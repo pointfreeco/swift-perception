@@ -268,9 +268,9 @@ extension PerceptionRegistrar: Hashable {
     }
     fileprivate var isActionClosure: Bool {
       var view = self[...].utf8
-      guard
-        view.starts(with: "closure #".utf8) || view.starts(with: "implicit closure #".utf8)
-      else { return false }
+      view = view.drop(while: { $0 != .init(ascii: "#") })
+      view.removeFirst()
+      view = view.drop(while: { $0 >= .init(ascii: "0") && $0 <= .init(ascii: "9") })
       view = view.drop(while: { $0 != .init(ascii: "-") })
       return view.starts(with: "-> () in ".utf8)
     }

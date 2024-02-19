@@ -41,14 +41,24 @@ struct ContentView: View {
         }
       }
       .sheet(isPresented: $model.isPresentingSheet) {
-        WithPerceptionTracking {
-          Form {
-            Text(model.count.description)
-            Button("Decrement") { model.decrementButtonTapped() }
-            Button("Increment") { model.incrementButtonTapped() }
+        if #available(iOS 16.0, *) {
+          WithPerceptionTracking {
+            Form {
+              Text(model.count.description)
+              Button("Decrement") { model.decrementButtonTapped() }
+              Button("Increment") { model.incrementButtonTapped() }
+            }
+            .presentationDetents([.medium])
+          }
+        } else {
+          WithPerceptionTracking {
+            Form {
+              Text(model.count.description)
+              Button("Decrement") { model.decrementButtonTapped() }
+              Button("Increment") { model.incrementButtonTapped() }
+            }
           }
         }
-        .presentationDetents([.medium])
       }
     }
   }

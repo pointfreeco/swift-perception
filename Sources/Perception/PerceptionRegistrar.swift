@@ -273,6 +273,7 @@ extension PerceptionRegistrar: Hashable {
       else { return false }
       view = view.drop(while: { $0 != .init(ascii: "-") })
       return view.starts(with: "-> () in ".utf8)
+        || view.starts(with: "-> CoreGraphics.CGFloat in".utf8)
     }
     fileprivate var demangled: String? {
       return self.utf8CString.withUnsafeBufferPointer { mangledNameUTF8CStr in

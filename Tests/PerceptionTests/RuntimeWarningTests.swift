@@ -311,6 +311,27 @@
 
       self.render(FeatureView())
     }
+      
+    func testAlignmentGuideComputeValueClosure() {
+      struct FeatureView: View {
+        @State var model = Model()
+        var body: some View {
+          WithPerceptionTracking {
+            VStack {
+              Text("Hello")
+                .alignmentGuide(HorizontalAlignment.center) {
+                  let _ = self.model.count
+                  return $0[HorizontalAlignment.center]
+                }
+                          
+              Text("World")
+            }
+          }
+        }
+      }
+      
+      self.render(FeatureView())
+    }
 
     func testRegistrarDisablePerceptionTracking() {
       struct FeatureView: View {

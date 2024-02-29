@@ -499,6 +499,51 @@
       try await Task.sleep(for: .milliseconds(100))
     }
 
+    func testGeometryReader_WithoutPerceptionTracking() {
+      struct FeatureView: View {
+        let model = Model()
+        var body: some View {
+          WithPerceptionTracking {
+            GeometryReader { _ in
+              Text(expectRuntimeWarning { self.model.count }.description)
+            }
+          }
+        }
+      }
+      self.render(FeatureView())
+    }
+
+    func testGeometryReader_WithProperPerceptionTracking() {
+      struct FeatureView: View {
+        let model = Model()
+        var body: some View {
+          GeometryReader { _ in
+            WithPerceptionTracking {
+              Text(self.model.count.description)
+            }
+          }
+        }
+      }
+      self.render(FeatureView())
+    }
+
+    func testGeometryReader_ComputedProperty_ImproperPerceptionTracking() {
+      struct FeatureView: View {
+        let model = Model()
+        var body: some View {
+          WithPerceptionTracking {
+            content
+          }
+        }
+        var content: some View {
+          GeometryReader { _ in
+            Text(expectRuntimeWarning { self.model.count }.description)
+          }
+        }
+      }
+      self.render(FeatureView())
+    }
+
     private func render(_ view: some View) {
       let image = ImageRenderer(content: view).cgImage
       _ = image

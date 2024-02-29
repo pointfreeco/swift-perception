@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 #if canImport(Observation)
   import Observation
@@ -230,10 +231,15 @@ extension PerceptionRegistrar: Hashable {
           let mangledSymbol = callStackSymbol.utf8
             .drop(while: { $0 != .init(ascii: "$") })
             .prefix(while: { $0 != .init(ascii: " ") })
-
+          guard let demangled = String(Substring(mangledSymbol)).demangled
+          else {
+            continue
+          }
+          if demangled.isGeometryTrailingClosure {
+            return true
+          }
           guard
             mangledSymbol.isMangledViewBodyGetter,
-            let demangled = String(Substring(mangledSymbol)).demangled,
             !demangled.isSuspendingClosure,
             !demangled.isActionClosure
           else {
@@ -247,7 +253,12 @@ extension PerceptionRegistrar: Hashable {
     }
   }
 
+
   extension String {
+    var isGeometryTrailingClosure: Bool {
+      self.contains("(SwiftUI.GeometryProxy) -> ")
+    }
+
     fileprivate var isSuspendingClosure: Bool {
       let fragment = self.utf8.drop(while: { $0 != .init(ascii: ")") }).dropFirst()
       return fragment.starts(

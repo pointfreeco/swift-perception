@@ -41,7 +41,7 @@ extension VariableDeclSyntax {
 
   func accessorsMatching(_ predicate: (TokenKind) -> Bool) -> [AccessorDeclSyntax] {
     let patternBindings = bindings.compactMap { binding in
-      binding.as(PatternBindingSyntax.self)
+      binding
     }
     let accessors: [AccessorDeclListSyntax.Element] = patternBindings.compactMap { patternBinding in
       switch patternBinding.accessorBlock?.accessors {
@@ -52,14 +52,7 @@ extension VariableDeclSyntax {
       }
     }.flatMap { $0 }
     return accessors.compactMap { accessor in
-      guard let decl = accessor.as(AccessorDeclSyntax.self) else {
-        return nil
-      }
-      if predicate(decl.accessorSpecifier.tokenKind) {
-        return decl
-      } else {
-        return nil
-      }
+      predicate(accessor.accessorSpecifier.tokenKind) ? accessor : nil
     }
   }
 
@@ -215,7 +208,7 @@ extension DeclGroupSyntax {
   var memberFunctionStandins: [FunctionDeclSyntax.SignatureStandin] {
     var standins = [FunctionDeclSyntax.SignatureStandin]()
     for member in memberBlock.members {
-      if let function = member.as(MemberBlockItemSyntax.self)?.decl.as(FunctionDeclSyntax.self) {
+      if let function = member.decl.as(FunctionDeclSyntax.self) {
         standins.append(function.signatureStandin)
       }
     }
@@ -224,7 +217,7 @@ extension DeclGroupSyntax {
 
   func hasMemberFunction(equivalentTo other: FunctionDeclSyntax) -> Bool {
     for member in memberBlock.members {
-      if let function = member.as(MemberBlockItemSyntax.self)?.decl.as(FunctionDeclSyntax.self) {
+      if let function = member.decl.as(FunctionDeclSyntax.self) {
         if function.isEquivalent(to: other) {
           return true
         }
@@ -235,7 +228,7 @@ extension DeclGroupSyntax {
 
   func hasMemberProperty(equivalentTo other: VariableDeclSyntax) -> Bool {
     for member in memberBlock.members {
-      if let variable = member.as(MemberBlockItemSyntax.self)?.decl.as(VariableDeclSyntax.self) {
+      if let variable = member.decl.as(VariableDeclSyntax.self) {
         if variable.isEquivalent(to: other) {
           return true
         }
@@ -246,7 +239,7 @@ extension DeclGroupSyntax {
 
   var definedVariables: [VariableDeclSyntax] {
     memberBlock.members.compactMap { member in
-      if let variableDecl = member.as(MemberBlockItemSyntax.self)?.decl.as(VariableDeclSyntax.self)
+      if let variableDecl = member.decl.as(VariableDeclSyntax.self)
       {
         return variableDecl
       }

@@ -48,11 +48,11 @@ public struct PerceptibleMacro {
     return
       """
       internal nonisolated func access<Member>(
-          keyPath: KeyPath<\(perceptibleType), Member>,
-          file: StaticString = #file,
-          line: UInt = #line
+      keyPath: KeyPath<\(perceptibleType), Member>,
+      file: StaticString = #file,
+      line: UInt = #line
       ) {
-        \(raw: registrarVariableName).access(self, keyPath: keyPath, file: file, line: line)
+      \(raw: registrarVariableName).access(self, keyPath: keyPath, file: file, line: line)
       }
       """
   }
@@ -61,10 +61,10 @@ public struct PerceptibleMacro {
     return
       """
       internal nonisolated func withMutation<Member, MutationResult>(
-        keyPath: KeyPath<\(perceptibleType), Member>,
-        _ mutation: () throws -> MutationResult
+      keyPath: KeyPath<\(perceptibleType), Member>,
+      _ mutation: () throws -> MutationResult
       ) rethrows -> MutationResult {
-        try \(raw: registrarVariableName).withMutation(of: self, keyPath: keyPath, mutation)
+      try \(raw: registrarVariableName).withMutation(of: self, keyPath: keyPath, mutation)
       }
       """
   }
@@ -218,7 +218,7 @@ extension PerceptibleMacro: MemberMacro {
       return []
     }
 
-    let perceptibleType = identified.name
+    let perceptibleType = identified.name.trimmed
 
     if declaration.isEnum {
       // enumerations cannot store properties
@@ -333,7 +333,7 @@ public struct PerceptionTrackedMacro: AccessorMacro {
   ) throws -> [AccessorDeclSyntax] {
     guard let property = declaration.as(VariableDeclSyntax.self),
       property.isValidForPerception,
-      let identifier = property.identifier
+      let identifier = property.identifier?.trimmed
     else {
       return []
     }
@@ -346,24 +346,24 @@ public struct PerceptionTrackedMacro: AccessorMacro {
       """
       @storageRestrictions(initializes: _\(identifier))
       init(initialValue) {
-        _\(identifier) = initialValue
+      _\(identifier) = initialValue
       }
       """
 
     let getAccessor: AccessorDeclSyntax =
       """
       get {
-        access(keyPath: \\.\(identifier))
-        return _\(identifier)
+      access(keyPath: \\.\(identifier))
+      return _\(identifier)
       }
       """
 
     let setAccessor: AccessorDeclSyntax =
       """
       set {
-        withMutation(keyPath: \\.\(identifier)) {
-          _\(identifier) = newValue
-        }
+      withMutation(keyPath: \\.\(identifier)) {
+      _\(identifier) = newValue
+      }
       }
       """
 

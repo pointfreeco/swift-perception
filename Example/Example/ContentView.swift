@@ -8,10 +8,14 @@ class CounterModel {
   var isPresentingSheet = false
   var text = ""
   func decrementButtonTapped() {
-    count -= 1
+    withAnimation {
+      count -= 1
+    }
   }
   func incrementButtonTapped() {
-    count += 1
+    withAnimation {
+      count += 1
+    }
   }
   func presentSheetButtonTapped() {
     isPresentingSheet = true
@@ -28,8 +32,10 @@ struct ContentView: View {
         TextField("Text", text: $model.text)
         if model.isDisplayingCount {
           Text(model.count.description)
+            .font(.largeTitle)
         } else {
           Text("Not tracking count")
+            .font(.largeTitle)
         }
         Button("Decrement") { model.decrementButtonTapped() }
         Button("Increment") { model.incrementButtonTapped() }
@@ -45,6 +51,7 @@ struct ContentView: View {
           WithPerceptionTracking {
             Form {
               Text(model.count.description)
+                .font(.largeTitle)
               Button("Decrement") { model.decrementButtonTapped() }
               Button("Increment") { model.incrementButtonTapped() }
             }

@@ -544,6 +544,21 @@
       self.render(FeatureView())
     }
 
+    func testOnChange() {
+      struct FeatureView: View {
+        let model = Model()
+        @State var count = 0
+        var body: some View {
+          Text("Hi")
+            .onChange(of: count) { _ in
+              _ = model.count
+            }
+            .onAppear { count += 1 }
+        }
+      }
+      self.render(FeatureView())
+    }
+
     private func render(_ view: some View) {
       let image = ImageRenderer(content: view).cgImage
       _ = image

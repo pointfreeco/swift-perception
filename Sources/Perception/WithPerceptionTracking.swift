@@ -54,7 +54,7 @@ public struct WithPerceptionTracking<Content> {
       let _ = self.id
       return withPerceptionTracking {
         self.instrumentedBody()
-      } onChange: { [_id = UncheckedSendable(value: _id)] in
+      } onChange: { [_id = UncheckedSendable(self._id)] in
         _id.value.wrappedValue += 1
       }
     }
@@ -167,7 +167,7 @@ public enum _PerceptionLocals {
 
 private struct UncheckedSendable<A>: @unchecked Sendable {
   let value: A
-  init(value: A) {
+  init(_ value: A) {
     self.value = value
   }
 }

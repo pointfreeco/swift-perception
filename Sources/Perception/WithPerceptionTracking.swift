@@ -42,7 +42,6 @@ import SwiftUI
 @available(macOS, deprecated: 14, message: "Remove WithPerceptionTracking")
 @available(tvOS, deprecated: 17, message: "Remove WithPerceptionTracking")
 @available(watchOS, deprecated: 10, message: "Remove WithPerceptionTracking")
-@MainActor
 public struct WithPerceptionTracking<Content> {
   @State var id = 0
   let content: () -> Content
@@ -55,10 +54,8 @@ public struct WithPerceptionTracking<Content> {
       let _ = self.id
       return withPerceptionTracking {
         self.instrumentedBody()
-      } onChange: {
-        Task { @MainActor in
-          self.id += 1
-        }
+      } onChange: { [_id = UncheckedSendable(self._id)] in
+        _id.value.wrappedValue += 1
       }
     }
   }
@@ -166,4 +163,11 @@ extension WithPerceptionTracking: View where Content: View {
 public enum _PerceptionLocals {
   @TaskLocal public static var isInPerceptionTracking = false
   @TaskLocal public static var skipPerceptionChecking = false
+}
+
+private struct UncheckedSendable<A>: @unchecked Sendable {
+  let value: A
+  init(_ value: A) {
+    self.value = value
+  }
 }

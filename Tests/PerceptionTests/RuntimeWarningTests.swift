@@ -5,14 +5,15 @@
   import XCTest
 
   @available(iOS 16, macOS 13, tvOS 16, watchOS 9, *)
-  @MainActor
   final class RuntimeWarningTests: XCTestCase {
+    @MainActor
     func testNotInPerceptionBody() {
       let model = Model()
       model.count += 1
       XCTAssertEqual(model.count, 1)
     }
 
+    @MainActor
     func testInPerceptionBody_NotInSwiftUIBody() {
       let model = Model()
       _PerceptionLocals.$isInPerceptionTracking.withValue(true) {
@@ -20,6 +21,7 @@
       }
     }
 
+    @MainActor
     func testNotInPerceptionBody_InSwiftUIBody() {
       struct FeatureView: View {
         let model = Model()
@@ -30,6 +32,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     func testNotInPerceptionBody_InSwiftUIBody_Wrapper() {
       struct FeatureView: View {
         let model = Model()
@@ -42,6 +45,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     func testInPerceptionBody_InSwiftUIBody_Wrapper() {
       struct FeatureView: View {
         let model = Model()
@@ -56,6 +60,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     func testInPerceptionBody_InSwiftUIBody() {
       struct FeatureView: View {
         let model = Model()
@@ -68,6 +73,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     func testNotInPerceptionBody_SwiftUIBinding() {
       struct FeatureView: View {
         @State var model = Model()
@@ -80,6 +86,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     func testInPerceptionBody_SwiftUIBinding() {
       struct FeatureView: View {
         @State var model = Model()
@@ -92,6 +99,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     func testNotInPerceptionBody_ForEach() {
       struct FeatureView: View {
         @State var model = Model(
@@ -111,6 +119,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     func testInnerInPerceptionBody_ForEach() {
       struct FeatureView: View {
         @State var model = Model(
@@ -132,6 +141,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     func testOuterInPerceptionBody_ForEach() {
       struct FeatureView: View {
         @State var model = Model(
@@ -153,6 +163,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     func testOuterAndInnerInPerceptionBody_ForEach() {
       struct FeatureView: View {
         @State var model = Model(
@@ -176,6 +187,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     func testNotInPerceptionBody_Sheet() {
       struct FeatureView: View {
         @State var model = Model(child: Model())
@@ -190,6 +202,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     func testInnerInPerceptionBody_Sheet() {
       struct FeatureView: View {
         @State var model = Model(child: Model())
@@ -206,6 +219,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     func testOuterInPerceptionBody_Sheet() {
       struct FeatureView: View {
         @State var model = Model(child: Model())
@@ -222,6 +236,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     func testOuterAndInnerInPerceptionBody_Sheet() {
       struct FeatureView: View {
         @State var model = Model(child: Model())
@@ -240,6 +255,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     func testActionClosure() {
       struct FeatureView: View {
         @State var model = Model()
@@ -252,6 +268,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     func testActionClosure_CallMethodWithArguments() {
       struct FeatureView: View {
         @State var model = Model()
@@ -268,6 +285,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     func testActionClosure_WithArguments() {
       struct FeatureView: View {
         @State var model = Model()
@@ -282,6 +300,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     func testActionClosure_WithArguments_ImplicitClosure() {
       struct FeatureView: View {
         @State var model = Model()
@@ -297,6 +316,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     func testImplicitActionClosure() {
       struct FeatureView: View {
         @State var model = Model()
@@ -312,6 +332,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     func testRegistrarDisablePerceptionTracking() {
       struct FeatureView: View {
         let model = Model()
@@ -324,6 +345,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     func testGlobalDisablePerceptionTracking() {
       let previous = Perception.isPerceptionCheckingEnabled
       Perception.isPerceptionCheckingEnabled = false
@@ -338,6 +360,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     func testParentAccessingChildState_ParentNotObserving_ChildObserving() {
       struct ChildView: View {
         let model: Model
@@ -367,6 +390,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     func testParentAccessingChildState_ParentObserving_ChildNotObserving() {
       struct ChildView: View {
         let model: Model
@@ -394,6 +418,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     func testParentAccessingChildState_ParentNotObserving_ChildNotObserving() {
       struct ChildView: View {
         let model: Model
@@ -421,6 +446,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     func testParentAccessingChildState_ParentObserving_ChildObserving() {
       struct ChildView: View {
         let model: Model
@@ -450,6 +476,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     func testAccessInOnAppearWithAsyncTask() async throws {
       @MainActor
       struct FeatureView: View {
@@ -465,6 +492,7 @@
       try await Task.sleep(for: .milliseconds(100))
     }
 
+    @MainActor
     func testAccessInOnAppearWithAsyncTask_Implicit() async throws {
       @MainActor
       struct FeatureView: View {
@@ -484,6 +512,7 @@
       try await Task.sleep(for: .milliseconds(100))
     }
 
+    @MainActor
     func testAccessInTask() async throws {
       @MainActor
       struct FeatureView: View {
@@ -499,6 +528,7 @@
       try await Task.sleep(for: .milliseconds(100))
     }
 
+    @MainActor
     func testGeometryReader_WithoutPerceptionTracking() {
       struct FeatureView: View {
         let model = Model()
@@ -513,6 +543,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     func testGeometryReader_WithProperPerceptionTracking() {
       struct FeatureView: View {
         let model = Model()
@@ -527,6 +558,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     func testGeometryReader_ComputedProperty_ImproperPerceptionTracking() {
       struct FeatureView: View {
         let model = Model()
@@ -544,6 +576,7 @@
       self.render(FeatureView())
     }
 
+    @MainActor
     private func render(_ view: some View) {
       let image = ImageRenderer(content: view).cgImage
       _ = image

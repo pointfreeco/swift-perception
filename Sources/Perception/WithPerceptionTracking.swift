@@ -164,10 +164,3 @@ public enum _PerceptionLocals {
   @TaskLocal public static var isInPerceptionTracking = false
   @TaskLocal public static var skipPerceptionChecking = false
 }
-
-private struct UncheckedSendable<A>: @unchecked Sendable {
-  let value: A
-  init(_ value: A) {
-    self.value = value
-  }
-}

@@ -13,8 +13,13 @@
   @dynamicMemberLookup
   @propertyWrapper
   public struct Bindable<Value> {
+    private let binding: UncheckedSendable<Binding<Value>>
+
     /// The wrapped object.
-    public var wrappedValue: Value
+    public var wrappedValue: Value {
+      get { self.binding.value.wrappedValue }
+      set { self.binding.value.wrappedValue = newValue }
+    }
 
     /// The bindable wrapper for the object that creates bindings to its properties using dynamic
     /// member lookup.
@@ -26,20 +31,23 @@
     public subscript<Subject>(
       dynamicMember keyPath: ReferenceWritableKeyPath<Value, Subject>
     ) -> Binding<Subject> where Value: AnyObject {
-      Binding(
-        get: { self.wrappedValue[keyPath: keyPath] },
-        set: { self.wrappedValue[keyPath: keyPath] = $0 }
-      )
+      self.binding.value[dynamicMember: keyPath]
     }
 
     /// Creates a bindable object from an observable object.
     public init(wrappedValue: Value) where Value: AnyObject & Perceptible {
-      self.wrappedValue = wrappedValue
+      var value = wrappedValue
+      self.binding = UncheckedSendable(
+        Binding(
+          get: { value },
+          set: { value = $0 }
+        )
+      )
     }
 
     /// Creates a bindable object from an observable object.
     public init(_ wrappedValue: Value) where Value: AnyObject & Perceptible {
-      self.wrappedValue = wrappedValue
+      self.init(wrappedValue: wrappedValue)
     }
 
     /// Creates a bindable from the value of another bindable.

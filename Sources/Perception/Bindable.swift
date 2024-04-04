@@ -14,7 +14,15 @@
   @propertyWrapper
   public struct Bindable<Value> {
     /// The wrapped object.
-    public var wrappedValue: Value
+    public var wrappedValue: Value {
+      get {
+        wrappedValueBinding.wrappedValue
+      }
+      set {
+        wrappedValueBinding.wrappedValue = newValue
+      }
+    }
+    public let wrappedValueBinding: Binding<Value>
 
     /// The bindable wrapper for the object that creates bindings to its properties using dynamic
     /// member lookup.
@@ -26,20 +34,27 @@
     public subscript<Subject>(
       dynamicMember keyPath: ReferenceWritableKeyPath<Value, Subject>
     ) -> Binding<Subject> where Value: AnyObject {
-      Binding(
-        get: { self.wrappedValue[keyPath: keyPath] },
-        set: { self.wrappedValue[keyPath: keyPath] = $0 }
-      )
+      self.wrappedValueBinding[dynamicMember: keyPath]
     }
 
     /// Creates a bindable object from an observable object.
     public init(wrappedValue: Value) where Value: AnyObject & Perceptible {
-      self.wrappedValue = wrappedValue
+     // self.wrappedValue = wrappedValue
+      var wrappedValue = wrappedValue
+      self.wrappedValueBinding = Binding(
+        get: { wrappedValue },
+        set: { wrappedValue = $0 }
+      )
     }
 
     /// Creates a bindable object from an observable object.
     public init(_ wrappedValue: Value) where Value: AnyObject & Perceptible {
-      self.wrappedValue = wrappedValue
+      // self.wrappedValue = wrappedValue
+      var wrappedValue = wrappedValue
+      self.wrappedValueBinding = Binding(
+        get: { wrappedValue },
+        set: { wrappedValue = $0 }
+      )
     }
 
     /// Creates a bindable from the value of another bindable.
@@ -54,12 +69,12 @@
   @available(watchOS, introduced: 6, obsoleted: 10)
   extension Bindable: Identifiable where Value: Identifiable {
     /// The stable identity of the entity associated with this instance.
-    public var id: Value.ID { self.wrappedValue.id }
+    public var id: Value.ID { self.wrappedValueBinding.wrappedValue.id }
   }
 
   @available(iOS, introduced: 13, obsoleted: 17)
   @available(macOS, introduced: 10.15, obsoleted: 14)
   @available(tvOS, introduced: 13, obsoleted: 17)
   @available(watchOS, introduced: 6, obsoleted: 10)
-  extension Bindable: Sendable where Value: Sendable {}
+  extension Bindable: @unchecked Sendable where Value: Sendable {}
 #endif

@@ -74,3 +74,36 @@ struct ContentView: View {
 #Preview {
   ContentView(model: CounterModel())
 }
+
+
+@Perceptible
+class DemoState {
+  var count = 0
+  var isOn = false
+}
+
+struct DemoView: View {
+  @Perception.Bindable var state = DemoState()
+
+  var body: some View {
+    WithPerceptionTracking {
+      VStack {
+        ToggleView(isOn: $state.isOn)
+
+        Button("Increment") {
+          state.count += 1
+        }
+
+        Text("Count: \(state.count)")
+      }
+    }
+  }
+
+  struct ToggleView: View {
+    @Binding var isOn: Bool
+    var body: some View {
+      let _ = Self._printChanges()
+      Toggle("isOn", isOn: $isOn)
+    }
+  }
+}

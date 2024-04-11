@@ -27,15 +27,27 @@ let package = Package(
         "PerceptionMacros",
         .product(name: "OrderedCollections", package: "swift-collections"),
         .product(name: "XCTestDynamicOverlay", package: "xctest-dynamic-overlay"),
+      ],
+      swiftSettings: [
+        .enableExperimentalFeature("StrictConcurrency")
       ]
     ),
-    .testTarget(name: "PerceptionTests", dependencies: ["Perception"]),
+    .testTarget(
+      name: "PerceptionTests",
+      dependencies: ["Perception"],
+      swiftSettings: [
+        .enableExperimentalFeature("StrictConcurrency")
+      ]
+    ),
 
     .macro(
       name: "PerceptionMacros",
       dependencies: [
         .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
         .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
+      ],
+      swiftSettings: [
+        .enableExperimentalFeature("StrictConcurrency")
       ]
     ),
     .testTarget(
@@ -43,19 +55,10 @@ let package = Package(
       dependencies: [
         "PerceptionMacros",
         .product(name: "MacroTesting", package: "swift-macro-testing"),
+      ],
+      swiftSettings: [
+        .enableExperimentalFeature("StrictConcurrency")
       ]
     ),
   ]
 )
-
-//for target in package.targets where target.type != .system {
-//  target.swiftSettings = target.swiftSettings ?? []
-//  target.swiftSettings?.append(
-//    .unsafeFlags([
-//      "-c", "release",
-//      "-emit-module-interface", "-enable-library-evolution",
-//      "-Xfrontend", "-warn-concurrency",
-//      "-Xfrontend", "-enable-actor-data-race-checks",
-//    ])
-//  )
-//}

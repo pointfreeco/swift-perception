@@ -31,12 +31,25 @@
     public subscript<Subject>(
       dynamicMember keyPath: ReferenceWritableKeyPath<Value, Subject>
     ) -> Binding<Subject> where Value: AnyObject {
-      self.binding.value[dynamicMember: keyPath]
+      self.observedObject?[dynamicMember: keyPath]
+        ?? self.binding.value[dynamicMember: keyPath]
     }
+
+    private var observedObject: (any _ObservedObjectWrapper<Value>)?
 
     /// Creates a bindable object from an observable object.
     public init(wrappedValue: Value) where Value: AnyObject & Perceptible {
       var value = wrappedValue
+      if let observableObject = value as? any ObservableObject {
+        func open<T: ObservableObject>(_ observableObject: T) -> (any _ObservedObjectWrapper<Value>)? {
+          if #available(iOS 16.0.0, *) {
+            ObservedObject(wrappedValue: observableObject).projectedValue as! any _ObservedObjectWrapper<Value>
+          } else {
+            nil
+          }
+        }
+        self.observedObject = open(observableObject)
+      }
       self.binding = UncheckedSendable(
         Binding(
           get: { value },
@@ -70,4 +83,14 @@
   @available(tvOS, introduced: 13, obsoleted: 17)
   @available(watchOS, introduced: 6, obsoleted: 10)
   extension Bindable: Sendable where Value: Sendable {}
+
+  protocol _ObservedObjectWrapper<Value> {
+    associatedtype Value
+    subscript<Member>(
+      dynamicMember keyPath: ReferenceWritableKeyPath<Value, Member>
+    ) -> Binding<Member> {
+      get
+    }
+  }
+  extension ObservedObject.Wrapper: _ObservedObjectWrapper {}
 #endif

@@ -27,19 +27,11 @@ let package = Package(
         "PerceptionMacros",
         .product(name: "OrderedCollections", package: "swift-collections"),
         .product(name: "XCTestDynamicOverlay", package: "xctest-dynamic-overlay"),
-      ],
-      swiftSettings: [
-        .enableExperimentalFeature("StrictConcurrency"),
-        .unsafeFlags(["-Xfrontend", "-warn-concurrency",])
       ]
     ),
     .testTarget(
       name: "PerceptionTests",
-      dependencies: ["Perception"],
-      swiftSettings: [
-        .enableExperimentalFeature("StrictConcurrency"),
-        .unsafeFlags(["-Xfrontend", "-warn-concurrency",])
-      ]
+      dependencies: ["Perception"]
     ),
 
     .macro(
@@ -47,10 +39,6 @@ let package = Package(
       dependencies: [
         .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
         .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
-      ],
-      swiftSettings: [
-        .enableExperimentalFeature("StrictConcurrency"),
-        .unsafeFlags(["-Xfrontend", "-warn-concurrency",])
       ]
     ),
     .testTarget(
@@ -58,11 +46,14 @@ let package = Package(
       dependencies: [
         "PerceptionMacros",
         .product(name: "MacroTesting", package: "swift-macro-testing"),
-      ],
-      swiftSettings: [
-        .enableExperimentalFeature("StrictConcurrency"),
-        .unsafeFlags(["-Xfrontend", "-warn-concurrency",])
       ]
     ),
   ]
 )
+
+for target in package.targets where target.type != .system {
+  target.swiftSettings = target.swiftSettings ?? []
+  target.swiftSettings?.append(
+    .enableExperimentalFeature("StrictConcurrency")
+  )
+}

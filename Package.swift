@@ -29,14 +29,16 @@ let package = Package(
         .product(name: "XCTestDynamicOverlay", package: "xctest-dynamic-overlay"),
       ],
       swiftSettings: [
-        .enableExperimentalFeature("StrictConcurrency")
+        .enableExperimentalFeature("StrictConcurrency"),
+        .unsafeFlags(["-Xfrontend", "-warn-concurrency",])
       ]
     ),
     .testTarget(
       name: "PerceptionTests",
       dependencies: ["Perception"],
       swiftSettings: [
-        .enableExperimentalFeature("StrictConcurrency")
+        .enableExperimentalFeature("StrictConcurrency"),
+        .unsafeFlags(["-Xfrontend", "-warn-concurrency",])
       ]
     ),
 
@@ -47,7 +49,8 @@ let package = Package(
         .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
       ],
       swiftSettings: [
-        .enableExperimentalFeature("StrictConcurrency")
+        .enableExperimentalFeature("StrictConcurrency"),
+        .unsafeFlags(["-Xfrontend", "-warn-concurrency",])
       ]
     ),
     .testTarget(
@@ -57,7 +60,8 @@ let package = Package(
         .product(name: "MacroTesting", package: "swift-macro-testing"),
       ],
       swiftSettings: [
-        .enableExperimentalFeature("StrictConcurrency")
+        .enableExperimentalFeature("StrictConcurrency"),
+        .unsafeFlags(["-Xfrontend", "-warn-concurrency",])
       ]
     ),
   ]

@@ -39,7 +39,7 @@ struct ContentView: View {
         }
         Button("Decrement") { model.decrementButtonTapped() }
         Button("Increment") { model.incrementButtonTapped() }
-        Toggle(isOn: $model.isDisplayingCount) {
+        Toggle(isOn: $model.isDisplayingCount.animation()) {
           Text("Display count?")
         }
         Button("Present sheet") {

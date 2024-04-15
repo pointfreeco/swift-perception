@@ -13,12 +13,12 @@
   @dynamicMemberLookup
   @propertyWrapper
   public struct Bindable<Value> {
-    private let binding: UncheckedSendable<Binding<Value>>
+    @ObservedObject fileprivate var observer: Observer<Value>
 
     /// The wrapped object.
     public var wrappedValue: Value {
-      get { self.binding.value.wrappedValue }
-      set { self.binding.value.wrappedValue = newValue }
+      get { self.observer.object }
+      set { self.observer.object = newValue }
     }
 
     /// The bindable wrapper for the object that creates bindings to its properties using dynamic
@@ -31,18 +31,16 @@
     public subscript<Subject>(
       dynamicMember keyPath: ReferenceWritableKeyPath<Value, Subject>
     ) -> Binding<Subject> where Value: AnyObject {
-      self.binding.value[dynamicMember: keyPath]
+      withPerceptionTracking {
+        self.$observer[dynamicMember: (\Observer.object).appending(path: keyPath)]
+      } onChange: { [send = UncheckedSendable(self.observer.objectWillChange.send)] in
+        send.value()
+      }
     }
 
     /// Creates a bindable object from an observable object.
     public init(wrappedValue: Value) where Value: AnyObject & Perceptible {
-      var value = wrappedValue
-      self.binding = UncheckedSendable(
-        Binding(
-          get: { value },
-          set: { value = $0 }
-        )
-      )
+      self.observer = Observer(wrappedValue)
     }
 
     /// Creates a bindable object from an observable object.
@@ -70,4 +68,11 @@
   @available(tvOS, introduced: 13, obsoleted: 17)
   @available(watchOS, introduced: 6, obsoleted: 10)
   extension Bindable: Sendable where Value: Sendable {}
+
+  private final class Observer<Object>: ObservableObject {
+    var object: Object
+    init(_ object: Object) {
+      self.object = object
+    }
+  }
 #endif

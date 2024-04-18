@@ -58,15 +58,6 @@
   @available(macOS, introduced: 10.15, obsoleted: 14)
   @available(tvOS, introduced: 13, obsoleted: 17)
   @available(watchOS, introduced: 6, obsoleted: 10)
-  extension Bindable: Identifiable where Value: Identifiable {
-    /// The stable identity of the entity associated with this instance.
-    public var id: Value.ID { self.wrappedValue.id }
-  }
-
-  @available(iOS, introduced: 13, obsoleted: 17)
-  @available(macOS, introduced: 10.15, obsoleted: 14)
-  @available(tvOS, introduced: 13, obsoleted: 17)
-  @available(watchOS, introduced: 6, obsoleted: 10)
   extension Bindable: Sendable where Value: Sendable {}
 
   private final class Observer<Object>: ObservableObject {

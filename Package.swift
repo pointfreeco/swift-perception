@@ -53,7 +53,7 @@ let package = Package(
 
 for target in package.targets where target.type != .system {
   target.swiftSettings = target.swiftSettings ?? []
-  target.swiftSettings?.append(
-    .enableExperimentalFeature("StrictConcurrency")
-  )
+  target.swiftSettings?.append(contentsOf: [
+    .enableExperimentalFeature("StrictConcurrency"),
+  ])
 }

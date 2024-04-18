@@ -164,16 +164,16 @@ private let tokensHandle = malloc(1)!
 
 @MainActor
 public func perceive(_ apply: @escaping () -> Void) -> PerceptionToken {
-  if PerceiveLocals.isApplying {
-    runtimeWarn(
-      """
-      A "perceive" was called from another "perceive" closure, which can lead to \
-      over-observation and unintended side effects.
-
-      Avoid nested closures by moving child observation into their own lifecycle methods.
-      """
-    )
-  }
+//  if PerceiveLocals.isApplying {
+//    runtimeWarn(
+//      """
+//      A "perceive" was called from another "perceive" closure, which can lead to \
+//      over-observation and unintended side effects.
+//
+//      Avoid nested closures by moving child observation into their own lifecycle methods.
+//      """
+//    )
+//  }
   let token = PerceptionToken()
   // NB: This is safe because `onChange` is only ever called on the main thread.
   let apply = UncheckedSendable(apply)
@@ -185,9 +185,9 @@ public func perceive(_ apply: @escaping () -> Void) -> PerceptionToken {
       Task { @MainActor in
         guard !token.isCancelled
         else { return }
-        PerceiveLocals.$isApplying.withValue(true) {
+//        PerceiveLocals.$isApplying.withValue(true) {
           onChange()
-        }
+//        }
       }
     }
   }

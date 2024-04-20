@@ -163,7 +163,7 @@ private let tokensHandle = malloc(1)!
 #endif
 
 @MainActor
-public func perceive(_ apply: @escaping () -> Void) -> PerceptionToken {
+public func perceive(_ apply: @escaping @MainActor @Sendable () -> Void) -> PerceptionToken {
 //  if PerceiveLocals.isApplying {
 //    runtimeWarn(
 //      """
@@ -175,13 +175,14 @@ public func perceive(_ apply: @escaping () -> Void) -> PerceptionToken {
 //    )
 //  }
   let token = PerceptionToken()
-  // NB: This is safe because `onChange` is only ever called on the main thread.
-  let apply = UncheckedSendable(apply)
-  @Sendable func onChange() {
+  @Sendable
+  func onChange() {
     guard !token.isCancelled
     else { return }
 
-    withPerceptionTracking(apply.value) {
+    withPerceptionTracking {
+      MainActor.assumeIsolated { apply() }
+    } onChange: {
       Task { @MainActor in
         guard !token.isCancelled
         else { return }

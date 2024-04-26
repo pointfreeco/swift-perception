@@ -12,7 +12,7 @@
 #if canImport(Observation)
   import Observation
 
-  @available(iOS, deprecated: 17, renamed: "Observable")
+  @available(iOS, deprecated: 17.0.1, renamed: "Observable")
   @available(macOS, deprecated: 14, renamed: "Observable")
   @available(tvOS, deprecated: 17, renamed: "Observable")
   @available(watchOS, deprecated: 10, renamed: "Observable")
@@ -23,7 +23,7 @@
   public macro Perceptible() =
     #externalMacro(module: "PerceptionMacros", type: "PerceptibleMacro")
 
-  @available(iOS, deprecated: 17, renamed: "ObservationTracked")
+  @available(iOS, deprecated: 17.0.1, renamed: "ObservationTracked")
   @available(macOS, deprecated: 14, renamed: "ObservationTracked")
   @available(tvOS, deprecated: 17, renamed: "ObservationTracked")
   @available(watchOS, deprecated: 10, renamed: "ObservationTracked")
@@ -32,7 +32,7 @@
   public macro PerceptionTracked() =
     #externalMacro(module: "PerceptionMacros", type: "PerceptionTrackedMacro")
 
-  @available(iOS, deprecated: 17, renamed: "ObservationIgnored")
+  @available(iOS, deprecated: 17.0.1, renamed: "ObservationIgnored")
   @available(macOS, deprecated: 14, renamed: "ObservationIgnored")
   @available(tvOS, deprecated: 17, renamed: "ObservationIgnored")
   @available(watchOS, deprecated: 10, renamed: "ObservationIgnored")

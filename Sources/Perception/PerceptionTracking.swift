@@ -209,7 +209,7 @@ private func generateAccessList<T>(_ apply: () -> T) -> (T, PerceptionTracking._
 ///
 /// - Returns: The value that the `apply` closure returns if it has a return
 /// value; otherwise, there is no return value.
-@available(iOS, deprecated: 17, renamed: "withObservationTracking")
+@available(iOS, deprecated: 17.0.1, renamed: "withObservationTracking")
 @available(macOS, deprecated: 14, renamed: "withObservationTracking")
 @available(tvOS, deprecated: 17, renamed: "withObservationTracking")
 @available(watchOS, deprecated: 10, renamed: "withObservationTracking")
@@ -218,7 +218,7 @@ public func withPerceptionTracking<T>(
   onChange: @autoclosure () -> @Sendable () -> Void
 ) -> T {
   #if canImport(Observation)
-    if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
+    if #available(iOS 17.0.1, macOS 14, tvOS 17, watchOS 10, *) {
       return withObservationTracking(apply, onChange: onChange())
     }
   #endif

@@ -16,7 +16,7 @@
 /// type doesn't add observation functionality to the type. Instead, always use
 /// the ``Perception/Perceptible()`` macro when adding observation
 /// support to a type.
-@available(iOS, deprecated: 17, renamed: "Observable")
+@available(iOS, deprecated: 17.0.1, renamed: "Observable")
 @available(macOS, deprecated: 14, renamed: "Observable")
 @available(tvOS, deprecated: 17, renamed: "Observable")
 @available(watchOS, deprecated: 10, renamed: "Observable")

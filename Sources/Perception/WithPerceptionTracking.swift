@@ -40,14 +40,14 @@ import SwiftUI
 /// inside ``WithPerceptionTracking``.
 @available(iOS, deprecated: 17.0.1, message: "Remove WithPerceptionTracking")
 @available(macOS, deprecated: 14, message: "Remove WithPerceptionTracking")
-@available(tvOS, deprecated: 17, message: "Remove WithPerceptionTracking")
-@available(watchOS, deprecated: 10, message: "Remove WithPerceptionTracking")
+@available(tvOS, deprecated: 17.0.1, message: "Remove WithPerceptionTracking")
+@available(watchOS, deprecated: 10.0.1, message: "Remove WithPerceptionTracking")
 public struct WithPerceptionTracking<Content> {
   @State var id = 0
   let content: () -> Content
 
   public var body: Content {
-    if #available(iOS 17.0.1, macOS 14, tvOS 17, watchOS 10, *) {
+    if #available(iOS 17.0.1, macOS 14, tvOS 17.0.1, watchOS 10.0.1, *) {
       return self.instrumentedBody()
     } else {
       // NB: View will not re-render when 'id' changes unless we access it in the view.
@@ -158,8 +158,8 @@ extension WithPerceptionTracking: View where Content: View {
 
 @available(iOS, deprecated: 17.0.1)
 @available(macOS, deprecated: 14)
-@available(tvOS, deprecated: 17)
-@available(watchOS, deprecated: 10)
+@available(tvOS, deprecated: 17.0.1)
+@available(watchOS, deprecated: 10.0.1)
 public enum _PerceptionLocals {
   @TaskLocal public static var isInPerceptionTracking = false
   @TaskLocal public static var skipPerceptionChecking = false

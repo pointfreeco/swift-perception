@@ -18,6 +18,6 @@
 /// support to a type.
 @available(iOS, deprecated: 17.0.1, renamed: "Observable")
 @available(macOS, deprecated: 14, renamed: "Observable")
-@available(tvOS, deprecated: 17, renamed: "Observable")
-@available(watchOS, deprecated: 10, renamed: "Observable")
+@available(tvOS, deprecated: 17.0.1, renamed: "Observable")
+@available(watchOS, deprecated: 10.0.1, renamed: "Observable")
 public protocol Perceptible {}

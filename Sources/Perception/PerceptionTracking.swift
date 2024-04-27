@@ -211,14 +211,14 @@ private func generateAccessList<T>(_ apply: () -> T) -> (T, PerceptionTracking._
 /// value; otherwise, there is no return value.
 @available(iOS, deprecated: 17.0.1, renamed: "withObservationTracking")
 @available(macOS, deprecated: 14, renamed: "withObservationTracking")
-@available(tvOS, deprecated: 17, renamed: "withObservationTracking")
-@available(watchOS, deprecated: 10, renamed: "withObservationTracking")
+@available(tvOS, deprecated: 17.0.1, renamed: "withObservationTracking")
+@available(watchOS, deprecated: 10.0.1, renamed: "withObservationTracking")
 public func withPerceptionTracking<T>(
   _ apply: () -> T,
   onChange: @autoclosure () -> @Sendable () -> Void
 ) -> T {
   #if canImport(Observation)
-    if #available(iOS 17.0.1, macOS 14, tvOS 17, watchOS 10, *) {
+    if #available(iOS 17.0.1, macOS 14, tvOS 17.0.1, watchOS 10.0.1, *) {
       return withObservationTracking(apply, onChange: onChange())
     }
   #endif

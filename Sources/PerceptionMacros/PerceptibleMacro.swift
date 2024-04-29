@@ -302,7 +302,7 @@ extension PerceptibleMacro: ExtensionMacro {
       extension \(raw: type.trimmedDescription): \(raw: qualifiedConformanceName) {}
       """
     let obsDecl: DeclSyntax = """
-      @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+      @available(iOS 17.0.1, macOS 14, tvOS 17.0.1, watchOS 10.0.1, *)
       extension \(raw: type.trimmedDescription): Observation.Observable {}
       """
     let ext = decl.cast(ExtensionDeclSyntax.self)

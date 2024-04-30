@@ -17,7 +17,7 @@ public struct PerceptionRegistrar: Sendable {
   private let _rawValue: AnySendable
   #if DEBUG
     private let isPerceptionCheckingEnabled: Bool
-    fileprivate let perceptionChecks = LockIsolated<[Location: Bool]>([:])
+    fileprivate let perceptionChecks = _ManagedCriticalState<[Location: Bool]>([:])
   #endif
 
   /// Creates an instance of the observation registrar.
@@ -223,7 +223,7 @@ extension PerceptionRegistrar: Hashable {
     }
 
     fileprivate func isInSwiftUIBody(file: StaticString, line: UInt) -> Bool {
-      self.perceptionChecks.withValue { perceptionChecks in
+      self.perceptionChecks.withCriticalRegion { perceptionChecks in
         if let result = perceptionChecks[Location(file: file, line: line)] {
           return result
         }
@@ -360,23 +360,6 @@ extension PerceptionRegistrar: Hashable {
         input.removeFirst()
       }
       return false
-    }
-  }
-
-  private final class LockIsolated<Value>: @unchecked Sendable {
-    private var _value: Value
-    private let lock = NSRecursiveLock()
-    init(_ value: @autoclosure @Sendable () throws -> Value) rethrows {
-      self._value = try value()
-    }
-    func withValue<T: Sendable>(
-      _ operation: @Sendable (inout Value) throws -> T
-    ) rethrows -> T {
-      try self.lock.withLock {
-        var value = self._value
-        defer { self._value = value }
-        return try operation(&value)
-      }
     }
   }
 

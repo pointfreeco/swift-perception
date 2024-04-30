@@ -6,8 +6,8 @@ public var isPerceptionCheckingEnabled: Bool {
 }
 
 public var forcePerceptionChecking: Bool {
-  get { perceptionChecking.isPerceptionCheckingEnabled }
-  set { perceptionChecking.isPerceptionCheckingEnabled = newValue }
+  get { perceptionChecking.forcePerceptionChecking }
+  set { perceptionChecking.forcePerceptionChecking = newValue }
 }
 
 private let perceptionChecking = PerceptionChecking()

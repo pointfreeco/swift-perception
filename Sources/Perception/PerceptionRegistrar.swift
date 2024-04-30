@@ -27,7 +27,7 @@ public struct PerceptionRegistrar: Sendable {
   /// ``Perception/Perceptible()`` macro to indicate observably
   /// of a type.
   public init(isPerceptionCheckingEnabled: Bool = Perception.isPerceptionCheckingEnabled) {
-      if !forcePerceptionChecking, #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
+    if !forcePerceptionChecking, #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
       #if canImport(Observation)
         self._rawValue = AnySendable(ObservationRegistrar())
       #else

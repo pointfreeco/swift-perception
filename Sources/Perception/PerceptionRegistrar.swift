@@ -9,10 +9,10 @@ import SwiftUI
 ///
 /// You don't need to create an instance of `PerceptionRegistrar` when using
 /// the ``Perception/Perceptible()`` macro to indicate observability of a type.
-@available(iOS, deprecated: 17.0.1, renamed: "ObservationRegistrar")
+@available(iOS, deprecated: 17, renamed: "ObservationRegistrar")
 @available(macOS, deprecated: 14, renamed: "ObservationRegistrar")
-@available(tvOS, deprecated: 17.0.1, renamed: "ObservationRegistrar")
-@available(watchOS, deprecated: 10.0.1, renamed: "ObservationRegistrar")
+@available(tvOS, deprecated: 17, renamed: "ObservationRegistrar")
+@available(watchOS, deprecated: 10, renamed: "ObservationRegistrar")
 public struct PerceptionRegistrar: Sendable {
   private let _rawValue: AnySendable
   #if DEBUG
@@ -27,7 +27,7 @@ public struct PerceptionRegistrar: Sendable {
   /// ``Perception/Perceptible()`` macro to indicate observably
   /// of a type.
   public init(isPerceptionCheckingEnabled: Bool = Perception.isPerceptionCheckingEnabled) {
-      if #available(iOS 17.0.1, macOS 14, tvOS 17.0.1, watchOS 10.0.1, *) {
+      if !forcePerceptionChecking, #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
       #if canImport(Observation)
         self._rawValue = AnySendable(ObservationRegistrar())
       #else
@@ -42,7 +42,7 @@ public struct PerceptionRegistrar: Sendable {
   }
 
   #if canImport(Observation)
-    @available(iOS 17.0.1, macOS 14, tvOS 17.0.1, watchOS 10.0.1, *)
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
     private var registrar: ObservationRegistrar {
       self._rawValue.base as! ObservationRegistrar
     }
@@ -54,7 +54,7 @@ public struct PerceptionRegistrar: Sendable {
 }
 
 #if canImport(Observation)
-  @available(iOS 17.0.1, macOS 14, tvOS 17.0.1, watchOS 10.0.1, *)
+  @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
   extension PerceptionRegistrar {
     public func access<Subject: Observable, Member>(
       _ subject: Subject, keyPath: KeyPath<Subject, Member>
@@ -94,7 +94,7 @@ extension PerceptionRegistrar {
       self.perceptionCheck(file: file, line: line)
     #endif
     #if canImport(Observation)
-      if #available(iOS 17.0.1, macOS 14, tvOS 17.0.1, watchOS 10.0.1, *) {
+      if !forcePerceptionChecking, #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
         func `open`<T: Observable>(_ subject: T) {
           self.registrar.access(
             subject,
@@ -117,7 +117,7 @@ extension PerceptionRegistrar {
     _ mutation: () throws -> T
   ) rethrows -> T {
     #if canImport(Observation)
-      if #available(iOS 17.0.1, macOS 14, tvOS 17.0.1, watchOS 10.0.1, *),
+      if !forcePerceptionChecking, #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *),
         let subject = subject as? any Observable
       {
         func `open`<S: Observable>(_ subject: S) throws -> T {
@@ -142,7 +142,7 @@ extension PerceptionRegistrar {
     keyPath: KeyPath<Subject, Member>
   ) {
     #if canImport(Observation)
-      if #available(iOS 17.0.1, macOS 14, tvOS 17.0.1, watchOS 10.0.1, *),
+      if !forcePerceptionChecking, #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *),
         let subject = subject as? any Observable
       {
         func `open`<S: Observable>(_ subject: S) {
@@ -164,7 +164,7 @@ extension PerceptionRegistrar {
     keyPath: KeyPath<Subject, Member>
   ) {
     #if canImport(Observation)
-      if #available(iOS 17.0.1, macOS 14, tvOS 17.0.1, watchOS 10.0.1, *),
+      if !forcePerceptionChecking, #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *),
         let subject = subject as? any Observable
       {
         func `open`<S: Observable>(_ subject: S) {
@@ -315,10 +315,10 @@ extension PerceptionRegistrar: Hashable {
 #endif
 
 #if DEBUG
-  @available(iOS, deprecated: 17.0.1)
+  @available(iOS, deprecated: 17)
   @available(macOS, deprecated: 14)
-  @available(tvOS, deprecated: 17.0.1)
-  @available(watchOS, deprecated: 10.0.1)
+  @available(tvOS, deprecated: 17)
+  @available(watchOS, deprecated: 10)
   public func _withoutPerceptionChecking<T>(
     _ apply: () -> T
   ) -> T {
@@ -327,10 +327,10 @@ extension PerceptionRegistrar: Hashable {
     }
   }
 #else
-  @available(iOS, deprecated: 17.0.1)
+  @available(iOS, deprecated: 17)
   @available(macOS, deprecated: 14)
-  @available(tvOS, deprecated: 17.0.1)
-  @available(watchOS, deprecated: 10.0.1)
+  @available(tvOS, deprecated: 17)
+  @available(watchOS, deprecated: 10)
   @_transparent
   @inline(__always)
   public func _withoutPerceptionChecking<T>(

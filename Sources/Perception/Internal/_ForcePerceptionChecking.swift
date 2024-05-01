@@ -1,7 +1,4 @@
 import Foundation
-#if os(watchOS)
-import WatchKit
-#endif
 
 // The beta builds which included of Observation used the `@_marker` protocol for Observable.
 // Since the API changed and the protocol no longer matches there's a runtime crash when trying

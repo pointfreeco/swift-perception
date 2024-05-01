@@ -47,7 +47,7 @@ public struct WithPerceptionTracking<Content> {
   let content: () -> Content
 
   public var body: Content {
-    if !forcePerceptionChecking, #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
+    if isObservationAllowed, #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
       return self.instrumentedBody()
     } else {
       // NB: View will not re-render when 'id' changes unless we access it in the view.

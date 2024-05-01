@@ -218,7 +218,7 @@ public func withPerceptionTracking<T>(
   onChange: @autoclosure () -> @Sendable () -> Void
 ) -> T {
   #if canImport(Observation)
-    if !forcePerceptionChecking, #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
+    if isObservationAllowed, #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
       return withObservationTracking(apply, onChange: onChange())
     }
   #endif

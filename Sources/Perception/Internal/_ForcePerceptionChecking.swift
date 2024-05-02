@@ -1,6 +1,6 @@
 import Foundation
 
-// Early beta versions used the `@_marker` protocol for Observable, which has minimal runtime impact.
+// Early beta versions used the `@_marker` protocol for Observable.
 // Changes to the protocol's memory layout in these versions disrupt dynamic casting,
 // like `subject as? any Observable`. This occurs because the Swift runtime expects a specific
 // protocol metadata layout for casting, and this mismatch leads to a crash.

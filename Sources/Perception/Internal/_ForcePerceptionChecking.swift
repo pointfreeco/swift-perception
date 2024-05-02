@@ -1,8 +1,9 @@
 import Foundation
 
-// The beta builds which included of Observation used the `@_marker` protocol for Observable.
-// Since the API changed and the protocol no longer matches there's a runtime crash when trying
-// to cast to `any Observable` on a beta build.
+// Early beta versions used the `@_marker` protocol for Observable, which has minimal runtime impact.
+// Changes to the protocol's memory layout in these versions disrupt dynamic casting,
+// like `subject as? any Observable`. This occurs because the Swift runtime expects a specific
+// protocol metadata layout for casting, and this mismatch leads to a crash.
 //
 // As a result, the following check has been implemented to disable Observation on any of the
 // following beta OS versions:

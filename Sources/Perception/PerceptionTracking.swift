@@ -212,6 +212,7 @@ private func generateAccessList<T>(_ apply: () -> T) -> (T, PerceptionTracking._
 @available(iOS, deprecated: 17, renamed: "withObservationTracking")
 @available(macOS, deprecated: 14, renamed: "withObservationTracking")
 @available(tvOS, deprecated: 17, renamed: "withObservationTracking")
+@available(visionOS, deprecated: 9999, renamed: "withObservationTracking")
 @available(watchOS, deprecated: 10, renamed: "withObservationTracking")
 public func withPerceptionTracking<T>(
   _ apply: () -> T,

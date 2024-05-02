@@ -9,7 +9,7 @@
   @available(macOS, introduced: 10.15, obsoleted: 14, message: "Use @Bindable without the 'Perception.' prefix.")
   @available(tvOS, introduced: 13, obsoleted: 17, message: "Use @Bindable without the 'Perception.' prefix.")
   @available(watchOS, introduced: 6, obsoleted: 10, message: "Use @Bindable without the 'Perception.' prefix.")
-  @available(visionOS, unavailable, message: "Use @Bindable without the 'Perception.' prefix.")
+  @available(visionOS, obsoleted: 9999, message: "Use @Bindable without the 'Perception.' prefix.")
   @dynamicMemberLookup
   @propertyWrapper
   public struct Bindable<Value> {

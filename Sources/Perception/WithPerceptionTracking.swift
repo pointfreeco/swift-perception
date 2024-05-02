@@ -41,6 +41,7 @@ import SwiftUI
 @available(iOS, deprecated: 17, message: "Remove WithPerceptionTracking")
 @available(macOS, deprecated: 14, message: "Remove WithPerceptionTracking")
 @available(tvOS, deprecated: 17, message: "Remove WithPerceptionTracking")
+@available(visionOS, deprecated: 9999, message: "Remove WithPerceptionTracking")
 @available(watchOS, deprecated: 10, message: "Remove WithPerceptionTracking")
 public struct WithPerceptionTracking<Content> {
   @State var id = 0
@@ -159,6 +160,7 @@ extension WithPerceptionTracking: View where Content: View {
 @available(iOS, deprecated: 17)
 @available(macOS, deprecated: 14)
 @available(tvOS, deprecated: 17)
+@available(visionOS, deprecated: 9999)
 @available(watchOS, deprecated: 10)
 public enum _PerceptionLocals {
   @TaskLocal public static var isInPerceptionTracking = false

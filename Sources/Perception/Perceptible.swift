@@ -19,5 +19,6 @@
 @available(iOS, deprecated: 17, renamed: "Observable")
 @available(macOS, deprecated: 14, renamed: "Observable")
 @available(tvOS, deprecated: 17, renamed: "Observable")
+@available(visionOS, deprecated: 9999, renamed: "Observable")
 @available(watchOS, deprecated: 10, renamed: "Observable")
 public protocol Perceptible {}

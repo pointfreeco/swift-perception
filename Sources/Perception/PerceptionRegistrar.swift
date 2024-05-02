@@ -12,6 +12,7 @@ import SwiftUI
 @available(iOS, deprecated: 17, renamed: "ObservationRegistrar")
 @available(macOS, deprecated: 14, renamed: "ObservationRegistrar")
 @available(tvOS, deprecated: 17, renamed: "ObservationRegistrar")
+@available(visionOS, deprecated: 9999, renamed: "ObservationRegistrar")
 @available(watchOS, deprecated: 10, renamed: "ObservationRegistrar")
 public struct PerceptionRegistrar: Sendable {
   private let _rawValue: AnySendable

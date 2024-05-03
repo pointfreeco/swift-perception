@@ -18,9 +18,9 @@ let isObservationBeta: Bool = {
     var size = 0
     sysctlbyname("kern.osversion", nil, &size, nil, 0)
     var version = [CChar](repeating: 0, count: size)
-    sysctlbyname("kern.osversion", &version, &size, nil, 0)
+    let ret = sysctlbyname("kern.osversion", &version, &size, nil, 0)
     // NB: Beta builds end with a lowercase character (_e.g._, '21A5277j')
-    return String(cString: version).last?.isLowercase == true
+    return ret == 0 ? String(cString: version).last?.isLowercase == true : false
   #else
     return false
   #endif

@@ -56,7 +56,7 @@ public struct WithPerceptionTracking<Content> {
       return withPerceptionTracking {
         self.instrumentedBody()
       } onChange: { [_id = UncheckedSendable(self._id)] in
-        _id.value.wrappedValue += 1
+        _id.value.wrappedValue &+= 1
       }
     }
   }

@@ -11,19 +11,14 @@
 
 import Foundation
 
-@_silgen_name("_swift_observation_tls_get")
-func _tlsGet() -> UnsafeMutableRawPointer?
-
-@_silgen_name("_swift_observation_tls_set")
-func _tlsSet(_ value: UnsafeMutableRawPointer?)
-
 struct _ThreadLocal {
-  static var value: UnsafeMutableRawPointer? {
-    get {
-      _tlsGet()
+  #if os(WASI)
+    static var value: UnsafeMutableRawPointer?
+  #else
+    static var value: UnsafeMutableRawPointer? {
+      get { Thread.current.threadDictionary[Key()] as! UnsafeMutableRawPointer? }
+      set { Thread.current.threadDictionary[Key()] = newValue }
     }
-    set {
-      _tlsSet(newValue)
-    }
-  }
+    private struct Key: Hashable {}
+  #endif
 }

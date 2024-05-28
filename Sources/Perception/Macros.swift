@@ -16,7 +16,11 @@
 @attached(
   member, names: named(_$id), named(_$perceptionRegistrar), named(access), named(withMutation))
 @attached(memberAttribute)
-@attached(extension, conformances: Observable, Perceptible)
+#if canImport(Observation)
+  @attached(extension, conformances: Observable, Perceptible)
+#else
+  @attached(extension, conformances: Perceptible)
+#endif
 public macro Perceptible() =
   #externalMacro(module: "PerceptionMacros", type: "PerceptibleMacro")
 

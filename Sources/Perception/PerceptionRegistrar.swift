@@ -1,9 +1,5 @@
 import Foundation
 
-#if canImport(Observation)
-  import Observation
-#endif
-
 /// Provides storage for tracking and access to data changes.
 ///
 /// You don't need to create an instance of `PerceptionRegistrar` when using

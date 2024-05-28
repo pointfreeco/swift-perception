@@ -1,1 +1,3 @@
-@_exported import Observation
+#if canImport(Observation)
+  @_exported import Observation
+#endif

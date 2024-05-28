@@ -86,7 +86,7 @@ extension PerceptionRegistrar {
     file: StaticString = #file,
     line: UInt = #line
   ) {
-    #if DEBUG
+    #if DEBUG && canImport(SwiftUI)
       self.perceptionCheck(file: file, line: line)
     #endif
     #if canImport(Observation)
@@ -200,7 +200,7 @@ extension PerceptionRegistrar: Hashable {
   }
 }
 
-#if DEBUG
+#if DEBUG && canImport(SwiftUI)
   extension PerceptionRegistrar {
     fileprivate func perceptionCheck(file: StaticString, line: UInt) {
       if self.isPerceptionCheckingEnabled,

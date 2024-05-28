@@ -98,12 +98,11 @@ extension PerceptionRegistrar {
           )
         }
         if let subject = subject as? any Observable {
-          open(subject)
+          return open(subject)
         }
-      } else {
-        self.perceptionRegistrar.access(subject, keyPath: keyPath)
       }
     #endif
+    self.perceptionRegistrar.access(subject, keyPath: keyPath)
   }
 
   @_disfavoredOverload
@@ -124,12 +123,9 @@ extension PerceptionRegistrar {
           )
         }
         return try open(subject)
-      } else {
-        return try self.perceptionRegistrar.withMutation(of: subject, keyPath: keyPath, mutation)
       }
-    #else
-      return try mutation()
     #endif
+    return try self.perceptionRegistrar.withMutation(of: subject, keyPath: keyPath, mutation)
   }
 
   @_disfavoredOverload
@@ -148,10 +144,9 @@ extension PerceptionRegistrar {
           )
         }
         return open(subject)
-      } else {
-        return self.perceptionRegistrar.willSet(subject, keyPath: keyPath)
       }
     #endif
+    return self.perceptionRegistrar.willSet(subject, keyPath: keyPath)
   }
 
   @_disfavoredOverload
@@ -170,10 +165,9 @@ extension PerceptionRegistrar {
           )
         }
         return open(subject)
-      } else {
-        return self.perceptionRegistrar.didSet(subject, keyPath: keyPath)
       }
     #endif
+    return self.perceptionRegistrar.didSet(subject, keyPath: keyPath)
   }
 }
 

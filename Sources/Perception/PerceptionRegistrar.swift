@@ -1,5 +1,4 @@
 import Foundation
-import SwiftUI
 
 #if canImport(Observation)
   import Observation
@@ -254,7 +253,6 @@ extension PerceptionRegistrar: Hashable {
     }
   }
 
-
   extension String {
     var isGeometryTrailingClosure: Bool {
       self.contains("(SwiftUI.GeometryProxy) -> ")
@@ -265,18 +263,19 @@ extension PerceptionRegistrar: Hashable {
       return fragment.starts(
         with: " suspend resume partial function for closure".utf8
       )
-      || fragment.starts(
-        with: " suspend resume partial function for implicit closure".utf8
-      )
-      || fragment.starts(
-        with: " await resume partial function for partial apply forwarder for closure".utf8
-      )
-      || fragment.starts(
-        with: " await resume partial function for partial apply forwarder for implicit closure".utf8
-      )
-      || fragment.starts(
-        with: " await resume partial function for implicit closure".utf8
-      )
+        || fragment.starts(
+          with: " suspend resume partial function for implicit closure".utf8
+        )
+        || fragment.starts(
+          with: " await resume partial function for partial apply forwarder for closure".utf8
+        )
+        || fragment.starts(
+          with: " await resume partial function for partial apply forwarder for implicit closure"
+            .utf8
+        )
+        || fragment.starts(
+          with: " await resume partial function for implicit closure".utf8
+        )
     }
     fileprivate var isActionClosure: Bool {
       var view = self[...].utf8

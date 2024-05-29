@@ -1,9 +1,4 @@
 import Foundation
-import SwiftUI
-
-#if canImport(Observation)
-  import Observation
-#endif
 
 /// Provides storage for tracking and access to data changes.
 ///
@@ -91,7 +86,7 @@ extension PerceptionRegistrar {
     file: StaticString = #file,
     line: UInt = #line
   ) {
-    #if DEBUG
+    #if DEBUG && canImport(SwiftUI)
       self.perceptionCheck(file: file, line: line)
     #endif
     #if canImport(Observation)
@@ -103,12 +98,11 @@ extension PerceptionRegistrar {
           )
         }
         if let subject = subject as? any Observable {
-          open(subject)
+          return open(subject)
         }
-      } else {
-        self.perceptionRegistrar.access(subject, keyPath: keyPath)
       }
     #endif
+    self.perceptionRegistrar.access(subject, keyPath: keyPath)
   }
 
   @_disfavoredOverload
@@ -129,12 +123,9 @@ extension PerceptionRegistrar {
           )
         }
         return try open(subject)
-      } else {
-        return try self.perceptionRegistrar.withMutation(of: subject, keyPath: keyPath, mutation)
       }
-    #else
-      return try mutation()
     #endif
+    return try self.perceptionRegistrar.withMutation(of: subject, keyPath: keyPath, mutation)
   }
 
   @_disfavoredOverload
@@ -153,10 +144,9 @@ extension PerceptionRegistrar {
           )
         }
         return open(subject)
-      } else {
-        return self.perceptionRegistrar.willSet(subject, keyPath: keyPath)
       }
     #endif
+    return self.perceptionRegistrar.willSet(subject, keyPath: keyPath)
   }
 
   @_disfavoredOverload
@@ -175,10 +165,9 @@ extension PerceptionRegistrar {
           )
         }
         return open(subject)
-      } else {
-        return self.perceptionRegistrar.didSet(subject, keyPath: keyPath)
       }
     #endif
+    return self.perceptionRegistrar.didSet(subject, keyPath: keyPath)
   }
 }
 
@@ -205,7 +194,7 @@ extension PerceptionRegistrar: Hashable {
   }
 }
 
-#if DEBUG
+#if DEBUG && canImport(SwiftUI)
   extension PerceptionRegistrar {
     fileprivate func perceptionCheck(file: StaticString, line: UInt) {
       if self.isPerceptionCheckingEnabled,
@@ -254,7 +243,6 @@ extension PerceptionRegistrar: Hashable {
     }
   }
 
-
   extension String {
     var isGeometryTrailingClosure: Bool {
       self.contains("(SwiftUI.GeometryProxy) -> ")
@@ -265,18 +253,19 @@ extension PerceptionRegistrar: Hashable {
       return fragment.starts(
         with: " suspend resume partial function for closure".utf8
       )
-      || fragment.starts(
-        with: " suspend resume partial function for implicit closure".utf8
-      )
-      || fragment.starts(
-        with: " await resume partial function for partial apply forwarder for closure".utf8
-      )
-      || fragment.starts(
-        with: " await resume partial function for partial apply forwarder for implicit closure".utf8
-      )
-      || fragment.starts(
-        with: " await resume partial function for implicit closure".utf8
-      )
+        || fragment.starts(
+          with: " suspend resume partial function for implicit closure".utf8
+        )
+        || fragment.starts(
+          with: " await resume partial function for partial apply forwarder for closure".utf8
+        )
+        || fragment.starts(
+          with: " await resume partial function for partial apply forwarder for implicit closure"
+            .utf8
+        )
+        || fragment.starts(
+          with: " await resume partial function for implicit closure".utf8
+        )
     }
     fileprivate var isActionClosure: Bool {
       var view = self[...].utf8

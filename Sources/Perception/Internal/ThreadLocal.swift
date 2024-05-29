@@ -13,11 +13,7 @@ import Foundation
 
 struct _ThreadLocal {
   #if os(WASI)
-    #if swift(>=5.10)
-      nonisolated(unsafe) static var value: UnsafeMutableRawPointer?
-    #else
-      static var value: UnsafeMutableRawPointer?
-    #endif
+    static var value: UnsafeMutableRawPointer?
   #else
     static var value: UnsafeMutableRawPointer? {
       get { Thread.current.threadDictionary[Key()] as! UnsafeMutableRawPointer? }

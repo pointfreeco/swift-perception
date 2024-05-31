@@ -1,11 +1,6 @@
 #if canImport(SwiftUI)
   import SwiftUI
 
-  @available(iOS, introduced: 13, obsoleted: 17)
-  @available(macOS, introduced: 10.15, obsoleted: 14)
-  @available(tvOS, introduced: 13, obsoleted: 17)
-  @available(watchOS, introduced: 6, obsoleted: 10)
-  @available(visionOS, unavailable)
   extension Environment {
     /// Creates an environment property to read a perceptible object from the environment.
     ///
@@ -29,11 +24,6 @@
     }
   }
 
-  @available(iOS, introduced: 13, obsoleted: 17)
-  @available(macOS, introduced: 10.15, obsoleted: 14)
-  @available(tvOS, introduced: 13, obsoleted: 17)
-  @available(watchOS, introduced: 6, obsoleted: 10)
-  @available(visionOS, unavailable)
   extension View {
     /// Places a perceptible object in the view’s environment.
     ///

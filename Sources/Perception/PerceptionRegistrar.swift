@@ -4,11 +4,6 @@ import Foundation
 ///
 /// You don't need to create an instance of `PerceptionRegistrar` when using
 /// the ``Perception/Perceptible()`` macro to indicate observability of a type.
-@available(iOS, deprecated: 17, renamed: "ObservationRegistrar")
-@available(macOS, deprecated: 14, renamed: "ObservationRegistrar")
-@available(tvOS, deprecated: 17, renamed: "ObservationRegistrar")
-@available(visionOS, deprecated: 9999, renamed: "ObservationRegistrar")
-@available(watchOS, deprecated: 10, renamed: "ObservationRegistrar")
 public struct PerceptionRegistrar: Sendable {
   private let _rawValue: AnySendable
   #if DEBUG
@@ -305,10 +300,6 @@ extension PerceptionRegistrar: Hashable {
 #endif
 
 #if DEBUG
-  @available(iOS, deprecated: 17)
-  @available(macOS, deprecated: 14)
-  @available(tvOS, deprecated: 17)
-  @available(watchOS, deprecated: 10)
   public func _withoutPerceptionChecking<T>(
     _ apply: () -> T
   ) -> T {
@@ -317,10 +308,6 @@ extension PerceptionRegistrar: Hashable {
     }
   }
 #else
-  @available(iOS, deprecated: 17)
-  @available(macOS, deprecated: 14)
-  @available(tvOS, deprecated: 17)
-  @available(watchOS, deprecated: 10)
   @_transparent
   @inline(__always)
   public func _withoutPerceptionChecking<T>(

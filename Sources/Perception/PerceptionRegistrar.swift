@@ -18,7 +18,7 @@ public struct PerceptionRegistrar: Sendable {
   /// ``Perception/Perceptible()`` macro to indicate observably
   /// of a type.
   public init(isPerceptionCheckingEnabled: Bool = Perception.isPerceptionCheckingEnabled) {
-    if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
+    if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta {
       #if canImport(Observation)
         self._rawValue = AnySendable(ObservationRegistrar())
       #else
@@ -85,7 +85,7 @@ extension PerceptionRegistrar {
       self.perceptionCheck(file: file, line: line)
     #endif
     #if canImport(Observation)
-      if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
+      if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta {
         func `open`<T: Observable>(_ subject: T) {
           self.registrar.access(
             subject,
@@ -107,7 +107,7 @@ extension PerceptionRegistrar {
     _ mutation: () throws -> T
   ) rethrows -> T {
     #if canImport(Observation)
-      if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *),
+      if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta,
         let subject = subject as? any Observable
       {
         func `open`<S: Observable>(_ subject: S) throws -> T {
@@ -129,7 +129,7 @@ extension PerceptionRegistrar {
     keyPath: KeyPath<Subject, Member>
   ) {
     #if canImport(Observation)
-      if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *),
+      if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta,
         let subject = subject as? any Observable
       {
         func `open`<S: Observable>(_ subject: S) {
@@ -150,7 +150,7 @@ extension PerceptionRegistrar {
     keyPath: KeyPath<Subject, Member>
   ) {
     #if canImport(Observation)
-      if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *),
+      if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta,
         let subject = subject as? any Observable
       {
         func `open`<S: Observable>(_ subject: S) {

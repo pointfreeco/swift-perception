@@ -44,7 +44,7 @@
     let content: () -> Content
 
     public var body: Content {
-      if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *) {
+      if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta {
         return self.instrumentedBody()
       } else {
         // NB: View will not re-render when 'id' changes unless we access it in the view.

@@ -1,10 +1,8 @@
-CONFIG=debug
 PLATFORM_IOS = iOS Simulator,id=$(call udid_for,iOS 17.2,iPhone \d\+ Pro [^M])
 
 test-compatibility:
 	xcodebuild \
 		-skipMacroValidation \
-		-configuration $(CONFIG) \
 		-project Example/Example.xcodeproj \
 		-scheme Compatibility \
 		-destination generic/platform="$(PLATFORM_IOS)"

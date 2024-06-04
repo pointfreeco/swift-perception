@@ -11,6 +11,11 @@
 		CA114E932AE1FC29004844BE /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA114E922AE1FC29004844BE /* ContentView.swift */; };
 		CA114E952AE1FC2A004844BE /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CA114E942AE1FC2A004844BE /* Assets.xcassets */; };
 		CA114EBE2AE1FCD7004844BE /* Perception in Frameworks */ = {isa = PBXBuildFile; productRef = CA114EBD2AE1FCD7004844BE /* Perception */; };
+		DC40DDAC2C0F98DF00B70F53 /* App.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC40DDAB2C0F98DF00B70F53 /* App.swift */; };
+		DC40DDAE2C0F98DF00B70F53 /* Compatibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC40DDAD2C0F98DF00B70F53 /* Compatibility.swift */; };
+		DC40DDB02C0F98E100B70F53 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DC40DDAF2C0F98E100B70F53 /* Assets.xcassets */; };
+		DC40DDB32C0F98E100B70F53 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = DC40DDB22C0F98E100B70F53 /* Preview Assets.xcassets */; };
+		DC40DDD42C0F991D00B70F53 /* Perception in Frameworks */ = {isa = PBXBuildFile; productRef = DC40DDD32C0F991D00B70F53 /* Perception */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -20,6 +25,11 @@
 		CA114E942AE1FC2A004844BE /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		CA114EBA2AE1FC71004844BE /* swift-perception */ = {isa = PBXFileReference; lastKnownFileType = wrapper; name = "swift-perception"; path = ..; sourceTree = "<group>"; };
 		CA114EBB2AE1FCCE004844BE /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		DC40DDA92C0F98DF00B70F53 /* Compatibility.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Compatibility.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DC40DDAB2C0F98DF00B70F53 /* App.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = App.swift; sourceTree = "<group>"; };
+		DC40DDAD2C0F98DF00B70F53 /* Compatibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Compatibility.swift; sourceTree = "<group>"; };
+		DC40DDAF2C0F98E100B70F53 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		DC40DDB22C0F98E100B70F53 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -31,6 +41,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DC40DDA62C0F98DF00B70F53 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DC40DDD42C0F991D00B70F53 /* Perception in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -39,6 +57,7 @@
 			children = (
 				CA114EBA2AE1FC71004844BE /* swift-perception */,
 				CA114E8F2AE1FC29004844BE /* Example */,
+				DC40DDAA2C0F98DF00B70F53 /* Compatibility */,
 				CA114E8E2AE1FC29004844BE /* Products */,
 				CA114EBC2AE1FCD7004844BE /* Frameworks */,
 			);
@@ -48,6 +67,7 @@
 			isa = PBXGroup;
 			children = (
 				CA114E8D2AE1FC29004844BE /* Example.app */,
+				DC40DDA92C0F98DF00B70F53 /* Compatibility.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -68,6 +88,25 @@
 			children = (
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		DC40DDAA2C0F98DF00B70F53 /* Compatibility */ = {
+			isa = PBXGroup;
+			children = (
+				DC40DDAB2C0F98DF00B70F53 /* App.swift */,
+				DC40DDAD2C0F98DF00B70F53 /* Compatibility.swift */,
+				DC40DDAF2C0F98E100B70F53 /* Assets.xcassets */,
+				DC40DDB12C0F98E100B70F53 /* Preview Content */,
+			);
+			path = Compatibility;
+			sourceTree = "<group>";
+		};
+		DC40DDB12C0F98E100B70F53 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				DC40DDB22C0F98E100B70F53 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -93,6 +132,26 @@
 			productReference = CA114E8D2AE1FC29004844BE /* Example.app */;
 			productType = "com.apple.product-type.application";
 		};
+		DC40DDA82C0F98DF00B70F53 /* Compatibility */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DC40DDD02C0F98E100B70F53 /* Build configuration list for PBXNativeTarget "Compatibility" */;
+			buildPhases = (
+				DC40DDA52C0F98DF00B70F53 /* Sources */,
+				DC40DDA62C0F98DF00B70F53 /* Frameworks */,
+				DC40DDA72C0F98DF00B70F53 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Compatibility;
+			packageProductDependencies = (
+				DC40DDD32C0F991D00B70F53 /* Perception */,
+			);
+			productName = Compatibility;
+			productReference = DC40DDA92C0F98DF00B70F53 /* Compatibility.app */;
+			productType = "com.apple.product-type.application";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -105,6 +164,9 @@
 				TargetAttributes = {
 					CA114E8C2AE1FC29004844BE = {
 						CreatedOnToolsVersion = 15.0;
+					};
+					DC40DDA82C0F98DF00B70F53 = {
+						CreatedOnToolsVersion = 15.4;
 					};
 				};
 			};
@@ -122,6 +184,7 @@
 			projectRoot = "";
 			targets = (
 				CA114E8C2AE1FC29004844BE /* Example */,
+				DC40DDA82C0F98DF00B70F53 /* Compatibility */,
 			);
 		};
 /* End PBXProject section */
@@ -135,6 +198,15 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DC40DDA72C0F98DF00B70F53 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DC40DDB32C0F98E100B70F53 /* Preview Assets.xcassets in Resources */,
+				DC40DDB02C0F98E100B70F53 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -144,6 +216,15 @@
 			files = (
 				CA114E932AE1FC29004844BE /* ContentView.swift in Sources */,
 				CA114E912AE1FC29004844BE /* ExampleApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DC40DDA52C0F98DF00B70F53 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DC40DDAE2C0F98DF00B70F53 /* Compatibility.swift in Sources */,
+				DC40DDAC2C0F98DF00B70F53 /* App.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -327,6 +408,64 @@
 			};
 			name = Release;
 		};
+		DC40DDCA2C0F98E100B70F53 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Compatibility/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = co.pointfree.Compatibility;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		DC40DDCB2C0F98E100B70F53 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"Compatibility/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = co.pointfree.Compatibility;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -348,10 +487,23 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
+		DC40DDD02C0F98E100B70F53 /* Build configuration list for PBXNativeTarget "Compatibility" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DC40DDCA2C0F98E100B70F53 /* Debug */,
+				DC40DDCB2C0F98E100B70F53 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 /* End XCConfigurationList section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		CA114EBD2AE1FCD7004844BE /* Perception */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Perception;
+		};
+		DC40DDD32C0F991D00B70F53 /* Perception */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Perception;
 		};

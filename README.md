@@ -1,6 +1,6 @@
 # Perception
 
-[![CI](https://github.com/pointfreeco/swift-perception/workflows/CI/badge.svg)](https://github.com/pointfreeco/swift-perception/actions?query=workflow%3ACI)
+[![CI](https://github.com/pointfreeco/swift-perception/actions/workflows/ci.yml/badge.svg)](https://github.com/pointfreeco/swift-perception/actions/workflows/ci.yml)
 [![Slack](https://img.shields.io/badge/slack-chat-informational.svg?label=Slack&logo=slack)](https://www.pointfree.co/slack-invite)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fpointfreeco%2Fswift-perception%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/pointfreeco/swift-perception)
 [![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fpointfreeco%2Fswift-perception%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/pointfreeco/swift-perception)

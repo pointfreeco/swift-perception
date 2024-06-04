@@ -51,6 +51,17 @@
                ReferencedContainer = "container:Example.xcodeproj">
             </BuildableReference>
          </TestableReference>
+         <TestableReference
+            skipped = "NO"
+            parallelizable = "YES">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "CAA8084B2C0F9496000DE5B7"
+               BuildableName = "CompatibilityTests.app"
+               BlueprintName = "CompatibilityTests"
+               ReferencedContainer = "container:Example.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

@@ -1,4 +1,5 @@
 import Perception
+import SwiftUI
 import XCTest
 
 final class PerceptionTrackingTests: XCTestCase {

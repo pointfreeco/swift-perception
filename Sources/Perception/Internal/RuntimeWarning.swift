@@ -41,13 +41,13 @@ func runtimeWarn(
     // Feedback filed: https://gist.github.com/stephencelis/a8d06383ed6ccde3e5ef5d1b3ad52bbc
     #if swift(>=5.10)
       @usableFromInline
-      nonisolated(unsafe) let dso = fetchDSO()
+      nonisolated(unsafe) let dso = getSwiftUIDSO()
     #else
       @usableFromInline
-      let dso = fetchDSO()
+      let dso = getSwiftUIDSO()
     #endif
 
-    private func fetchDSO() -> UnsafeMutableRawPointer {
+    private func getSwiftUIDSO() -> UnsafeMutableRawPointer {
       let count = _dyld_image_count()
       for i in 0..<count {
         if let name = _dyld_get_image_name(i) {

@@ -39,8 +39,15 @@ func runtimeWarn(
     //     To work around this, we hook into SwiftUI's runtime issue delivery mechanism, instead.
     //
     // Feedback filed: https://gist.github.com/stephencelis/a8d06383ed6ccde3e5ef5d1b3ad52bbc
-    @usableFromInline
-    let dso = { () -> UnsafeMutableRawPointer in
+    #if swift(>=5.10)
+      @usableFromInline
+      nonisolated(unsafe) let dso = fetchDSO()
+    #else
+      @usableFromInline
+      let dso = fetchDSO()
+    #endif
+
+    private func fetchDSO() -> UnsafeMutableRawPointer {
       let count = _dyld_image_count()
       for i in 0..<count {
         if let name = _dyld_get_image_name(i) {
@@ -53,7 +60,7 @@ func runtimeWarn(
         }
       }
       return UnsafeMutableRawPointer(mutating: #dsohandle)
-    }()
+    }
   #else
     import Foundation
 

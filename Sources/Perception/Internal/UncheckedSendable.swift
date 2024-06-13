@@ -1,6 +1,6 @@
-struct UncheckedSendable<Value>: @unchecked Sendable {
-  let value: Value
-  init(_ value: Value) {
+@usableFromInline struct UncheckedSendable<Value>: @unchecked Sendable {
+  @usableFromInline let value: Value
+  @usableFromInline init(_ value: Value) {
     self.value = value
   }
 }

@@ -39,39 +39,21 @@ func runtimeWarn(
     //     To work around this, we hook into SwiftUI's runtime issue delivery mechanism, instead.
     //
     // Feedback filed: https://gist.github.com/stephencelis/a8d06383ed6ccde3e5ef5d1b3ad52bbc
-    #if swift(>=5.10)
-      @usableFromInline
-      nonisolated(unsafe) let dso: UnsafeMutableRawPointer = {
-        let count = _dyld_image_count()
-        for i in 0..<count {
-          if let name = _dyld_get_image_name(i) {
-            let swiftString = String(cString: name)
-            if swiftString.hasSuffix("/SwiftUI") {
-              if let header = _dyld_get_image_header(i) {
-                return UnsafeMutableRawPointer(mutating: UnsafeRawPointer(header))
-              }
+    @usableFromInline
+    let dso = {
+      let count = _dyld_image_count()
+      for i in 0..<count {
+        if let name = _dyld_get_image_name(i) {
+          let swiftString = String(cString: name)
+          if swiftString.hasSuffix("/SwiftUI") {
+            if let header = _dyld_get_image_header(i) {
+              return UnsafeMutableRawPointer(mutating: UnsafeRawPointer(header))
             }
           }
         }
-        return UnsafeMutableRawPointer(mutating: #dsohandle)
-      }()
-    #else
-      @usableFromInline
-      let dso = {
-        let count = _dyld_image_count()
-        for i in 0..<count {
-          if let name = _dyld_get_image_name(i) {
-            let swiftString = String(cString: name)
-            if swiftString.hasSuffix("/SwiftUI") {
-              if let header = _dyld_get_image_header(i) {
-                return UnsafeMutableRawPointer(mutating: UnsafeRawPointer(header))
-              }
-            }
-          }
-        }
-        return UnsafeMutableRawPointer(mutating: #dsohandle)
-      }()
-    #endif
+      }
+      return UnsafeMutableRawPointer(mutating: #dsohandle)
+    }()
   #else
     import Foundation
 

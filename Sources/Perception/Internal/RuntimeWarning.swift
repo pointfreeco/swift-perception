@@ -47,6 +47,7 @@ func runtimeWarn(
       let dso = getSwiftUIDSO()
     #endif
 
+    @_transparent
     private func getSwiftUIDSO() -> UnsafeMutableRawPointer {
       let count = _dyld_image_count()
       for i in 0..<count {

@@ -577,6 +577,50 @@
     }
 
     @MainActor
+    func testGeometryReader_NestedSuspendingClosure_ImproperPerceptionTracking() async throws {
+      struct FeatureView: View {
+        let model = Model()
+        var body: some View {
+          WithPerceptionTracking {
+            content
+          }
+        }
+        var content: some View {
+          GeometryReader { _ in
+            WithPerceptionTracking {
+              ZStack {}
+                .task { @MainActor in _ = model.count }
+            }
+          }
+        }
+      }
+      self.render(FeatureView())
+      try await Task.sleep(for: .milliseconds(100))
+    }
+
+    @MainActor
+    func testGeometryReader_NestedActionClosure_ImproperPerceptionTracking() async throws {
+      struct FeatureView: View {
+        let model = Model()
+        var body: some View {
+          WithPerceptionTracking {
+            content
+          }
+        }
+        var content: some View {
+          GeometryReader { _ in
+            WithPerceptionTracking {
+              ZStack {}
+                .onAppear { let _ = model.count }
+            }
+          }
+        }
+      }
+      self.render(FeatureView())
+      try await Task.sleep(for: .milliseconds(100))
+    }
+
+    @MainActor
     private func render(_ view: some View) {
       let image = ImageRenderer(content: view).cgImage
       _ = image

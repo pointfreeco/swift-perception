@@ -220,19 +220,13 @@ extension PerceptionRegistrar: Hashable {
           else {
             continue
           }
-          let isSuspendingClosure = demangled.isSuspendingClosure
-          let isActionClosure = demangled.isActionClosure
-          if
-            !isSuspendingClosure,
-            !isActionClosure,
-            demangled.isGeometryTrailingClosure
-          {
-            return true
+          if demangled.isGeometryTrailingClosure {
+            return !(demangled.isSuspendingClosure || demangled.isActionClosure)
           }
           guard
             mangledSymbol.isMangledViewBodyGetter,
-            !isSuspendingClosure,
-            !isActionClosure
+            !demangled.isSuspendingClosure,
+            !demangled.isActionClosure
           else {
             continue
           }

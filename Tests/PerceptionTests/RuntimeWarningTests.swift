@@ -22,18 +22,18 @@
     }
 
     @MainActor
-    func testNotInPerceptionBody_InSwiftUIBody() {
+    func testNotInPerceptionBody_InSwiftUIBody() async throws {
       struct FeatureView: View {
         let model = Model()
         var body: some View {
           Text(expectRuntimeWarning { self.model.count }.description)
         }
       }
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    func testNotInPerceptionBody_InSwiftUIBody_Wrapper() {
+    func testNotInPerceptionBody_InSwiftUIBody_Wrapper() async throws {
       struct FeatureView: View {
         let model = Model()
         var body: some View {
@@ -42,11 +42,11 @@
           }
         }
       }
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    func testInPerceptionBody_InSwiftUIBody_Wrapper() {
+    func testInPerceptionBody_InSwiftUIBody_Wrapper() async throws {
       struct FeatureView: View {
         let model = Model()
         var body: some View {
@@ -57,11 +57,11 @@
           }
         }
       }
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    func testInPerceptionBody_InSwiftUIBody() {
+    func testInPerceptionBody_InSwiftUIBody() async throws {
       struct FeatureView: View {
         let model = Model()
         var body: some View {
@@ -70,11 +70,11 @@
           }
         }
       }
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    func testNotInPerceptionBody_SwiftUIBinding() {
+    func testNotInPerceptionBody_SwiftUIBinding() async throws {
       struct FeatureView: View {
         @State var model = Model()
         var body: some View {
@@ -83,11 +83,11 @@
           }
         }
       }
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    func testInPerceptionBody_SwiftUIBinding() {
+    func testInPerceptionBody_SwiftUIBinding() async throws {
       struct FeatureView: View {
         @State var model = Model()
         var body: some View {
@@ -96,11 +96,11 @@
           }
         }
       }
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    func testNotInPerceptionBody_ForEach() {
+    func testNotInPerceptionBody_ForEach() async throws {
       struct FeatureView: View {
         @State var model = Model(
           list: [
@@ -116,11 +116,11 @@
         }
       }
 
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    func testInnerInPerceptionBody_ForEach() {
+    func testInnerInPerceptionBody_ForEach() async throws {
       struct FeatureView: View {
         @State var model = Model(
           list: [
@@ -138,11 +138,11 @@
         }
       }
 
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    func testOuterInPerceptionBody_ForEach() {
+    func testOuterInPerceptionBody_ForEach() async throws {
       struct FeatureView: View {
         @State var model = Model(
           list: [
@@ -160,11 +160,11 @@
         }
       }
 
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    func testOuterAndInnerInPerceptionBody_ForEach() {
+    func testOuterAndInnerInPerceptionBody_ForEach() async throws {
       struct FeatureView: View {
         @State var model = Model(
           list: [
@@ -184,11 +184,11 @@
         }
       }
 
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    func testNotInPerceptionBody_Sheet() {
+    func testNotInPerceptionBody_Sheet() async throws {
       struct FeatureView: View {
         @State var model = Model(child: Model())
         var body: some View {
@@ -199,11 +199,11 @@
         }
       }
 
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    func testInnerInPerceptionBody_Sheet() {
+    func testInnerInPerceptionBody_Sheet() async throws {
       struct FeatureView: View {
         @State var model = Model(child: Model())
         var body: some View {
@@ -216,11 +216,11 @@
         }
       }
 
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    func testOuterInPerceptionBody_Sheet() {
+    func testOuterInPerceptionBody_Sheet() async throws {
       struct FeatureView: View {
         @State var model = Model(child: Model())
         var body: some View {
@@ -233,11 +233,11 @@
         }
       }
 
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    func testOuterAndInnerInPerceptionBody_Sheet() {
+    func testOuterAndInnerInPerceptionBody_Sheet() async throws {
       struct FeatureView: View {
         @State var model = Model(child: Model())
         var body: some View {
@@ -252,11 +252,11 @@
         }
       }
 
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    func testActionClosure() {
+    func testActionClosure() async throws {
       struct FeatureView: View {
         @State var model = Model()
         var body: some View {
@@ -265,11 +265,11 @@
         }
       }
 
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    func testActionClosure_CallMethodWithArguments() {
+    func testActionClosure_CallMethodWithArguments() async throws {
       struct FeatureView: View {
         @State var model = Model()
         var body: some View {
@@ -282,11 +282,11 @@
         }
       }
 
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    func testActionClosure_WithArguments() {
+    func testActionClosure_WithArguments() async throws {
       struct FeatureView: View {
         @State var model = Model()
         var body: some View {
@@ -297,11 +297,11 @@
         }
       }
 
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    func testActionClosure_WithArguments_ImplicitClosure() {
+    func testActionClosure_WithArguments_ImplicitClosure() async throws {
       struct FeatureView: View {
         @State var model = Model()
         var body: some View {
@@ -313,11 +313,11 @@
         }
       }
 
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    func testImplicitActionClosure() {
+    func testImplicitActionClosure() async throws {
       struct FeatureView: View {
         @State var model = Model()
         var body: some View {
@@ -329,11 +329,11 @@
         }
       }
 
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    func testRegistrarDisablePerceptionTracking() {
+    func testRegistrarDisablePerceptionTracking() async throws {
       struct FeatureView: View {
         let model = Model()
         let registrar = PerceptionRegistrar(isPerceptionCheckingEnabled: false)
@@ -342,11 +342,11 @@
           Text("Hi")
         }
       }
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    func testGlobalDisablePerceptionTracking() {
+    func testGlobalDisablePerceptionTracking() async throws {
       let previous = Perception.isPerceptionCheckingEnabled
       Perception.isPerceptionCheckingEnabled = false
       defer { Perception.isPerceptionCheckingEnabled = previous }
@@ -357,11 +357,11 @@
           Text(model.count.description)
         }
       }
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    func testParentAccessingChildState_ParentNotObserving_ChildObserving() {
+    func testParentAccessingChildState_ParentNotObserving_ChildObserving() async throws {
       struct ChildView: View {
         let model: Model
         var body: some View {
@@ -387,11 +387,11 @@
         }
       }
 
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    func testParentAccessingChildState_ParentObserving_ChildNotObserving() {
+    func testParentAccessingChildState_ParentObserving_ChildNotObserving() async throws {
       struct ChildView: View {
         let model: Model
         var body: some View {
@@ -415,11 +415,11 @@
         }
       }
 
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    func testParentAccessingChildState_ParentNotObserving_ChildNotObserving() {
+    func testParentAccessingChildState_ParentNotObserving_ChildNotObserving() async throws {
       struct ChildView: View {
         let model: Model
         var body: some View {
@@ -443,11 +443,11 @@
         }
       }
 
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    func testParentAccessingChildState_ParentObserving_ChildObserving() {
+    func testParentAccessingChildState_ParentObserving_ChildObserving() async throws {
       struct ChildView: View {
         let model: Model
         var body: some View {
@@ -473,7 +473,7 @@
         }
       }
 
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
@@ -488,8 +488,7 @@
             }
         }
       }
-      self.render(FeatureView())
-      try await Task.sleep(for: .milliseconds(100))
+      try await self.render(FeatureView())
     }
 
     @MainActor
@@ -504,12 +503,11 @@
             }
         }
         @Sendable
-        func perform() async {
+        func perform() async throws {
           _ = model.count
         }
       }
-      self.render(FeatureView())
-      try await Task.sleep(for: .milliseconds(100))
+      try await self.render(FeatureView())
     }
 
     @MainActor
@@ -524,12 +522,11 @@
             }
         }
       }
-      self.render(FeatureView())
-      try await Task.sleep(for: .milliseconds(100))
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    func testGeometryReader_WithoutPerceptionTracking() {
+    func testGeometryReader_WithoutPerceptionTracking() async throws {
       struct FeatureView: View {
         let model = Model()
         var body: some View {
@@ -540,11 +537,11 @@
           }
         }
       }
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    func testGeometryReader_WithProperPerceptionTracking() {
+    func testGeometryReader_WithProperPerceptionTracking() async throws {
       struct FeatureView: View {
         let model = Model()
         var body: some View {
@@ -555,11 +552,11 @@
           }
         }
       }
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    func testGeometryReader_ComputedProperty_ImproperPerceptionTracking() {
+    func testGeometryReader_ComputedProperty_ImproperPerceptionTracking() async throws {
       struct FeatureView: View {
         let model = Model()
         var body: some View {
@@ -573,13 +570,42 @@
           }
         }
       }
-      self.render(FeatureView())
+      try await self.render(FeatureView())
     }
 
     @MainActor
-    private func render(_ view: some View) {
+    func testGeometryReader_NestedSuspendingClosure_ImproperPerceptionTracking() async throws {
+      struct FeatureView: View {
+        let model = Model()
+        var body: some View {
+          GeometryReader { _ in
+            ZStack {}
+              .task { @MainActor in _ = model.count }
+          }
+        }
+      }
+      try await self.render(FeatureView())
+    }
+
+    @MainActor
+    func testGeometryReader_NestedActionClosure_ImproperPerceptionTracking() async throws {
+      struct FeatureView: View {
+        let model = Model()
+        var body: some View {
+          GeometryReader { _ in
+            ZStack {}
+              .onAppear { let _ = model.count }
+          }
+        }
+      }
+      try await self.render(FeatureView())
+    }
+
+    @MainActor
+    private func render(_ view: some View) async throws  {
       let image = ImageRenderer(content: view).cgImage
       _ = image
+      try await Task.sleep(for: .seconds(0.1))
     }
   }
 

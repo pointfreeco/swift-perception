@@ -221,7 +221,7 @@ extension PerceptionRegistrar: Hashable {
             continue
           }
           if demangled.isGeometryTrailingClosure {
-            return true
+            return !(demangled.isSuspendingClosure || demangled.isActionClosure)
           }
           guard
             mangledSymbol.isMangledViewBodyGetter,

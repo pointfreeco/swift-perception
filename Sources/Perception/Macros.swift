@@ -16,7 +16,7 @@
 public macro Perceptible() =
   #externalMacro(module: "PerceptionMacros", type: "PerceptibleMacro")
 
-@attached(accessor, names: named(init), named(get), named(set))
+@attached(accessor, names: named(init), named(get), named(set), named(_modify))
 @attached(peer, names: prefixed(_))
 public macro PerceptionTracked() =
   #externalMacro(module: "PerceptionMacros", type: "PerceptionTrackedMacro")

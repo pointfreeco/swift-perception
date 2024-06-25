@@ -40,10 +40,7 @@ extension VariableDeclSyntax {
   }
 
   func accessorsMatching(_ predicate: (TokenKind) -> Bool) -> [AccessorDeclSyntax] {
-    let patternBindings = bindings.compactMap { binding in
-      binding
-    }
-    let accessors: [AccessorDeclListSyntax.Element] = patternBindings.compactMap { patternBinding in
+    let accessors: [AccessorDeclListSyntax.Element] = bindings.compactMap { patternBinding in
       switch patternBinding.accessorBlock?.accessors {
       case .accessors(let accessors):
         return accessors

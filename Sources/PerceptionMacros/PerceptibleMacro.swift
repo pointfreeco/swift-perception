@@ -367,7 +367,17 @@ public struct PerceptionTrackedMacro: AccessorMacro {
       }
       """
 
-    return [initAccessor, getAccessor, setAccessor]
+    let modifyAccessor: AccessorDeclSyntax =
+      """
+      _modify {
+      access(keyPath: \\.\(identifier))
+      \(raw: PerceptibleMacro.registrarVariableName).willSet(self, keyPath: \\.\(identifier))
+      defer { \(raw: PerceptibleMacro.registrarVariableName).didSet(self, keyPath: \\.\(identifier)) }
+      yield &_\(identifier)
+      }
+      """
+
+    return [initAccessor, getAccessor, setAccessor, modifyAccessor]
   }
 }
 

@@ -42,6 +42,14 @@
                 _count = newValue
               }
             }
+            _modify {
+              access(keyPath: \.count)
+              _$perceptionRegistrar.willSet(self, keyPath: \.count)
+              defer {
+                _$perceptionRegistrar.didSet(self, keyPath: \.count)
+              }
+              yield &_count
+            }
           }
 
           private let _$perceptionRegistrar = Perception.PerceptionRegistrar()

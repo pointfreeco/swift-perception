@@ -1,4 +1,5 @@
 import Foundation
+import IssueReporting
 
 /// Provides storage for tracking and access to data changes.
 ///
@@ -78,11 +79,18 @@ extension PerceptionRegistrar {
   public func access<Subject: Perceptible, Member>(
     _ subject: Subject,
     keyPath: KeyPath<Subject, Member>,
-    file: StaticString = #file,
-    line: UInt = #line
+    fileID: StaticString = #fileID,
+    filePath: StaticString = #filePath,
+    line: UInt = #line,
+    column: UInt = #column
   ) {
     #if DEBUG && canImport(SwiftUI)
-      self.perceptionCheck(file: file, line: line)
+      self.perceptionCheck(
+        fileID: fileID,
+        filePath: filePath,
+        line: line,
+        column: column
+      )
     #endif
     #if canImport(Observation)
       if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta {
@@ -191,14 +199,19 @@ extension PerceptionRegistrar: Hashable {
 
 #if DEBUG && canImport(SwiftUI)
   extension PerceptionRegistrar {
-    fileprivate func perceptionCheck(file: StaticString, line: UInt) {
+    fileprivate func perceptionCheck(
+      fileID: StaticString,
+      filePath: StaticString,
+      line: UInt,
+      column: UInt
+    ) {
       if self.isPerceptionCheckingEnabled,
         Perception.isPerceptionCheckingEnabled,
         !_PerceptionLocals.isInPerceptionTracking,
         !_PerceptionLocals.skipPerceptionChecking,
-        self.isInSwiftUIBody(file: file, line: line)
+        self.isInSwiftUIBody(file: filePath, line: line)
       {
-        runtimeWarn(
+        reportIssue(
           """
           Perceptible state was accessed but is not being tracked. Track changes to state by \
           wrapping your view in a 'WithPerceptionTracking' view.

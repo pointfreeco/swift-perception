@@ -49,10 +49,19 @@ public struct PerceptibleMacro {
       """
       internal nonisolated func access<Member>(
       keyPath: KeyPath<\(perceptibleType), Member>,
-      file: StaticString = #file,
-      line: UInt = #line
+      fileID: StaticString = #fileID,
+      filePath: StaticString = #filePath,
+      line: UInt = #line,
+      column: UInt = #column
       ) {
-      \(raw: registrarVariableName).access(self, keyPath: keyPath, file: file, line: line)
+      \(raw: registrarVariableName).access(
+      self,
+      keyPath: keyPath,
+      fileID: fileID,
+      filePath: filePath,
+      line: line,
+      column: column
+      )
       }
       """
   }

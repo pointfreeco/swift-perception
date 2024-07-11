@@ -612,8 +612,8 @@
   private func expectRuntimeWarning<R>(failingBlock: () -> R) -> R {
     XCTExpectFailure(failingBlock: failingBlock) {
       $0.compactDescription == """
-        Perceptible state was accessed but is not being tracked. Track changes to state by \
-        wrapping your view in a 'WithPerceptionTracking' view.
+        failed - Perceptible state was accessed but is not being tracked. Track changes to state \
+        by wrapping your view in a 'WithPerceptionTracking' view.
         """
     }
   }

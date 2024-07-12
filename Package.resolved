@@ -5,8 +5,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-macro-testing",
       "state" : {
-        "revision" : "851c8b6bde2000d8051dc9aca1efee04dcc37411",
-        "version" : "0.4.1"
+        "revision" : "a35257b7e9ce44e92636447003a8eeefb77b145c",
+        "version" : "0.5.1"
       }
     },
     {
@@ -14,17 +14,17 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/pointfreeco/swift-snapshot-testing",
       "state" : {
-        "revision" : "8ddd519780452729c6634ad6bd0d2595938e9ea3",
-        "version" : "1.16.1"
+        "revision" : "c097f955b4e724690f0fc8ffb7a6d4b881c9c4e3",
+        "version" : "1.17.2"
       }
     },
     {
       "identity" : "swift-syntax",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/apple/swift-syntax",
+      "location" : "https://github.com/swiftlang/swift-syntax",
       "state" : {
-        "revision" : "08a2f0a9a30e0f705f79c9cfaca1f68b71bdc775",
-        "version" : "510.0.0"
+        "revision" : "4c6cc0a3b9e8f14b3ae2307c5ccae4de6167ac2c",
+        "version" : "600.0.0-prerelease-2024-06-12"
       }
     },
     {
@@ -33,7 +33,7 @@
       "location" : "https://github.com/pointfreeco/xctest-dynamic-overlay",
       "state" : {
         "branch" : "swift-testing",
-        "revision" : "0794ddaff9a34de48d99c831c3c6e2835aea1e11"
+        "revision" : "0bf5ef4746bb193865b946ced53b61aec223af42"
       }
     }
   ],

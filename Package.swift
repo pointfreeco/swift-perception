@@ -15,8 +15,8 @@ let package = Package(
     .library(name: "Perception", targets: ["Perception"])
   ],
   dependencies: [
+    .package(url: "https://github.com/pointfreeco/swift-issue-reporting", from: "1.2.0"),
     .package(url: "https://github.com/pointfreeco/swift-macro-testing", from: "0.1.0"),
-    .package(url: "https://github.com/pointfreeco/xctest-dynamic-overlay", from: "1.0.0"),
     .package(url: "https://github.com/swiftlang/swift-syntax", "509.0.0"..<"601.0.0-prerelease"),
   ],
   targets: [
@@ -24,7 +24,7 @@ let package = Package(
       name: "Perception",
       dependencies: [
         "PerceptionMacros",
-        .product(name: "XCTestDynamicOverlay", package: "xctest-dynamic-overlay"),
+        .product(name: "IssueReporting", package: "swift-issue-reporting"),
       ]
     ),
     .testTarget(

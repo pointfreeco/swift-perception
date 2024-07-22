@@ -56,10 +56,19 @@
 
           internal nonisolated func access<Member>(
             keyPath: KeyPath<Feature, Member>,
-            file: StaticString = #file,
-            line: UInt = #line
+            fileID: StaticString = #fileID,
+            filePath: StaticString = #filePath,
+            line: UInt = #line,
+            column: UInt = #column
           ) {
-            _$perceptionRegistrar.access(self, keyPath: keyPath, file: file, line: line)
+            _$perceptionRegistrar.access(
+              self,
+              keyPath: keyPath,
+              fileID: fileID,
+              filePath: filePath,
+              line: line,
+              column: column
+            )
           }
 
           internal nonisolated func withMutation<Member, MutationResult>(

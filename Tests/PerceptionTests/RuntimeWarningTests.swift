@@ -613,7 +613,9 @@
     XCTExpectFailure(failingBlock: failingBlock) {
       $0.compactDescription == """
         failed - Perceptible state was accessed but is not being tracked. Track changes to state \
-        by wrapping your view in a 'WithPerceptionTracking' view.
+        by wrapping your view in a 'WithPerceptionTracking' view. This must also be done for any \
+        escaping, trailing closures, such as 'GeometryReader', `LazyVStack` (and all lazy \
+        views), navigation APIs ('sheet', 'popover', 'fullScreenCover', etc.), and others.
         """
     }
   }

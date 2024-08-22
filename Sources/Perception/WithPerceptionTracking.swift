@@ -30,11 +30,19 @@
   /// }
   /// ```
   ///
+  /// > Note: Other common escaping closures to be aware of:
+  /// > * Reader views, such as `GeometryReader`, ScrollViewReader`, etc.
+  /// > * Lazy views such as `LazyVStack`, `LazyVGrid`, etc.
+  /// > * Navigation APIs, such as `sheet`, `popover`, `fullScreenCover`, `navigationDestination`,
+  /// etc.
+  ///
   /// If a field of a `@Perceptible` model is accessed in a view while _not_ inside
   /// ``WithPerceptionTracking``, then a runtime warning will helpfully be triggered:
   ///
   /// > 🟣 Runtime Warning: Perceptible state was accessed but is not being tracked. Track changes
-  /// > to state by wrapping your view in a 'WithPerceptionTracking' view.
+  /// > to state by wrapping your view in a 'WithPerceptionTracking' view. This must also be done
+  /// > for any escaping, trailing closures, such as 'GeometryReader', `LazyVStack` (and all lazy
+  /// > views), navigation APIs ('sheet', 'popover', 'fullScreenCover', etc.), and others.
   ///
   /// To debug this, expand the warning in the Issue Navigator of Xcode (cmd+5), and click through
   /// the stack frames displayed to find the line in your view where you are accessing state without

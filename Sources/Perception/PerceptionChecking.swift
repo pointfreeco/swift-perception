@@ -12,50 +12,29 @@ import Foundation
 /// app. However, the checks can sometimes be costly and slow down your app in development. If
 /// you wish to fully disable the checks, you can set this boolean to `false.`
 @available(
-  iOS,
-  deprecated: 17,
-  message: "'isPerceptionCheckingEnabled' is no longer needed in iOS 17+"
+  iOS, deprecated: 17, message: "'isPerceptionCheckingEnabled' is no longer needed in iOS 17+"
 )
 @available(
-  macOS,
-  deprecated: 14,
-  message: "'isPerceptionCheckingEnabled' is no longer needed in macOS 14+"
+  macOS, deprecated: 14, message: "'isPerceptionCheckingEnabled' is no longer needed in macOS 14+"
 )
 @available(
-  watchOS,
-  deprecated: 10,
+  watchOS, deprecated: 10,
   message: "'isPerceptionCheckingEnabled' is no longer needed in watchOS 10+"
 )
 @available(
-  tvOS,
-  deprecated: 17,
-  message: "'isPerceptionCheckingEnabled' is no longer needed in tvOS 17+"
+  tvOS, deprecated: 17, message: "'isPerceptionCheckingEnabled' is no longer needed in tvOS 17+"
 )
 public var isPerceptionCheckingEnabled: Bool {
   get { perceptionChecking.isPerceptionCheckingEnabled }
   set { perceptionChecking.isPerceptionCheckingEnabled = newValue }
 }
 
+@available(iOS, deprecated: 17, message: "'_PerceptionLocals' is no longer needed in iOS 17+")
+@available(macOS, deprecated: 14, message: "'_PerceptionLocals' is no longer needed in macOS 14+")
 @available(
-  iOS,
-  deprecated: 17,
-  message: "'_PerceptionLocals' is no longer needed in iOS 17+"
+  watchOS, deprecated: 10, message: "'_PerceptionLocals' is no longer needed in watchOS 10+"
 )
-@available(
-  macOS,
-  deprecated: 14,
-  message: "'_PerceptionLocals' is no longer needed in macOS 14+"
-)
-@available(
-  watchOS,
-  deprecated: 10,
-  message: "'_PerceptionLocals' is no longer needed in watchOS 10+"
-)
-@available(
-  tvOS,
-  deprecated: 17,
-  message: "'_PerceptionLocals' is no longer needed in tvOS 17+"
-)
+@available(tvOS, deprecated: 17, message: "'_PerceptionLocals' is no longer needed in tvOS 17+")
 public enum _PerceptionLocals {
   @TaskLocal public static var isInPerceptionTracking = false
   @TaskLocal public static var skipPerceptionChecking = false

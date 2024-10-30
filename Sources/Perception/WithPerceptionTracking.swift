@@ -47,6 +47,18 @@
   /// To debug this, expand the warning in the Issue Navigator of Xcode (cmd+5), and click through
   /// the stack frames displayed to find the line in your view where you are accessing state without
   /// being inside ``WithPerceptionTracking``.
+  @available(
+    iOS, deprecated: 17, message: "'WithPerceptionTracking' is no longer needed in iOS 17+"
+  )
+  @available(
+    macOS, deprecated: 14, message: "'WithPerceptionTracking' is no longer needed in macOS 14+"
+  )
+  @available(
+    watchOS, deprecated: 10, message: "'WithPerceptionTracking' is no longer needed in watchOS 10+"
+  )
+  @available(
+    tvOS, deprecated: 17, message: "'WithPerceptionTracking' is no longer needed in tvOS 17+"
+  )
   public struct WithPerceptionTracking<Content> {
     @State var id = 0
     let content: () -> Content

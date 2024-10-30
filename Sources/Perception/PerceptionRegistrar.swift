@@ -49,7 +49,12 @@ public struct PerceptionRegistrar: Sendable {
   @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
   extension PerceptionRegistrar {
     public func access<Subject: Observable, Member>(
-      _ subject: Subject, keyPath: KeyPath<Subject, Member>
+      _ subject: Subject,
+      keyPath: KeyPath<Subject, Member>,
+      fileID: StaticString = #fileID,
+      filePath: StaticString = #filePath,
+      line: UInt = #line,
+      column: UInt = #column
     ) {
       self.registrar.access(subject, keyPath: keyPath)
     }

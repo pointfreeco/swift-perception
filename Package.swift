@@ -12,7 +12,8 @@ let package = Package(
     .watchOS(.v6),
   ],
   products: [
-    .library(name: "Perception", targets: ["Perception"])
+    .library(name: "Perception", targets: ["Perception"]),
+    .library(name: "PerceptionCore", targets: ["PerceptionCore"]),
   ],
   dependencies: [
     .package(url: "https://github.com/pointfreeco/swift-macro-testing", from: "0.1.0"),
@@ -22,6 +23,13 @@ let package = Package(
   targets: [
     .target(
       name: "Perception",
+      dependencies: [
+        "PerceptionCore",
+        "PerceptionMacros",
+      ]
+    ),
+    .target(
+      name: "PerceptionCore",
       dependencies: [
         "PerceptionMacros",
         .product(name: "IssueReporting", package: "xctest-dynamic-overlay"),

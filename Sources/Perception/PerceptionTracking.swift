@@ -209,12 +209,9 @@ public func withPerceptionTracking<T>(
   _ apply: () -> T,
   onChange: @autoclosure () -> @Sendable () -> Void
 ) -> T {
-  #if canImport(Observation)
-    if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta {
-      return withObservationTracking(apply, onChange: onChange())
-    }
-  #endif
-
+  if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta {
+    return withObservationTracking(apply, onChange: onChange())
+  }
   let (result, accessList) = generateAccessList(apply)
   if let accessList {
     PerceptionTracking._installTracking(accessList, onChange: onChange())

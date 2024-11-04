@@ -21,5 +21,3 @@
 @available(watchOS, deprecated: 10, renamed: "Observable")
 @available(tvOS, deprecated: 17, renamed: "Observable")
 public protocol Perceptible {}
-
-public protocol Perceptible2: Perceptible {}

@@ -22,7 +22,7 @@ public struct PerceptionRegistrar: Sendable {
   /// ``PerceptionRegistrar`` when using the
   /// ``Perception/Perceptible()`` macro to indicate observably
   /// of a type.
-  public init(isPerceptionCheckingEnabled: Bool = Perception.isPerceptionCheckingEnabled) {
+  public init(isPerceptionCheckingEnabled: Bool = PerceptionCore.isPerceptionCheckingEnabled) {
     if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta {
       self._rawValue = AnySendable(ObservationRegistrar())
     } else {
@@ -199,7 +199,7 @@ extension PerceptionRegistrar: Hashable {
       column: UInt
     ) {
       if self.isPerceptionCheckingEnabled,
-        Perception.isPerceptionCheckingEnabled,
+        PerceptionCore.isPerceptionCheckingEnabled,
         !_PerceptionLocals.isInPerceptionTracking,
         !_PerceptionLocals.skipPerceptionChecking,
         self.isInSwiftUIBody(file: filePath, line: line)

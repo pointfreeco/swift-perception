@@ -47,7 +47,6 @@ jobs:
   wasm:
     name: Wasm
     runs-on: ubuntu-latest
-    container: swift:6.0.2
     steps:
       - uses: actions/checkout@v4
       - uses: bytecodealliance/actions/wasmtime/setup@v1

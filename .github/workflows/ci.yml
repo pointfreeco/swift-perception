@@ -60,7 +60,7 @@ jobs:
           echo "$PREFIX/usr/bin" >> $GITHUB_PATH
 
       - name: Build
-        run: swift build --triple wasm32-unknown-wasi
+        run: swift build --swift-sdk wasm32-unknown-wasi -Xlinker -z -Xlinker stack-size=$((1024 * 1024))
 
   check-macro-compatibility:
     name: Check Macro Compatibility

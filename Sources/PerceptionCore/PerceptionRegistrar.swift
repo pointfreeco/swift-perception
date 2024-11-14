@@ -24,7 +24,11 @@ public struct PerceptionRegistrar: Sendable {
   /// of a type.
   public init(isPerceptionCheckingEnabled: Bool = PerceptionCore.isPerceptionCheckingEnabled) {
     if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta {
-      self._rawValue = AnySendable(ObservationRegistrar())
+      #if canImport(Observation)
+        self._rawValue = AnySendable(ObservationRegistrar())
+      #else
+        self._rawValue = AnySendable(_PerceptionRegistrar())
+      #endif
     } else {
       self._rawValue = AnySendable(_PerceptionRegistrar())
     }
@@ -33,47 +37,51 @@ public struct PerceptionRegistrar: Sendable {
     #endif
   }
 
-  @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
-  private var registrar: ObservationRegistrar {
-    self._rawValue.base as! ObservationRegistrar
-  }
+  #if canImport(Observation)
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+    private var registrar: ObservationRegistrar {
+      self._rawValue.base as! ObservationRegistrar
+    }
+  #endif
 
   private var perceptionRegistrar: _PerceptionRegistrar {
     self._rawValue.base as! _PerceptionRegistrar
   }
 }
 
-@available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
-extension PerceptionRegistrar {
-  public func access<Subject: Observable, Member>(
-    _ subject: Subject,
-    keyPath: KeyPath<Subject, Member>,
-    fileID: StaticString = #fileID,
-    filePath: StaticString = #filePath,
-    line: UInt = #line,
-    column: UInt = #column
-  ) {
-    self.registrar.access(subject, keyPath: keyPath)
-  }
+#if canImport(Observation)
+  @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+  extension PerceptionRegistrar {
+    public func access<Subject: Observable, Member>(
+      _ subject: Subject,
+      keyPath: KeyPath<Subject, Member>,
+      fileID: StaticString = #fileID,
+      filePath: StaticString = #filePath,
+      line: UInt = #line,
+      column: UInt = #column
+    ) {
+      self.registrar.access(subject, keyPath: keyPath)
+    }
 
-  public func withMutation<Subject: Observable, Member, T>(
-    of subject: Subject, keyPath: KeyPath<Subject, Member>, _ mutation: () throws -> T
-  ) rethrows -> T {
-    try self.registrar.withMutation(of: subject, keyPath: keyPath, mutation)
-  }
+    public func withMutation<Subject: Observable, Member, T>(
+      of subject: Subject, keyPath: KeyPath<Subject, Member>, _ mutation: () throws -> T
+    ) rethrows -> T {
+      try self.registrar.withMutation(of: subject, keyPath: keyPath, mutation)
+    }
 
-  public func willSet<Subject: Observable, Member>(
-    _ subject: Subject, keyPath: KeyPath<Subject, Member>
-  ) {
-    self.registrar.willSet(subject, keyPath: keyPath)
-  }
+    public func willSet<Subject: Observable, Member>(
+      _ subject: Subject, keyPath: KeyPath<Subject, Member>
+    ) {
+      self.registrar.willSet(subject, keyPath: keyPath)
+    }
 
-  public func didSet<Subject: Observable, Member>(
-    _ subject: Subject, keyPath: KeyPath<Subject, Member>
-  ) {
-    self.registrar.didSet(subject, keyPath: keyPath)
+    public func didSet<Subject: Observable, Member>(
+      _ subject: Subject, keyPath: KeyPath<Subject, Member>
+    ) {
+      self.registrar.didSet(subject, keyPath: keyPath)
+    }
   }
-}
+#endif
 
 extension PerceptionRegistrar {
   @_disfavoredOverload
@@ -93,17 +101,19 @@ extension PerceptionRegistrar {
         column: column
       )
     #endif
-    if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta {
-      func `open`<T: Observable>(_ subject: T) {
-        self.registrar.access(
-          subject,
-          keyPath: unsafeDowncast(keyPath, to: KeyPath<T, Member>.self)
-        )
+    #if canImport(Observation)
+      if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta {
+        func `open`<T: Observable>(_ subject: T) {
+          self.registrar.access(
+            subject,
+            keyPath: unsafeDowncast(keyPath, to: KeyPath<T, Member>.self)
+          )
+        }
+        if let subject = subject as? any Observable {
+          return open(subject)
+        }
       }
-      if let subject = subject as? any Observable {
-        return open(subject)
-      }
-    }
+    #endif
     self.perceptionRegistrar.access(subject, keyPath: keyPath)
   }
 
@@ -113,18 +123,20 @@ extension PerceptionRegistrar {
     keyPath: KeyPath<Subject, Member>,
     _ mutation: () throws -> T
   ) rethrows -> T {
-    if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta,
-      let subject = subject as? any Observable
-    {
-      func `open`<S: Observable>(_ subject: S) throws -> T {
-        return try self.registrar.withMutation(
-          of: subject,
-          keyPath: unsafeDowncast(keyPath, to: KeyPath<S, Member>.self),
-          mutation
-        )
+    #if canImport(Observation)
+      if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta,
+        let subject = subject as? any Observable
+      {
+        func `open`<S: Observable>(_ subject: S) throws -> T {
+          return try self.registrar.withMutation(
+            of: subject,
+            keyPath: unsafeDowncast(keyPath, to: KeyPath<S, Member>.self),
+            mutation
+          )
+        }
+        return try open(subject)
       }
-      return try open(subject)
-    }
+    #endif
     return try self.perceptionRegistrar.withMutation(of: subject, keyPath: keyPath, mutation)
   }
 

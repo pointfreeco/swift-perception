@@ -51,8 +51,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: bytecodealliance/actions/wasmtime/setup@v1
-      - name: Install Swift SDK for WebAssembly
-        run: swift sdk install https://github.com/swiftwasm/swift/releases/download/swift-wasm-6.0.2-RELEASE/swift-wasm-6.0.2-RELEASE-wasm32-unknown-wasi.artifactbundle.zip --checksum 6ffedb055cb9956395d9f435d03d53ebe9f6a8d45106b979d1b7f53358e1dcb4
+      - name: Install Swift and Swift SDK for WebAssembly
+        run: |
+          PREFIX=/opt/swift
+          set -ex
+          curl -f -o /tmp/swift.tar.gz "https://download.swift.org/swift-6.0.2-release/ubuntu2204/swift-6.0.2-RELEASE/swift-6.0.2-RELEASE-ubuntu22.04.tar.gz"
+          sudo mkdir -p $PREFIX; sudo tar -xzf /tmp/swift.tar.gz -C $PREFIX --strip-component 1
+          $PREFIX/usr/bin/swift sdk install https://github.com/swiftwasm/swift/releases/download/swift-wasm-6.0.2-RELEASE/swift-wasm-6.0.2-RELEASE-wasm32-unknown-wasi.artifactbundle.zip --checksum 6ffedb055cb9956395d9f435d03d53ebe9f6a8d45106b979d1b7f53358e1dcb4
+          echo "$PREFIX/usr/bin" >> $GITHUB_PATH
+
       - name: Build
         run: swift build --triple wasm32-unknown-wasi
 

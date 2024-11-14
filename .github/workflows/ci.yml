@@ -31,6 +31,37 @@ jobs:
         run: make test-compatibility
         if: ${{ matrix.config == 'debug' }}
 
+  linux:
+    name: Linux
+    strategy:
+      matrix:
+        swift:
+          - '6.0'
+    runs-on: ubuntu-latest
+    container: swift:${{ matrix.swift }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build
+        run: swift build
+
+  wasm:
+    name: Wasm
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: bytecodealliance/actions/wasmtime/setup@v1
+      - name: Install Swift and Swift SDK for WebAssembly
+        run: |
+          PREFIX=/opt/swift
+          set -ex
+          curl -f -o /tmp/swift.tar.gz "https://download.swift.org/swift-6.0.2-release/ubuntu2204/swift-6.0.2-RELEASE/swift-6.0.2-RELEASE-ubuntu22.04.tar.gz"
+          sudo mkdir -p $PREFIX; sudo tar -xzf /tmp/swift.tar.gz -C $PREFIX --strip-component 1
+          $PREFIX/usr/bin/swift sdk install https://github.com/swiftwasm/swift/releases/download/swift-wasm-6.0.2-RELEASE/swift-wasm-6.0.2-RELEASE-wasm32-unknown-wasi.artifactbundle.zip --checksum 6ffedb055cb9956395d9f435d03d53ebe9f6a8d45106b979d1b7f53358e1dcb4
+          echo "$PREFIX/usr/bin" >> $GITHUB_PATH
+
+      - name: Build
+        run: swift build --swift-sdk wasm32-unknown-wasi -Xlinker -z -Xlinker stack-size=$((1024 * 1024))
+
   check-macro-compatibility:
     name: Check Macro Compatibility
     runs-on: macos-latest

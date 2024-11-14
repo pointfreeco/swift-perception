@@ -47,12 +47,12 @@ jobs:
   wasm:
     name: Wasm
     runs-on: ubuntu-latest
+    container: swift:6.0.2
     steps:
       - uses: actions/checkout@v4
       - uses: bytecodealliance/actions/wasmtime/setup@v1
-      - uses: swiftwasm/setup-swiftwasm@v1
-        with:
-          swift-version: "wasm-6.0.2-RELEASE"
+      - name: Install Swift SDK for WebAssembly
+        run: swift sdk install https://github.com/swiftwasm/swift/releases/download/swift-wasm-6.0.2-RELEASE/swift-wasm-6.0.2-RELEASE-wasm32-unknown-wasi.artifactbundle.zip --checksum 6ffedb055cb9956395d9f435d03d53ebe9f6a8d45106b979d1b7f53358e1dcb4
       - name: Build
         run: swift build --triple wasm32-unknown-wasi
 

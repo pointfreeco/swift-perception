@@ -145,17 +145,19 @@ extension PerceptionRegistrar {
     _ subject: Subject,
     keyPath: KeyPath<Subject, Member>
   ) {
-    if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta,
-      let subject = subject as? any Observable
-    {
-      func `open`<S: Observable>(_ subject: S) {
-        return self.registrar.willSet(
-          subject,
-          keyPath: unsafeDowncast(keyPath, to: KeyPath<S, Member>.self)
-        )
+    #if canImport(Observation)
+      if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta,
+        let subject = subject as? any Observable
+      {
+        func `open`<S: Observable>(_ subject: S) {
+          return self.registrar.willSet(
+            subject,
+            keyPath: unsafeDowncast(keyPath, to: KeyPath<S, Member>.self)
+          )
+        }
+        return open(subject)
       }
-      return open(subject)
-    }
+    #endif
     return self.perceptionRegistrar.willSet(subject, keyPath: keyPath)
   }
 
@@ -164,17 +166,19 @@ extension PerceptionRegistrar {
     _ subject: Subject,
     keyPath: KeyPath<Subject, Member>
   ) {
-    if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta,
-      let subject = subject as? any Observable
-    {
-      func `open`<S: Observable>(_ subject: S) {
-        return self.registrar.didSet(
-          subject,
-          keyPath: unsafeDowncast(keyPath, to: KeyPath<S, Member>.self)
-        )
+    #if canImport(Observation)
+      if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta,
+        let subject = subject as? any Observable
+      {
+        func `open`<S: Observable>(_ subject: S) {
+          return self.registrar.didSet(
+            subject,
+            keyPath: unsafeDowncast(keyPath, to: KeyPath<S, Member>.self)
+          )
+        }
+        return open(subject)
       }
-      return open(subject)
-    }
+    #endif
     return self.perceptionRegistrar.didSet(subject, keyPath: keyPath)
   }
 }

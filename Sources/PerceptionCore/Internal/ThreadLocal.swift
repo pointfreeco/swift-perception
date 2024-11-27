@@ -18,7 +18,7 @@ struct _ThreadLocal {
       get { _value.value }
       set { _value.value = newValue }
     }
-    private let _value = UncheckedSendable<UnsafeMutableRawPointer?>(nil)
+    private static let _value = UncheckedBox<UnsafeMutableRawPointer?>(nil)
   #else
     static var value: UnsafeMutableRawPointer? {
       get { Thread.current.threadDictionary[Key()] as! UnsafeMutableRawPointer? }

@@ -13,7 +13,12 @@ import Foundation
 
 struct _ThreadLocal {
   #if os(WASI)
-    static nonisolated(unsafe) var value: UnsafeMutableRawPointer?
+    // NB: This can simply be 'nonisolated(unsafe)' when we drop support for Swift 5.9
+    static var value: UnsafeMutableRawPointer? {
+      get { _value.value }
+      set { _value.value = newValue }
+    }
+    private static let _value = UncheckedBox<UnsafeMutableRawPointer?>(nil)
   #else
     static var value: UnsafeMutableRawPointer? {
       get { Thread.current.threadDictionary[Key()] as! UnsafeMutableRawPointer? }

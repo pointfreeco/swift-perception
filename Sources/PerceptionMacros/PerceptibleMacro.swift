@@ -308,7 +308,7 @@ extension PerceptibleMacro: ExtensionMacro {
     }
 
     let decl: DeclSyntax = """
-      extension \(raw: type.trimmedDescription): \(raw: qualifiedConformanceName), Observable {}
+      extension \(raw: type.trimmedDescription): \(raw: qualifiedConformanceName), Observation.Observable {}
       """
     let ext = decl.cast(ExtensionDeclSyntax.self)
 

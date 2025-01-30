@@ -63,4 +63,10 @@
       self.object = object
     }
   }
+
+  extension Observer: Equatable where Object: AnyObject {
+    static func == (lhs: Observer, rhs: Observer) -> Bool {
+      lhs.object === rhs.object
+    }
+  }
 #endif

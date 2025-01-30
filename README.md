@@ -121,4 +121,4 @@ This library is released under the MIT license. See [LICENSE](LICENSE) for detai
 [pointfreeco]: https://www.pointfree.co
 [mbrandonw]: https://twitter.com/mbrandonw
 [stephencelis]: https://twitter.com/stephencelis
-[docs]: https://swiftpackageindex.com/pointfreeco/swift-perception/main/documentation/perceptioncore/perceptible
+[docs]: https://swiftpackageindex.com/pointfreeco/swift-perception/main/documentation/perception

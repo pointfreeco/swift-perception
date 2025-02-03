@@ -54,6 +54,7 @@
     }
   }
 
+  @available(visionOS, unavailable)
   extension Bindable: Identifiable where Value: Identifiable {
     public var id: Value.ID {
       wrappedValue.id

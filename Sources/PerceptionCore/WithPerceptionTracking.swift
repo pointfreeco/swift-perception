@@ -183,4 +183,26 @@
       }
     }
   #endif
+
+extension WithPerceptionTracking {
+  /// Constructs a `WithPerceptionTracking` with a custom `Content` builder.
+  ///
+  /// Only use this to enable support of external or custom domain-specific languages:
+  ///
+  /// ```swift
+  /// extension WithPerceptionTracking: MyCustomContent where Content: MyCustomContent
+  ///   init(@MyCustomContentBuilder content: @escaping () -> Content) {
+  ///     self = Self.make(customBuilder: content)
+  ///   }
+  /// }
+  /// ```
+  ///
+  /// - Parameter customBuilder: Builds the `Content`
+  /// - Returns: A `WithPerceptionTracking<Content>`
+    public static func make(
+      customBuilder: @escaping () -> Content
+    ) -> WithPerceptionTracking<Content> {
+      Self.init(content: customBuilder)
+    }
+  }
 #endif

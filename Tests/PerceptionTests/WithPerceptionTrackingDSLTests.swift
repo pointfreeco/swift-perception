@@ -105,7 +105,7 @@ private struct CustomDSLContentBuilder {
 
 extension WithPerceptionTracking: CustomDSLContent where Content: CustomDSLContent {
   init(@CustomDSLContentBuilder content: @escaping () -> Content) {
-    self = Self.make(customBuilder: content)
+    self.init(content: content())
   }
 }
 

@@ -1,30 +1,28 @@
 #if canImport(SwiftUI)
 import Perception
 import SwiftUI
-import Testing
+import XCTest
 
-struct WithPerceptionTrackingDSLTests {
-  @Test
+final class WithPerceptionTrackingDSLTests: XCTestCase {
+
   @available(iOS 15, macOS 12, tvOS 15, watchOS 8, *)
-  func buildsAccessibilityRotorContent() {
+  func testBuildsAccessibilityRotorContent() {
     _ = WithPerceptionTracking {
       AccessibilityRotorEntry("foo", id: "bar")
     }
   }
 
-  @Test
   @available(iOS 14, macOS 11, *)
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
-  func buildsCommandContent() {
+  func testBuildsCommandContent() {
     _ = WithPerceptionTracking {
       EmptyCommands()
     }
   }
 
-  @Test
   @available(iOS 14, macOS 11, tvOS 14, watchOS 7, *)
-  func buildsCustomizableToolbarContent() {
+  func testBuildsCustomizableToolbarContent() {
     _ = WithPerceptionTracking {
       ToolbarItem {
         EmptyView()
@@ -32,9 +30,8 @@ struct WithPerceptionTrackingDSLTests {
     }
   }
 
-  @Test
   @available(iOS 14, macOS 11, tvOS 14, watchOS 7, *)
-  func buildsScene() {
+  func testBuildsScene() {
     _ = WithPerceptionTracking {
       WindowGroup {
         EmptyView()
@@ -42,29 +39,26 @@ struct WithPerceptionTrackingDSLTests {
     }
   }
 
-  @Test
   @available(iOS 16, macOS 12, *)
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
-  func buildsTableColumnContent() {
+  func testBuildsTableColumnContent() {
     _ = WithPerceptionTracking {
       TableColumn("Foo", value: \IdentifiableMock.id)
     }
   }
 
-  @Test
   @available(iOS 16, macOS 12, *)
   @available(tvOS, unavailable)
   @available(watchOS, unavailable)
-  func buildsTableRowContent() {
+  func testBuildsTableRowContent() {
     _ = WithPerceptionTracking {
       TableRow(IdentifiableMock(id: ""))
     }
   }
 
-  @Test
   @available(iOS 14, macOS 11, tvOS 14, watchOS 7, *)
-  func buildsToolbarContent() {
+  func testBuildsToolbarContent() {
     _ = WithPerceptionTracking {
       ToolbarItemGroup {
         EmptyView()
@@ -72,15 +66,13 @@ struct WithPerceptionTrackingDSLTests {
     }
   }
 
-  @Test
-  func buildsSwiftUIView() {
+  func testBuildsSwiftUIView() {
     _ = WithPerceptionTracking {
       EmptyView()
     }
   }
 
-  @Test
-  func buildsCustomDSL() {
+  func testBuildsCustomDSL() {
     _ = WithPerceptionTracking {
       CustomDSL()
     }

@@ -77,6 +77,10 @@
       }
     }
 
+    public init(content: @escaping @autoclosure () -> Content) {
+      self.content = content
+    }
+
     @_transparent
     @inline(__always)
     private func instrumentedBody() -> Content {

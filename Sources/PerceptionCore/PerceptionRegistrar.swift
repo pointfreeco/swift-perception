@@ -10,7 +10,7 @@ import IssueReporting
 @available(watchOS, deprecated: 10, message: "Use 'ObservationRegistrar' instead.")
 @available(tvOS, deprecated: 17, message: "Use 'ObservationRegistrar' instead.")
 public struct PerceptionRegistrar: Sendable {
-  private let _rawValue: AnySendable
+  private let _rawValue: any Sendable
   #if DEBUG
     private let isPerceptionCheckingEnabled: Bool
     fileprivate let perceptionChecks = _ManagedCriticalState<[Location: Bool]>([:])
@@ -25,12 +25,12 @@ public struct PerceptionRegistrar: Sendable {
   public init(isPerceptionCheckingEnabled: Bool = PerceptionCore.isPerceptionCheckingEnabled) {
     if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta {
       #if canImport(Observation)
-        self._rawValue = AnySendable(ObservationRegistrar())
+        self._rawValue = ObservationRegistrar()
       #else
-        self._rawValue = AnySendable(_PerceptionRegistrar())
+        self._rawValue = _PerceptionRegistrar()
       #endif
     } else {
-      self._rawValue = AnySendable(_PerceptionRegistrar())
+      self._rawValue = _PerceptionRegistrar()
     }
     #if DEBUG
       self.isPerceptionCheckingEnabled = isPerceptionCheckingEnabled
@@ -40,12 +40,12 @@ public struct PerceptionRegistrar: Sendable {
   #if canImport(Observation)
     @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
     private var registrar: ObservationRegistrar {
-      self._rawValue.base as! ObservationRegistrar
+      self._rawValue as! ObservationRegistrar
     }
   #endif
 
   private var perceptionRegistrar: _PerceptionRegistrar {
-    self._rawValue.base as! _PerceptionRegistrar
+    self._rawValue as! _PerceptionRegistrar
   }
 }
 

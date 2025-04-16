@@ -214,4 +214,15 @@
       }
     }
   #endif
+
+  #if canImport(MapKit)
+    import MapKit
+
+    @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+    extension WithPerceptionTracking: MapContent where Content: MapContent {
+      public init(@MapContentBuilder content: @escaping () -> Content) {
+        self.content = _WithPerceptionTrackingContent(content)
+      }
+    }
+  #endif
 #endif

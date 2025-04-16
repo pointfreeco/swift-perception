@@ -47,6 +47,10 @@
   /// To debug this, expand the warning in the Issue Navigator of Xcode (cmd+5), and click through
   /// the stack frames displayed to find the line in your view where you are accessing state without
   /// being inside ``WithPerceptionTracking``.
+  ///
+  /// > Important: In iOS 17+, etc., `WithPerceptionTracking` is a no-op and SwiftUI will use the
+  /// > Observation framework instead. Be sure to test your application in all supported deployment
+  /// > targets to catch potential differences in observation behavior.
   @available(
     iOS, deprecated: 17, message: "'WithPerceptionTracking' is no longer needed in iOS 17+"
   )

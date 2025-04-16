@@ -47,6 +47,10 @@
   /// To debug this, expand the warning in the Issue Navigator of Xcode (cmd+5), and click through
   /// the stack frames displayed to find the line in your view where you are accessing state without
   /// being inside ``WithPerceptionTracking``.
+  ///
+  /// > Important: In iOS 17+, etc., `WithPerceptionTracking` is a no-op and SwiftUI will use the
+  /// > Observation framework instead. Be sure to test your application in all supported deployment
+  /// > targets to catch potential differences in observation behavior.
   @available(
     iOS, deprecated: 17, message: "'WithPerceptionTracking' is no longer needed in iOS 17+"
   )
@@ -59,18 +63,41 @@
   @available(
     tvOS, deprecated: 17, message: "'WithPerceptionTracking' is no longer needed in tvOS 17+"
   )
+
+  enum _WithPerceptionTrackingContent<Content> {
+    case direct(Content)
+    case instrumented(() -> Content)
+    case tracked(() -> Content)
+
+    init(_ content: @escaping () -> Content) {
+      if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta {
+        #if DEBUG
+        self = .instrumented(content)
+        #else
+        self = .direct(content())
+        #endif
+      } else {
+        self = .tracked(content)
+      }
+    }
+  }
+
   public struct WithPerceptionTracking<Content> {
     @State var id = 0
-    let content: () -> Content
+    let content: _WithPerceptionTrackingContent<Content>
 
     public var body: Content {
-      if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta {
-        return self.instrumentedBody()
-      } else {
-        // NB: View will not re-render when 'id' changes unless we access it in the view.
+      switch content {
+      case .direct(let content):
+        return content
+        
+      case .instrumented(let content):
+        return instrumentedBody(content)
+        
+      case .tracked(let content):
         let _ = self.id
         return withPerceptionTracking {
-          self.instrumentedBody()
+          self.instrumentedBody(content)
         } onChange: { [_id = UncheckedSendable(self._id)] in
           _id.value.wrappedValue &+= 1
         }
@@ -78,18 +105,18 @@
     }
 
     public init(content: @escaping @autoclosure () -> Content) {
-      self.content = content
+      self.content = _WithPerceptionTrackingContent(content)
     }
 
     @_transparent
     @inline(__always)
-    private func instrumentedBody() -> Content {
+    private func instrumentedBody(_ content: () -> Content) -> Content {
       #if DEBUG
         return _PerceptionLocals.$isInPerceptionTracking.withValue(true) {
-          self.content()
+          content()
         }
       #else
-        return self.content()
+        return content()
       #endif
     }
   }
@@ -98,7 +125,7 @@
   extension WithPerceptionTracking: AccessibilityRotorContent
   where Content: AccessibilityRotorContent {
     public init(@AccessibilityRotorContentBuilder content: @escaping () -> Content) {
-      self.content = content
+      self.content = _WithPerceptionTrackingContent(content)
     }
   }
 
@@ -107,7 +134,7 @@
   @available(watchOS, unavailable)
   extension WithPerceptionTracking: Commands where Content: Commands {
     public init(@CommandsBuilder content: @escaping () -> Content) {
-      self.content = content
+      self.content = _WithPerceptionTrackingContent(content)
     }
   }
 
@@ -119,7 +146,7 @@
   @available(iOS 14, macOS 11, tvOS 14, watchOS 7, *)
   extension WithPerceptionTracking: Scene where Content: Scene {
     public init(@SceneBuilder content: @escaping () -> Content) {
-      self.content = content
+      self.content = _WithPerceptionTrackingContent(content)
     }
   }
 
@@ -133,7 +160,7 @@
 
     public init<R, C>(@TableColumnBuilder<R, C> content: @escaping () -> Content)
     where R == Content.TableRowValue, C == Content.TableColumnSortComparator {
-      self.content = content
+      self.content = _WithPerceptionTrackingContent(content)
     }
 
     nonisolated public var tableColumnBody: Never {
@@ -156,7 +183,7 @@
 
     public init<R>(@TableRowBuilder<R> content: @escaping () -> Content)
     where R == Content.TableRowValue {
-      self.content = content
+      self.content = _WithPerceptionTrackingContent(content)
     }
 
     nonisolated public var tableRowBody: Never {
@@ -167,13 +194,13 @@
   @available(iOS 14, macOS 11, tvOS 14, watchOS 7, *)
   extension WithPerceptionTracking: ToolbarContent where Content: ToolbarContent {
     public init(@ToolbarContentBuilder content: @escaping () -> Content) {
-      self.content = content
+      self.content = _WithPerceptionTrackingContent(content)
     }
   }
 
   extension WithPerceptionTracking: View where Content: View {
     public init(@ViewBuilder content: @escaping () -> Content) {
-      self.content = content
+      self.content = _WithPerceptionTrackingContent(content)
     }
   }
 
@@ -183,7 +210,7 @@
     @available(iOS 16, macOS 13, tvOS 16, watchOS 9, *)
     extension WithPerceptionTracking: ChartContent where Content: ChartContent {
       public init(@ChartContentBuilder content: @escaping () -> Content) {
-        self.content = content
+        self.content = _WithPerceptionTrackingContent(content)
       }
     }
   #endif

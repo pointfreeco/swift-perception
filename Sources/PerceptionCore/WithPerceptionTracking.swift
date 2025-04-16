@@ -189,14 +189,14 @@
   #endif
 
   #if canImport(MapKit)
-  import MapKit
+    import MapKit
 
-  @available(iOS 17.0, *)
-  @available(watchOS 10.0, *)
-  extension WithPerceptionTracking: MapContent where Content: MapContent {
-    public init(@MapContentBuilder content: @escaping () -> Content) {
-      self.content = content
+    @available(iOS 17, *)
+    @available(watchOS 10, *)
+    extension WithPerceptionTracking: MapContent where Content: MapContent {
+      public init(@MapContentBuilder content: @escaping () -> Content) {
+        self.content = content
+      }
     }
-  }
   #endif
 #endif

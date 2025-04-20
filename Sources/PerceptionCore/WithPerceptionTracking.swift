@@ -63,25 +63,6 @@
   @available(
     tvOS, deprecated: 17, message: "'WithPerceptionTracking' is no longer needed in tvOS 17+"
   )
-
-  enum _WithPerceptionTrackingContent<Content> {
-    case direct(Content)
-    case instrumented(() -> Content)
-    case tracked(() -> Content)
-
-    init(_ content: @escaping () -> Content) {
-      if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta {
-        #if DEBUG
-        self = .instrumented(content)
-        #else
-        self = .direct(content())
-        #endif
-      } else {
-        self = .tracked(content)
-      }
-    }
-  }
-
   public struct WithPerceptionTracking<Content> {
     @State var id = 0
     let content: _WithPerceptionTrackingContent<Content>
@@ -118,6 +99,24 @@
       #else
         return content()
       #endif
+    }
+  }
+
+  enum _WithPerceptionTrackingContent<Content> {
+    case direct(Content)
+    case instrumented(() -> Content)
+    case tracked(() -> Content)
+
+    init(_ content: @escaping () -> Content) {
+      if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta {
+        #if DEBUG
+        self = .instrumented(content)
+        #else
+        self = .direct(content())
+        #endif
+      } else {
+        self = .tracked(content)
+      }
     }
   }
 

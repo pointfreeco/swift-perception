@@ -1,8 +1,11 @@
-import Foundation
+#if os(iOS) || os(tvOS) || os(watchOS)
+  import Foundation
+#endif
 
-// NB: This boolean is used to work around a crash experienced by beta users of Observation when
-//     `Observable` was still a marker protocol and we attempt to dynamically cast to
-//     `any Observable`.
+// NB: This Boolean is used to work around a crash experienced by beta users of Observation when
+//     'Observable' was still a marker protocol and we attempt to dynamically cast to
+//     'any Observable'.
+@usableFromInline
 let isObservationBeta: Bool = {
   #if os(iOS) || os(tvOS) || os(watchOS)
     let os = ProcessInfo.processInfo.operatingSystemVersion

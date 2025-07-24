@@ -9,12 +9,9 @@
 //
 //===----------------------------------------------------------------------===//
 
-#if canImport(Observation)
-  import Observation
-#endif
-
+@available(SwiftStdlib 5.9, *)
 @_spi(SwiftUI)
-public struct PerceptionTracking: Sendable {
+public struct ObservationTracking: Sendable {
   enum Id {
     case willSet(Int)
     case didSet(Int)
@@ -22,24 +19,24 @@ public struct PerceptionTracking: Sendable {
   }
 
   struct Entry: @unchecked Sendable {
-    let context: _PerceptionRegistrar.Context
-
+    let context: ObservationRegistrar.Context
+    
     var properties: Set<AnyKeyPath>
     
-    init(_ context: _PerceptionRegistrar.Context, properties: Set<AnyKeyPath> = []) {
+    init(_ context: ObservationRegistrar.Context, properties: Set<AnyKeyPath> = []) {
       self.context = context
       self.properties = properties
     }
     
-    func addWillSetPerceiver(_ changed: @Sendable @escaping (AnyKeyPath) -> Void) -> Int {
+    func addWillSetObserver(_ changed: @Sendable @escaping (AnyKeyPath) -> Void) -> Int {
       return context.registerTracking(for: properties, willSet: changed)
     }
 
-    func addDidSetPerceiver(_ changed: @Sendable @escaping (AnyKeyPath) -> Void) -> Int {
+    func addDidSetObserver(_ changed: @Sendable @escaping (AnyKeyPath) -> Void) -> Int {
       return context.registerTracking(for: properties, didSet: changed)
     }
     
-    func removePerceiver(_ token: Int) {
+    func removeObserver(_ token: Int) {
       context.cancel(token)
     }
     
@@ -58,9 +55,9 @@ public struct PerceptionTracking: Sendable {
 
     internal init() { }
     
-    internal mutating func addAccess<Subject: Perceptible>(
+    internal mutating func addAccess<Subject: Observable>(
       keyPath: PartialKeyPath<Subject>,
-      context: _PerceptionRegistrar.Context
+      context: ObservationRegistrar.Context
     ) {
       entries[context.id, default: Entry(context)].insert(keyPath)
     }
@@ -74,29 +71,29 @@ public struct PerceptionTracking: Sendable {
 
   @_spi(SwiftUI)
   public static func _installTracking(
-    _ tracking: PerceptionTracking,
-    willSet: (@Sendable (PerceptionTracking) -> Void)? = nil,
-    didSet: (@Sendable (PerceptionTracking) -> Void)? = nil
+    _ tracking: ObservationTracking,
+    willSet: (@Sendable (ObservationTracking) -> Void)? = nil,
+    didSet: (@Sendable (ObservationTracking) -> Void)? = nil
   ) {
     let values = tracking.list.entries.mapValues { 
       switch (willSet, didSet) {
-      case (.some(let willSetPerceiver), .some(let didSetPerceiver)):
-        return Id.full($0.addWillSetPerceiver { keyPath in
+      case (.some(let willSetObserver), .some(let didSetObserver)):
+        return Id.full($0.addWillSetObserver { keyPath in
           tracking.state.withCriticalRegion { $0.changed = keyPath }
-          willSetPerceiver(tracking)
-        }, $0.addDidSetPerceiver { keyPath in
+          willSetObserver(tracking)
+        }, $0.addDidSetObserver { keyPath in
           tracking.state.withCriticalRegion { $0.changed = keyPath }
-          didSetPerceiver(tracking)
+          didSetObserver(tracking)
         })
-      case (.some(let willSetPerceiver), .none):
-        return Id.willSet($0.addWillSetPerceiver { keyPath in
+      case (.some(let willSetObserver), .none):
+        return Id.willSet($0.addWillSetObserver { keyPath in
           tracking.state.withCriticalRegion { $0.changed = keyPath }
-          willSetPerceiver(tracking)
+          willSetObserver(tracking)
         })
-      case (.none, .some(let didSetPerceiver)):
-        return Id.didSet($0.addDidSetPerceiver { keyPath in
+      case (.none, .some(let didSetObserver)):
+        return Id.didSet($0.addDidSetObserver { keyPath in
           tracking.state.withCriticalRegion { $0.changed = keyPath }
-          didSetPerceiver(tracking)
+          didSetObserver(tracking)
         })
       case (.none, .none):
         fatalError()
@@ -111,7 +108,7 @@ public struct PerceptionTracking: Sendable {
     _ list: _AccessList,
     onChange: @escaping @Sendable () -> Void
   ) {
-    let tracking = PerceptionTracking(list)
+    let tracking = ObservationTracking(list)
     _installTracking(tracking, willSet: { _ in
       onChange()
       tracking.cancel()
@@ -119,7 +116,7 @@ public struct PerceptionTracking: Sendable {
   }
 
   struct State: @unchecked Sendable {
-    var values = [ObjectIdentifier: PerceptionTracking.Id]()
+    var values = [ObjectIdentifier: ObservationTracking.Id]()
     var cancelled = false
     var changed: AnyKeyPath?
   }
@@ -132,7 +129,7 @@ public struct PerceptionTracking: Sendable {
     self.list = list ?? _AccessList()
   }
 
-  internal func install(_ values:  [ObjectIdentifier : PerceptionTracking.Id]) {
+  internal func install(_ values:  [ObjectIdentifier : ObservationTracking.Id]) {
     state.withCriticalRegion {
       if !$0.cancelled {
         $0.values = values
@@ -147,36 +144,38 @@ public struct PerceptionTracking: Sendable {
       $0.values = [:]
       return values
     }
-    for (id, perceptionId) in values {
-        switch perceptionId {
+    for (id, observationId) in values {
+        switch observationId {
         case .willSet(let token):
-          list.entries[id]?.removePerceiver(token)
+          list.entries[id]?.removeObserver(token)
         case .didSet(let token):
-          list.entries[id]?.removePerceiver(token)
+          list.entries[id]?.removeObserver(token)
         case .full(let willSetToken, let didSetToken):
-          list.entries[id]?.removePerceiver(willSetToken)
-          list.entries[id]?.removePerceiver(didSetToken)
+          list.entries[id]?.removeObserver(willSetToken)
+          list.entries[id]?.removeObserver(didSetToken)
         }
       }
   }
 
+  @available(SwiftStdlib 6.0, *)
   public var changed: AnyKeyPath? {
       state.withCriticalRegion { $0.changed }
   }
 }
 
-fileprivate func generateAccessList<T>(_ apply: () -> T) -> (T, PerceptionTracking._AccessList?) {
-  var accessList: PerceptionTracking._AccessList?
+@available(SwiftStdlib 5.9, *)
+fileprivate func generateAccessList<T>(_ apply: () -> T) -> (T, ObservationTracking._AccessList?) {
+  var accessList: ObservationTracking._AccessList?
   let result = withUnsafeMutablePointer(to: &accessList) { ptr in
     let previous = _ThreadLocal.value
     _ThreadLocal.value = UnsafeMutableRawPointer(ptr)
     defer {
       if let scoped = ptr.pointee, let previous {
-        if var prevList = previous.assumingMemoryBound(to: PerceptionTracking._AccessList?.self).pointee {
+        if var prevList = previous.assumingMemoryBound(to: ObservationTracking._AccessList?.self).pointee {
           prevList.merge(scoped)
-          previous.assumingMemoryBound(to: PerceptionTracking._AccessList?.self).pointee = prevList
+          previous.assumingMemoryBound(to: ObservationTracking._AccessList?.self).pointee = prevList
         } else {
-          previous.assumingMemoryBound(to: PerceptionTracking._AccessList?.self).pointee = scoped
+          previous.assumingMemoryBound(to: ObservationTracking._AccessList?.self).pointee = scoped
         }
       }
       _ThreadLocal.value = previous
@@ -195,7 +194,7 @@ fileprivate func generateAccessList<T>(_ apply: () -> T) -> (T, PerceptionTracki
 /// `Car`:
 /// 
 ///     func render() {
-///         withPerceptionTracking {
+///         withObservationTracking {
 ///             for car in cars {
 ///                 print(car.name)
 ///             }
@@ -210,53 +209,48 @@ fileprivate func generateAccessList<T>(_ apply: () -> T) -> (T, PerceptionTracki
 ///
 /// - Returns: The value that the `apply` closure returns if it has a return
 /// value; otherwise, there is no return value.
-@available(iOS, deprecated: 17, renamed: "withObservationTracking")
-@available(macOS, deprecated: 14, renamed: "withObservationTracking")
-@available(watchOS, deprecated: 10, renamed: "withObservationTracking")
-@available(tvOS, deprecated: 17, renamed: "withObservationTracking")
-public func withPerceptionTracking<T>(
+@available(SwiftStdlib 5.9, *)
+public func withObservationTracking<T>(
   _ apply: () -> T,
   onChange: @autoclosure () -> @Sendable () -> Void
 ) -> T {
-  #if canImport(Observation)
-    if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta {
-      return withObservationTracking(apply, onChange: onChange())
-    }
-  #endif
   let (result, accessList) = generateAccessList(apply)
   if let accessList {
-    PerceptionTracking._installTracking(accessList, onChange: onChange())
+    ObservationTracking._installTracking(accessList, onChange: onChange())
   }
   return result
 }
 
+@available(SwiftStdlib 5.9, *)
 @_spi(SwiftUI)
-public func withPerceptionTracking<T>(
+public func withObservationTracking<T>(
   _ apply: () -> T,
-  willSet: @escaping @Sendable (PerceptionTracking) -> Void,
-  didSet: @escaping @Sendable (PerceptionTracking) -> Void
+  willSet: @escaping @Sendable (ObservationTracking) -> Void,
+  didSet: @escaping @Sendable (ObservationTracking) -> Void
 ) -> T {
   let (result, accessList) = generateAccessList(apply)
-  PerceptionTracking._installTracking(PerceptionTracking(accessList), willSet: willSet, didSet: didSet)
+  ObservationTracking._installTracking(ObservationTracking(accessList), willSet: willSet, didSet: didSet)
   return result
 }
 
+@available(SwiftStdlib 5.9, *)
 @_spi(SwiftUI)
-public func withPerceptionTracking<T>(
+public func withObservationTracking<T>(
   _ apply: () -> T,
-  willSet: @escaping @Sendable (PerceptionTracking) -> Void
+  willSet: @escaping @Sendable (ObservationTracking) -> Void
 ) -> T {
   let (result, accessList) = generateAccessList(apply)
-  PerceptionTracking._installTracking(PerceptionTracking(accessList), willSet: willSet, didSet: nil)
+  ObservationTracking._installTracking(ObservationTracking(accessList), willSet: willSet, didSet: nil)
   return result
 }
 
+@available(SwiftStdlib 5.9, *)
 @_spi(SwiftUI)
-public func withPerceptionTracking<T>(
+public func withObservationTracking<T>(
   _ apply: () -> T,
-  didSet: @escaping @Sendable (PerceptionTracking) -> Void
+  didSet: @escaping @Sendable (ObservationTracking) -> Void
 ) -> T {
   let (result, accessList) = generateAccessList(apply)
-  PerceptionTracking._installTracking(PerceptionTracking(accessList), willSet: nil, didSet: didSet)
+  ObservationTracking._installTracking(ObservationTracking(accessList), willSet: nil, didSet: didSet)
   return result
 }

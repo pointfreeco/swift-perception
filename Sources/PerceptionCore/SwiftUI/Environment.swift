@@ -4,7 +4,7 @@
   extension Environment {
     /// Creates an environment property to read a perceptible object from the environment.
     ///
-    /// A backport of SwiftUI's `Environment.init` that takes an observable object.
+    /// A back-port of SwiftUI's `Environment.init` that takes an observable object.
     ///
     /// - Parameter objectType: The type of the `Perceptible` object to read from the environment.
     @_disfavoredOverload
@@ -15,7 +15,7 @@
     /// Creates an environment property to read a perceptible object from the environment, returning
     /// `nil` if no corresponding object has been set in the current view's environment.
     ///
-    /// A backport of SwiftUI's `Environment.init` that takes an observable object.
+    /// A back-port of SwiftUI's `Environment.init` that takes an observable object.
     ///
     /// - Parameter objectType: The type of the `Perceptible` object to read from the environment.
     @_disfavoredOverload
@@ -27,7 +27,7 @@
   extension View {
     /// Places a perceptible object in the view’s environment.
     ///
-    /// A backport of SwiftUI's `View.environment` that takes an observable object.
+    /// A back-port of SwiftUI's `View.environment` that takes an observable object.
     ///
     /// - Parameter object: The object to set for this object's type in the environment, or `nil` to
     ///   clear an object of this type from the environment.
@@ -53,8 +53,8 @@
         guard let object = self[\T.self] else {
           fatalError(
             """
-            No perceptible object of type \(T.self) found. A View.environment(_:) for \(T.self) may \
-            be missing as an ancestor of this view.
+            No perceptible object of type \(T.self) found. A View.environment(_:) for \(T.self) \
+            may be missing as an ancestor of this view.
             """
           )
         }

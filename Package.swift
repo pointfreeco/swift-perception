@@ -12,13 +12,19 @@ let package = Package(
     .watchOS(.v6),
   ],
   products: [
-    .library(name: "Perception", targets: ["Perception"]),
-    .library(name: "PerceptionCore", targets: ["PerceptionCore"]),
+    .library(
+      name: "PerceptionCore",
+      targets: ["PerceptionCore"]
+    ),
+    .library(
+      name: "Perception",
+      targets: ["Perception"]
+    ),
   ],
   dependencies: [
-    .package(url: "https://github.com/pointfreeco/swift-macro-testing", from: "0.1.0"),
-    .package(url: "https://github.com/swiftlang/swift-syntax", "509.0.0"..<"602.0.0"),
-    .package(url: "https://github.com/pointfreeco/xctest-dynamic-overlay", from: "1.2.2"),
+    .package(url: "https://github.com/pointfreeco/swift-macro-testing", from: "0.6.0"),
+    .package(url: "https://github.com/pointfreeco/xctest-dynamic-overlay", from: "1.6.0"),
+    .package(url: "https://github.com/swiftlang/swift-syntax", "509.0.0"..<"603.0.0"),
   ],
   targets: [
     .target(
@@ -34,17 +40,16 @@ let package = Package(
         .product(name: "IssueReporting", package: "xctest-dynamic-overlay"),
       ]
     ),
-    .testTarget(
-      name: "PerceptionTests",
-      dependencies: ["Perception"]
-    ),
-
     .macro(
       name: "PerceptionMacros",
       dependencies: [
         .product(name: "SwiftSyntaxMacros", package: "swift-syntax"),
         .product(name: "SwiftCompilerPlugin", package: "swift-syntax"),
       ]
+    ),
+    .testTarget(
+      name: "PerceptionTests",
+      dependencies: ["Perception"]
     ),
     .testTarget(
       name: "PerceptionMacrosTests",
@@ -55,10 +60,3 @@ let package = Package(
     ),
   ]
 )
-
-for target in package.targets where target.type != .system {
-  target.swiftSettings = target.swiftSettings ?? []
-  target.swiftSettings?.append(contentsOf: [
-    .enableExperimentalFeature("StrictConcurrency"),
-  ])
-}

@@ -53,19 +53,16 @@
     ) -> Binding<Subject> where Value: AnyObject {
       #if DEBUG && canImport(SwiftUI)
         withPerceptionTracking {
-          $observer[
-            dynamicMember:
-              \.object[
-                isPerceptionTracking: Locals.isPerceptionTracking,
-                keyPath: keyPath
-              ]
+          $observer.object[
+            isPerceptionTracking: Locals.isPerceptionTracking,
+            keyPath: keyPath
           ]
         } onChange: { [send = observer.objectWillChange.send] in
           send()
         }
       #else
         withPerceptionTracking {
-          $observer[dynamicMember: (\Observer.object).appending(path: keyPath)]
+          $observer.object[dynamicMember: keyPath]
         } onChange: { [send = observer.objectWillChange.send] in
           send()
         }

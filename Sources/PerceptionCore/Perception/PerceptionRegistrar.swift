@@ -248,7 +248,10 @@ extension PerceptionRegistrar: Hashable {
     @_transparent
     @usableFromInline
     func check() {
-      if !Locals.isPerceptionTracking, !_PerceptionLocals.skipPerceptionChecking, Thread.isSwiftUI() {
+      if !Locals.isPerceptionTracking,
+        !_PerceptionLocals.skipPerceptionChecking,
+        Thread.isSwiftUI()
+      {
         reportIssue(
           """
           Perceptible state was accessed from a view but is not being tracked.

@@ -31,7 +31,7 @@
               _count = initialValue
             }
             get {
-              access(keyPath: \.count)
+              _$perceptionRegistrar.access(self, keyPath: \.count)
               return _count
             }
             set {

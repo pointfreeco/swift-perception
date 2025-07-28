@@ -18,9 +18,9 @@ jobs:
     name: macOS
     strategy:
       matrix:
-        xcode: ['15.4']
+        xcode: ['16.4']
         config: ['debug', 'release']
-    runs-on: macos-14
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
       - name: Select Xcode ${{ matrix.xcode }}

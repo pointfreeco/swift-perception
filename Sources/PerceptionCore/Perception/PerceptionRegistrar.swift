@@ -248,13 +248,13 @@ extension PerceptionRegistrar: Hashable {
     @_transparent
     @usableFromInline
     func check() {
-      if !Locals.isPerceptionTracking, Thread.isSwiftUI() {
+      if !Locals.isPerceptionTracking, !_PerceptionLocals.skipPerceptionChecking, Thread.isSwiftUI() {
         reportIssue(
           """
           Perceptible state was accessed from a view but is not being tracked.
 
-          Use the parent frame of this warning's stack trace to locate the view in question and \
-          wrap it with a 'WithPerceptionTracking' view. For example:
+          Use this warning's stack trace to locate the view in question and wrap it with a \
+          'WithPerceptionTracking' view. For example:
 
             \u{2007} var body: some View
             \u{002B}   WithPerceptionTracking {
@@ -275,7 +275,6 @@ extension PerceptionRegistrar: Hashable {
           '@Perception.Bindable', instead. For example:
           
             \u{2007} @State var model = Model()
-
             \u{2007} var body: some View
             \u{2007}   WithPerceptionTracking {
             \u{002B}     @Perception.Bindable var model = model

@@ -1,7 +1,7 @@
 #if canImport(SwiftUI)
   import SwiftUI
 
-  /// Perceives changes to perceptible models.
+  /// A view that perceives changes to perceptible models.
   ///
   /// Use this view to automatically subscribe to the changes of any fields in ``Perceptible()``
   /// models used in the view. Typically you will install this view at the root of your view like

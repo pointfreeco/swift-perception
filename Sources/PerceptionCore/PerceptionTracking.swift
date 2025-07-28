@@ -188,6 +188,8 @@ fileprivate func generateAccessList<T>(_ apply: () -> T) -> (T, PerceptionTracki
 
 /// Tracks access to properties.
 ///
+/// > Important: This is a back-port of Swift's `withObservationTracking` function.
+///
 /// This method tracks access to any property within the `apply` closure, and
 /// informs the caller of value changes made to participating properties by way
 /// of the `onChange` closure. For example, the following code tracks changes

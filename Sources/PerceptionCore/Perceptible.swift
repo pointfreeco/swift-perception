@@ -12,6 +12,8 @@
 
 /// A type that emits notifications to perceivers when underlying data changes.
 ///
+/// > Important: This is a back-port of Swift's `Observable` protocol.
+///
 /// Conforming to this protocol signals to other APIs that the type supports
 /// perception. However, applying the `Perceptible` protocol by itself to a
 /// type doesn't add perception functionality to the type. Instead, always use

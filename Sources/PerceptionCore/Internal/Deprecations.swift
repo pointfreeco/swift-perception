@@ -1,9 +1,16 @@
-@available(*, deprecated)
 extension PerceptionRegistrar {
+  @available(iOS, deprecated: 9999, renamed: "init()")
+  @available(macOS, deprecated: 9999, renamed: "init()")
+  @available(tvOS, deprecated: 9999, renamed: "init()")
+  @available(watchOS, deprecated: 9999, renamed: "init()")
   public init(isPerceptionCheckingEnabled: Bool) {
     self.init()
   }
 
+  @available(iOS, deprecated: 9999, renamed: "access(_:keyPath:)")
+  @available(macOS, deprecated: 9999, renamed: "access(_:keyPath:)")
+  @available(tvOS, deprecated: 9999, renamed: "access(_:keyPath:)")
+  @available(watchOS, deprecated: 9999, renamed: "access(_:keyPath:)")
   public func access<Subject: Perceptible, Member>(
     _ subject: Subject,
     keyPath: KeyPath<Subject, Member>,
@@ -16,7 +23,6 @@ extension PerceptionRegistrar {
   }
 }
 
-@available(*, deprecated)
 public enum _PerceptionLocals {
   @TaskLocal public static var skipPerceptionChecking = false
 }

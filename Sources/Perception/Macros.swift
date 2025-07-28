@@ -14,6 +14,8 @@
 
 /// Defines and implements conformance of the Perceptible protocol.
 ///
+/// > Important: This is a back-port of Swift's `@Observable` macro.
+///
 /// This macro adds perception support to a custom type and conforms the type
 /// to the ``Perception/Perceptible`` protocol. For example, the following code
 /// applies the `Perceptible` macro to the type `Car` making it perceptible:
@@ -40,6 +42,8 @@ public macro Perceptible() =
 
 /// Synthesizes a property for accessors.
 ///
+/// > Important: This is a back-port of Swift's `@ObservationTracked` macro.
+///
 /// The ``Perception`` module uses this macro. Its use outside of the
 /// framework isn't necessary.
 @available(iOS, deprecated: 17, renamed: "ObservationTracked")
@@ -52,6 +56,8 @@ public macro PerceptionTracked() =
   #externalMacro(module: "PerceptionMacros", type: "PerceptionTrackedMacro")
 
 /// Disables perception tracking of a property.
+///
+/// > Important: This is a back-port of Swift's `@ObservationIgnored` macro.
 ///
 /// By default, an object can perceive any property of a perceptible type that
 /// is accessible to the perceiving object. To prevent perception of an

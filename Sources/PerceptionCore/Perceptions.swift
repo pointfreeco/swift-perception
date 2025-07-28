@@ -36,6 +36,8 @@ func withIsolatedTaskCancellationHandler<T: Sendable>(
 
 /// An asychronous sequence generated from a closure that tracks the transactional changes of `@Perceptible` types.
 ///
+/// > Important: This is a back-port of Swift's `Observations` async sequence.
+///
 /// `Perceptions` conforms to `AsyncSequence`, providing a intutive and safe mechanism to track changes to
 /// types that are marked as `@Perceptible` by using Swift Concurrency to indicate transactional boundaries
 /// starting from the willSet of the first mutation to the next suspension point of the safe access.

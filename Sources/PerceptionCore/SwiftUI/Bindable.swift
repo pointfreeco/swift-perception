@@ -4,7 +4,7 @@
   /// A property wrapper type that supports creating bindings to the mutable properties of
   /// perceptible objects.
   ///
-  /// A back-port of SwiftUI's `Bindable` property wrapper.
+/// > Important: This is a back-port of SwiftUI's `Bindable` property wrapper.
   @available(
     iOS,
     introduced: 13,

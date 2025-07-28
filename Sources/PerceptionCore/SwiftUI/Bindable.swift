@@ -4,7 +4,7 @@
   /// A property wrapper type that supports creating bindings to the mutable properties of
   /// perceptible objects.
   ///
-/// > Important: This is a back-port of SwiftUI's `Bindable` property wrapper.
+  /// > Important: This is a back-port of SwiftUI's `Bindable` property wrapper.
   @available(
     iOS,
     introduced: 13,
@@ -51,15 +51,25 @@
     public subscript<Subject>(
       dynamicMember keyPath: ReferenceWritableKeyPath<Value, Subject>
     ) -> Binding<Subject> where Value: AnyObject {
-      withPerceptionTracking {
-        $observer[
-          dynamicMember: \.object[
-            isPerceptionTracking: Locals.isPerceptionTracking, keyPath: keyPath
+      #if DEBUG && canImport(SwiftUI)
+        withPerceptionTracking {
+          $observer[
+            dynamicMember:
+              \.object[
+                isPerceptionTracking: Locals.isPerceptionTracking,
+                keyPath: keyPath
+              ]
           ]
-        ]
-      } onChange: { [send = observer.objectWillChange.send] in
-        send()
-      }
+        } onChange: { [send = observer.objectWillChange.send] in
+          send()
+        }
+      #else
+        withPerceptionTracking {
+          $observer[dynamicMember: (\Observer.object).appending(path: keyPath)]
+        } onChange: { [send = observer.objectWillChange.send] in
+          send()
+        }
+      #endif
     }
 
     /// Creates a bindable object from an observable object.

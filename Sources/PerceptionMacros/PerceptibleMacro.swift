@@ -235,7 +235,9 @@ extension AccessorBlockSyntax {
     switch accessors {
     case .accessors(let accessorList):
       let remapped = AccessorDeclListSyntax {
-        accessorList.map { $0.locationAnnotated(in: context) }
+        for accessor in accessorList {
+          accessor.locationAnnotated(in: context)
+        }
       }
       return AccessorBlockSyntax(accessors: .accessors(remapped))
     case .getter(let codeBlockList):
@@ -415,10 +417,12 @@ public struct PerceptionTrackedMacro: AccessorMacro {
           let identifier = property.identifier?.trimmed else {
       return []
     }
-    
+
+    #if canImport(SwiftSyntax600)
     guard context.lexicalContext[0].as(ClassDeclSyntax.self) != nil else {
       return []
     }
+    #endif
 
     if property.hasMacroApplication(PerceptibleMacro.ignoredMacroName) {
       return []
@@ -490,11 +494,13 @@ extension PerceptionTrackedMacro: PeerMacro {
           property.identifier?.trimmed != nil else {
       return []
     }
-    
+
+    #if canImport(SwiftSyntax600)
     guard context.lexicalContext[0].as(ClassDeclSyntax.self) != nil else {
       return []
     }
-    
+    #endif
+
     if property.hasMacroApplication(PerceptibleMacro.ignoredMacroName) {
       return []
     }

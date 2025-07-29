@@ -52,20 +52,12 @@
       dynamicMember keyPath: ReferenceWritableKeyPath<Value, Subject>
     ) -> Binding<Subject> where Value: AnyObject {
       #if DEBUG && canImport(SwiftUI)
-        withPerceptionTracking {
-          $observer.object[
-            isPerceptionTracking: Locals.isPerceptionTracking,
-            keyPath: keyPath
-          ]
-        } onChange: { [send = observer.objectWillChange.send] in
-          send()
-        }
+        $observer.object[
+          isPerceptionTracking: Locals.isPerceptionTracking,
+          keyPath: keyPath
+        ]
       #else
-        withPerceptionTracking {
-          $observer.object[dynamicMember: keyPath]
-        } onChange: { [send = observer.objectWillChange.send] in
-          send()
-        }
+        $observer.object[dynamicMember: keyPath]
       #endif
     }
 

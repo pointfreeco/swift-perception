@@ -53,7 +53,7 @@
     ) -> Binding<Subject> where Value: AnyObject {
       #if DEBUG && canImport(SwiftUI)
         $observer.object[
-          isPerceptionTracking: Locals.isPerceptionTracking,
+          isPerceptionTracking: _PerceptionLocals.isInPerceptionTracking,
           keyPath: keyPath
         ]
       #else
@@ -107,7 +107,7 @@
         keyPath keyPath: ReferenceWritableKeyPath<Self, Member>
       ) -> Member {
         get {
-          Locals.$isPerceptionTracking.withValue(isPerceptionTracking) {
+          _PerceptionLocals.$isInPerceptionTracking.withValue(isPerceptionTracking) {
             self[keyPath: keyPath]
           }
         }

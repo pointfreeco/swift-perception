@@ -221,7 +221,7 @@ public func withPerceptionTracking<T>(
   onChange: @autoclosure () -> @Sendable () -> Void
 ) -> T {
   #if DEBUG && canImport(SwiftUI)
-    let apply = { Locals.$isPerceptionTracking.withValue(true, operation: apply) }
+    let apply = { _PerceptionLocals.$isInPerceptionTracking.withValue(true, operation: apply) }
   #endif
   #if canImport(Observation)
     if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta {

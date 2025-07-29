@@ -105,11 +105,7 @@
 
       case .tracked(let content):
         let _ = id
-        return withPerceptionTracking {
-          instrument(content)
-        } onChange: {
-          id &+= 1
-        }
+        return withPerceptionTracking(content, onChange: { id &+= 1 })
       }
     }
 
@@ -121,7 +117,7 @@
     @inline(__always)
     private func instrument(_ content: () -> Content) -> Content {
       #if DEBUG
-        return Locals.$isPerceptionTracking.withValue(true, operation: content)
+        return _PerceptionLocals.$isInPerceptionTracking.withValue(true, operation: content)
       #else
         return content()
       #endif
@@ -231,18 +227,6 @@
       public init(@MapContentBuilder content: @escaping () -> Content) {
         self.init(content: content())
       }
-    }
-  #endif
-
-  #if DEBUG && canImport(SwiftUI)
-    @available(iOS, deprecated: 17)
-    @available(macOS, deprecated: 14)
-    @available(watchOS, deprecated: 10)
-    @available(tvOS, deprecated: 17)
-    @usableFromInline
-    enum Locals {
-      @usableFromInline
-      @TaskLocal static var isPerceptionTracking = false
     }
   #endif
 #endif

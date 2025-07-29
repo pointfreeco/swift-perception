@@ -22,7 +22,3 @@ extension PerceptionRegistrar {
     access(subject, keyPath: keyPath)
   }
 }
-
-public enum _PerceptionLocals {
-  @TaskLocal public static var skipPerceptionChecking = false
-}

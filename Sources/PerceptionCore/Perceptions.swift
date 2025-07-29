@@ -208,8 +208,10 @@ public struct Perceptions<Element: Sendable, Failure: Error>: AsyncSequence, Sen
       let result = withPerceptionTracking {
         switch emit {
         case .element(let element):
+          // NB: This warning exists in the Swift standard library and appears to be unavoidable
           Result(catching: element).map { Iteration.next($0) }
         case .iteration(let iteration):
+          // NB: This warning exists in the Swift standard library and appears to be unavoidable
           Result(catching: iteration)
         }
       } onChange: { [state] in

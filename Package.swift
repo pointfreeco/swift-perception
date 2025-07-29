@@ -1,4 +1,4 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 6.0
 
 import CompilerPluginSupport
 import PackageDescription
@@ -24,7 +24,7 @@ let package = Package(
   dependencies: [
     .package(url: "https://github.com/pointfreeco/swift-macro-testing", from: "0.6.0"),
     .package(url: "https://github.com/pointfreeco/xctest-dynamic-overlay", from: "1.6.0"),
-    .package(url: "https://github.com/swiftlang/swift-syntax", "509.0.0"..<"603.0.0"),
+    .package(url: "https://github.com/swiftlang/swift-syntax", "509.0.0"..<"602.0.0"),
   ],
   targets: [
     .target(
@@ -58,7 +58,8 @@ let package = Package(
         .product(name: "MacroTesting", package: "swift-macro-testing"),
       ]
     ),
-  ]
+  ],
+  swiftLanguageModes: [.v5]
 )
 
 #if !os(Windows)

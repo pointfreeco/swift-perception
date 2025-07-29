@@ -84,5 +84,5 @@ struct _ThreadLocal {
         }
     }
 
-    fileprivate static var key = Key()
+    fileprivate static let key = Key()
 }

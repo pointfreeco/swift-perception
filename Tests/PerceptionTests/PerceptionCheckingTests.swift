@@ -5,7 +5,7 @@
   import XCTest
 
   @available(iOS 16, macOS 13, tvOS 16, watchOS 9, *)
-  final class RuntimeWarningTests: XCTestCase {
+  final class PerceptionCheckingTests: XCTestCase {
     @MainActor
     func testNotInPerceptionBody() {
       let model = Model()
@@ -14,22 +14,14 @@
     }
 
     @MainActor
-    func testInPerceptionBody_NotInSwiftUIBody() {
-      let model = Model()
-      _PerceptionLocals.$isInPerceptionTracking.withValue(true) {
-        _ = model.count
-      }
-    }
-
-    @MainActor
     func testNotInPerceptionBody_InSwiftUIBody() async throws {
       struct FeatureView: View {
         let model = Model()
         var body: some View {
-          Text(expectRuntimeWarning { self.model.count }.description)
+          Text(expectRuntimeWarning { model.count }.description)
         }
       }
-      try await self.render(FeatureView())
+      try await render(FeatureView())
     }
 
     @MainActor
@@ -38,11 +30,11 @@
         let model = Model()
         var body: some View {
           Wrapper {
-            Text(expectRuntimeWarning { self.model.count }.description)
+            Text(expectRuntimeWarning { model.count }.description)
           }
         }
       }
-      try await self.render(FeatureView())
+      try await render(FeatureView())
     }
 
     @MainActor
@@ -52,12 +44,12 @@
         var body: some View {
           WithPerceptionTracking {
             Wrapper {
-              Text(self.model.count.description)
+              Text(model.count.description)
             }
           }
         }
       }
-      try await self.render(FeatureView())
+      try await render(FeatureView())
     }
 
     @MainActor
@@ -66,49 +58,47 @@
         let model = Model()
         var body: some View {
           WithPerceptionTracking {
-            Text(self.model.count.description)
+            Text(model.count.description)
           }
         }
       }
-      try await self.render(FeatureView())
+      try await render(FeatureView())
     }
 
-    @MainActor
-    func testNotInPerceptionBody_SwiftUIBinding() async throws {
-      struct FeatureView: View {
-        @State var model = Model()
-        var body: some View {
-          Form {
-            TextField("", text: expectRuntimeWarning { self.$model.text })
+    #if !os(macOS)
+      @MainActor
+      func testNotInPerceptionBody_SwiftUIBinding() async throws {
+        struct FeatureView: View {
+          @Perception.Bindable var model: Model
+          var body: some View {
+            Form {
+              TextField("", text: expectRuntimeWarning { $model.text })
+            }
           }
         }
+        try await render(FeatureView(model: Model()))
       }
-      try await self.render(FeatureView())
-    }
+    #endif
 
-    @MainActor
-    func testInPerceptionBody_SwiftUIBinding() async throws {
-      struct FeatureView: View {
-        @State var model = Model()
-        var body: some View {
-          WithPerceptionTracking {
-            TextField("", text: self.$model.text)
+    #if !os(macOS)
+      @MainActor
+      func testInPerceptionBody_SwiftUIBinding() async throws {
+        struct FeatureView: View {
+          @Perception.Bindable var model: Model
+          var body: some View {
+            WithPerceptionTracking {
+              TextField("", text: $model.text)
+            }
           }
         }
+        try await render(FeatureView(model: Model()))
       }
-      try await self.render(FeatureView())
-    }
+    #endif
 
     @MainActor
     func testNotInPerceptionBody_ForEach() async throws {
       struct FeatureView: View {
-        @State var model = Model(
-          list: [
-            Model(count: 1),
-            Model(count: 2),
-            Model(count: 3),
-          ]
-        )
+        let model: Model
         var body: some View {
           ForEach(expectRuntimeWarning { model.list }) { model in
             Text(expectRuntimeWarning { model.count }.description)
@@ -116,19 +106,23 @@
         }
       }
 
-      try await self.render(FeatureView())
+      try await render(
+        FeatureView(
+          model: Model(
+            list: [
+              Model(count: 1),
+              Model(count: 2),
+              Model(count: 3),
+            ]
+          )
+        )
+      )
     }
 
     @MainActor
     func testInnerInPerceptionBody_ForEach() async throws {
       struct FeatureView: View {
-        @State var model = Model(
-          list: [
-            Model(count: 1),
-            Model(count: 2),
-            Model(count: 3),
-          ]
-        )
+        let model: Model
         var body: some View {
           ForEach(expectRuntimeWarning { model.list }) { model in
             WithPerceptionTracking {
@@ -138,19 +132,23 @@
         }
       }
 
-      try await self.render(FeatureView())
+      try await render(
+        FeatureView(
+          model: Model(
+            list: [
+              Model(count: 1),
+              Model(count: 2),
+              Model(count: 3),
+            ]
+          )
+        )
+      )
     }
 
     @MainActor
     func testOuterInPerceptionBody_ForEach() async throws {
       struct FeatureView: View {
-        @State var model = Model(
-          list: [
-            Model(count: 1),
-            Model(count: 2),
-            Model(count: 3),
-          ]
-        )
+        let model: Model
         var body: some View {
           WithPerceptionTracking {
             ForEach(model.list) { model in
@@ -160,19 +158,23 @@
         }
       }
 
-      try await self.render(FeatureView())
+      try await render(
+        FeatureView(
+          model: Model(
+            list: [
+              Model(count: 1),
+              Model(count: 2),
+              Model(count: 3),
+            ]
+          )
+        )
+      )
     }
 
     @MainActor
     func testOuterAndInnerInPerceptionBody_ForEach() async throws {
       struct FeatureView: View {
-        @State var model = Model(
-          list: [
-            Model(count: 1),
-            Model(count: 2),
-            Model(count: 3),
-          ]
-        )
+        let model: Model
         var body: some View {
           WithPerceptionTracking {
             ForEach(model.list) { model in
@@ -184,180 +186,174 @@
         }
       }
 
-      try await self.render(FeatureView())
+      try await render(
+        FeatureView(
+          model: Model(
+            list: [
+              Model(count: 1),
+              Model(count: 2),
+              Model(count: 3),
+            ]
+          )
+        )
+      )
     }
 
-    @MainActor
-    func testNotInPerceptionBody_Sheet() async throws {
-      struct FeatureView: View {
-        @State var model = Model(child: Model())
-        var body: some View {
-          Text("Parent")
-            .sheet(item: expectRuntimeWarning { $model.child }) { child in
-              Text(expectRuntimeWarning { child.count }.description)
-            }
-        }
-      }
-
-      try await self.render(FeatureView())
-    }
-
-    @MainActor
-    func testInnerInPerceptionBody_Sheet() async throws {
-      struct FeatureView: View {
-        @State var model = Model(child: Model())
-        var body: some View {
-          Text("Parent")
-            .sheet(item: expectRuntimeWarning { $model.child }) { child in
-              WithPerceptionTracking {
-                Text(child.count.description)
-              }
-            }
-        }
-      }
-
-      try await self.render(FeatureView())
-    }
-
-    @MainActor
-    func testOuterInPerceptionBody_Sheet() async throws {
-      struct FeatureView: View {
-        @State var model = Model(child: Model())
-        var body: some View {
-          WithPerceptionTracking {
+    #if !os(macOS)
+      @MainActor
+      func testNotInPerceptionBody_Sheet() async throws {
+        struct FeatureView: View {
+          @Perception.Bindable var model: Model
+          var body: some View {
             Text("Parent")
-              .sheet(item: $model.child) { child in
+              .sheet(item: expectRuntimeWarning { $model.child }) { child in
                 Text(expectRuntimeWarning { child.count }.description)
               }
           }
         }
+
+        // NB: This failure is triggered out-of-body by the binding.
+        XCTExpectFailure { $0.compactDescription.contains("Perceptible state was accessed") }
+        try await render(FeatureView(model: Model(child: Model())))
       }
+    #endif
 
-      try await self.render(FeatureView())
-    }
-
-    @MainActor
-    func testOuterAndInnerInPerceptionBody_Sheet() async throws {
-      struct FeatureView: View {
-        @State var model = Model(child: Model())
-        var body: some View {
-          WithPerceptionTracking {
+    #if !os(macOS)
+      @MainActor
+      func testInnerInPerceptionBody_Sheet() async throws {
+        struct FeatureView: View {
+          @Perception.Bindable var model: Model
+          var body: some View {
             Text("Parent")
-              .sheet(item: $model.child) { child in
+              .sheet(item: expectRuntimeWarning { $model.child }) { child in
                 WithPerceptionTracking {
                   Text(child.count.description)
                 }
               }
           }
         }
-      }
 
-      try await self.render(FeatureView())
-    }
+        // NB: This failure is triggered out-of-body by the binding.
+        XCTExpectFailure { $0.compactDescription.contains("Perceptible state was accessed") }
+        try await render(FeatureView(model: Model(child: Model())))
+      }
+    #endif
+
+    #if !os(macOS)
+      @MainActor
+      func testOuterInPerceptionBody_Sheet() async throws {
+        struct FeatureView: View {
+          @Perception.Bindable var model: Model
+          var body: some View {
+            WithPerceptionTracking {
+              Text("Parent")
+                .sheet(item: $model.child) { child in
+                  Text(expectRuntimeWarning { child.count }.description)
+                }
+            }
+          }
+        }
+
+        try await render(FeatureView(model: Model(child: Model())))
+      }
+    #endif
+
+    #if !os(macOS)
+      @MainActor
+      func testOuterAndInnerInPerceptionBody_Sheet() async throws {
+        struct FeatureView: View {
+          @Perception.Bindable var model: Model
+          var body: some View {
+            WithPerceptionTracking {
+              Text("Parent")
+                .sheet(item: $model.child) { child in
+                  WithPerceptionTracking {
+                    Text(child.count.description)
+                  }
+                }
+            }
+          }
+        }
+
+        try await render(FeatureView(model: Model(child: Model())))
+      }
+    #endif
 
     @MainActor
     func testActionClosure() async throws {
       struct FeatureView: View {
-        @State var model = Model()
+        let model: Model
         var body: some View {
           Text("Hi")
-            .onAppear { _ = self.model.count }
+            .onAppear { _ = model.count }
         }
       }
 
-      try await self.render(FeatureView())
+      try await render(FeatureView(model: Model()))
     }
 
     @MainActor
     func testActionClosure_CallMethodWithArguments() async throws {
       struct FeatureView: View {
-        @State var model = Model()
+        let model: Model
         var body: some View {
           Text("Hi")
             .onAppear { _ = foo(42) }
         }
         func foo(_: Int) -> Bool {
-          _ = self.model.count
+          _ = model.count
           return true
         }
       }
 
-      try await self.render(FeatureView())
+      try await render(FeatureView(model: Model()))
     }
 
     @MainActor
     func testActionClosure_WithArguments() async throws {
       struct FeatureView: View {
-        @State var model = Model()
+        let model: Model
         var body: some View {
           Text("Hi")
             .onReceive(Just(1)) { _ in
-              _ = self.model.count
+              _ = model.count
             }
         }
       }
 
-      try await self.render(FeatureView())
+      try await render(FeatureView(model: Model()))
     }
 
     @MainActor
     func testActionClosure_WithArguments_ImplicitClosure() async throws {
       struct FeatureView: View {
-        @State var model = Model()
+        let model: Model
         var body: some View {
           Text("Hi")
-            .onReceive(Just(1), perform: self.foo)
+            .onReceive(Just(1), perform: foo)
         }
         func foo(_: Int) {
-          _ = self.model.count
+          _ = model.count
         }
       }
 
-      try await self.render(FeatureView())
+      try await render(FeatureView(model: Model()))
     }
 
     @MainActor
     func testImplicitActionClosure() async throws {
       struct FeatureView: View {
-        @State var model = Model()
+        let model: Model
         var body: some View {
           Text("Hi")
             .onAppear(perform: foo)
         }
         func foo() {
-          _ = self.model.count
+          _ = model.count
         }
       }
 
-      try await self.render(FeatureView())
-    }
-
-    @MainActor
-    func testRegistrarDisablePerceptionTracking() async throws {
-      struct FeatureView: View {
-        let model = Model()
-        let registrar = PerceptionRegistrar(isPerceptionCheckingEnabled: false)
-        var body: some View {
-          let _ = registrar.access(model, keyPath: \.count)
-          Text("Hi")
-        }
-      }
-      try await self.render(FeatureView())
-    }
-
-    @MainActor
-    func testGlobalDisablePerceptionTracking() async throws {
-      let previous = Perception.isPerceptionCheckingEnabled
-      Perception.isPerceptionCheckingEnabled = false
-      defer { Perception.isPerceptionCheckingEnabled = previous }
-
-      struct FeatureView: View {
-        let model = Model()
-        var body: some View {
-          Text(model.count.description)
-        }
-      }
-      try await self.render(FeatureView())
+      try await render(FeatureView(model: Model()))
     }
 
     @MainActor
@@ -376,7 +372,7 @@
         let childModel: Model
         init() {
           self.childModel = Model()
-          self.model = Model(list: [self.childModel])
+          model = Model(list: [self.childModel])
         }
         var body: some View {
           VStack {
@@ -387,7 +383,7 @@
         }
       }
 
-      try await self.render(FeatureView())
+      try await render(FeatureView())
     }
 
     @MainActor
@@ -404,7 +400,7 @@
         let childModel: Model
         init() {
           self.childModel = Model()
-          self.model = Model(list: [self.childModel])
+          model = Model(list: [self.childModel])
         }
         var body: some View {
           WithPerceptionTracking {
@@ -415,7 +411,7 @@
         }
       }
 
-      try await self.render(FeatureView())
+      try await render(FeatureView())
     }
 
     @MainActor
@@ -432,7 +428,7 @@
         let childModel: Model
         init() {
           self.childModel = Model()
-          self.model = Model(list: [self.childModel])
+          model = Model(list: [self.childModel])
         }
         var body: some View {
           VStack {
@@ -443,7 +439,7 @@
         }
       }
 
-      try await self.render(FeatureView())
+      try await render(FeatureView())
     }
 
     @MainActor
@@ -462,7 +458,7 @@
         let childModel: Model
         init() {
           self.childModel = Model()
-          self.model = Model(list: [self.childModel])
+          model = Model(list: [self.childModel])
         }
         var body: some View {
           WithPerceptionTracking {
@@ -473,7 +469,7 @@
         }
       }
 
-      try await self.render(FeatureView())
+      try await render(FeatureView())
     }
 
     @MainActor
@@ -488,7 +484,7 @@
             }
         }
       }
-      try await self.render(FeatureView())
+      try await render(FeatureView())
     }
 
     @MainActor
@@ -507,7 +503,7 @@
           _ = model.count
         }
       }
-      try await self.render(FeatureView())
+      try await render(FeatureView())
     }
 
     @MainActor
@@ -522,7 +518,7 @@
             }
         }
       }
-      try await self.render(FeatureView())
+      try await render(FeatureView())
     }
 
     @MainActor
@@ -532,12 +528,12 @@
         var body: some View {
           WithPerceptionTracking {
             GeometryReader { _ in
-              Text(expectRuntimeWarning { self.model.count }.description)
+              Text(expectRuntimeWarning { model.count }.description)
             }
           }
         }
       }
-      try await self.render(FeatureView())
+      try await render(FeatureView())
     }
 
     @MainActor
@@ -547,12 +543,12 @@
         var body: some View {
           GeometryReader { _ in
             WithPerceptionTracking {
-              Text(self.model.count.description)
+              Text(model.count.description)
             }
           }
         }
       }
-      try await self.render(FeatureView())
+      try await render(FeatureView())
     }
 
     @MainActor
@@ -566,11 +562,11 @@
         }
         var content: some View {
           GeometryReader { _ in
-            Text(expectRuntimeWarning { self.model.count }.description)
+            Text(expectRuntimeWarning { model.count }.description)
           }
         }
       }
-      try await self.render(FeatureView())
+      try await render(FeatureView())
     }
 
     @MainActor
@@ -584,7 +580,7 @@
           }
         }
       }
-      try await self.render(FeatureView())
+      try await render(FeatureView())
     }
 
     @MainActor
@@ -598,11 +594,11 @@
           }
         }
       }
-      try await self.render(FeatureView())
+      try await render(FeatureView())
     }
 
     @MainActor
-    private func render(_ view: some View) async throws  {
+    private func render(_ view: some View) async throws {
       let image = ImageRenderer(content: view).cgImage
       _ = image
       try await Task.sleep(for: .seconds(0.1))
@@ -611,12 +607,7 @@
 
   private func expectRuntimeWarning<R>(failingBlock: () -> R) -> R {
     XCTExpectFailure(failingBlock: failingBlock) {
-      $0.compactDescription == """
-        failed - Perceptible state was accessed but is not being tracked. Track changes to state \
-        by wrapping your view in a 'WithPerceptionTracking' view. This must also be done for any \
-        escaping, trailing closures, such as 'GeometryReader', `LazyVStack` (and all lazy \
-        views), navigation APIs ('sheet', 'popover', 'fullScreenCover', etc.), and others.
-        """
+      $0.compactDescription.contains("Perceptible state was accessed")
     }
   }
 

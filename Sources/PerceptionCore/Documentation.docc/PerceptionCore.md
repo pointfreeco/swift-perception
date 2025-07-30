@@ -1,20 +1,7 @@
-# Perception
+# ``PerceptionCore``
 
-[![CI](https://github.com/pointfreeco/swift-perception/actions/workflows/ci.yml/badge.svg)](https://github.com/pointfreeco/swift-perception/actions/workflows/ci.yml)
-[![Slack](https://img.shields.io/badge/slack-chat-informational.svg?label=Slack&logo=slack)](https://www.pointfree.co/slack-invite)
-[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fpointfreeco%2Fswift-perception%2Fbadge%3Ftype%3Dswift-versions)](https://swiftpackageindex.com/pointfreeco/swift-perception)
-[![](https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fpointfreeco%2Fswift-perception%2Fbadge%3Ftype%3Dplatforms)](https://swiftpackageindex.com/pointfreeco/swift-perception)
-
-Swift's Observation tools, back-ported to more platforms.
-
-## Learn More
-
-This library was created by [Brandon Williams][mbrandonw] and [Stephen Celis][stephencelis], who
-host the [Point-Free][pointfreeco] video series which explores advanced Swift language concepts.
-
-<a href="https://www.pointfree.co/">
-  <img alt="video poster image" src="https://d3rccdn33rt8ze.cloudfront.net/episodes/0252.jpeg" width="600">
-</a>
+Swift's Observation tools, back-ported to more platforms. This module is automatically imported when
+you `import Perception`.
 
 ## Overview
 
@@ -107,26 +94,20 @@ struct FeatureView: View {
 .environment(settings)
 ```
 
-## Community
+## Topics
 
-If you want to discuss this library or have a question about how to use it to solve a particular
-problem, there are a number of places you can discuss with fellow
-[Point-Free](https://www.pointfree.co) enthusiasts:
+### Perceptible conformance
 
-  * For long-form discussions, we recommend the
-    [discussions](https://github.com/pointfreeco/swift-perception/discussions) tab of this repo.
-  * For casual chat, we recommend the
-    [Point-Free Community Slack](https://pointfree.co/slack-invite).
+- ``Perceptible``
 
-## Documentation
+### Change tracking
 
-The latest documentation for the Perception APIs is available [here][docs].
+- ``Perceptions``
+- ``withPerceptionTracking(_:onChange:)``
+- ``PerceptionRegistrar``
 
-## License
+### Observation in SwiftUI
 
-This library is released under the MIT license. See [LICENSE](LICENSE) for details.
-
-[pointfreeco]: https://www.pointfree.co
-[mbrandonw]: https://x.com/mbrandonw
-[stephencelis]: https://x.com/stephencelis
-[docs]: https://swiftpackageindex.com/pointfreeco/swift-perception/main/documentation/perception
+- ``WithPerceptionTracking``
+- ``Bindable``
+- ``SwiftUICore``

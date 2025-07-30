@@ -1,4 +1,4 @@
-// swift-tools-version: 5.9
+// swift-tools-version: 6.0
 
 import CompilerPluginSupport
 import PackageDescription
@@ -12,13 +12,19 @@ let package = Package(
     .watchOS(.v6),
   ],
   products: [
-    .library(name: "Perception", targets: ["Perception"]),
-    .library(name: "PerceptionCore", targets: ["PerceptionCore"]),
+    .library(
+      name: "PerceptionCore",
+      targets: ["PerceptionCore"]
+    ),
+    .library(
+      name: "Perception",
+      targets: ["Perception"]
+    ),
   ],
   dependencies: [
-    .package(url: "https://github.com/pointfreeco/swift-macro-testing", from: "0.1.0"),
+    .package(url: "https://github.com/pointfreeco/swift-macro-testing", from: "0.6.0"),
+    .package(url: "https://github.com/pointfreeco/xctest-dynamic-overlay", from: "1.6.0"),
     .package(url: "https://github.com/swiftlang/swift-syntax", "509.0.0"..<"602.0.0"),
-    .package(url: "https://github.com/pointfreeco/xctest-dynamic-overlay", from: "1.2.2"),
   ],
   targets: [
     .target(
@@ -34,11 +40,6 @@ let package = Package(
         .product(name: "IssueReporting", package: "xctest-dynamic-overlay"),
       ]
     ),
-    .testTarget(
-      name: "PerceptionTests",
-      dependencies: ["Perception"]
-    ),
-
     .macro(
       name: "PerceptionMacros",
       dependencies: [
@@ -47,18 +48,23 @@ let package = Package(
       ]
     ),
     .testTarget(
+      name: "PerceptionTests",
+      dependencies: ["Perception"]
+    ),
+    .testTarget(
       name: "PerceptionMacrosTests",
       dependencies: [
         "PerceptionMacros",
         .product(name: "MacroTesting", package: "swift-macro-testing"),
       ]
     ),
-  ]
+  ],
+  swiftLanguageModes: [.v5]
 )
 
-for target in package.targets where target.type != .system {
-  target.swiftSettings = target.swiftSettings ?? []
-  target.swiftSettings?.append(contentsOf: [
-    .enableExperimentalFeature("StrictConcurrency"),
-  ])
-}
+#if !os(Windows)
+  // Add the documentation compiler plugin if possible
+  package.dependencies.append(
+    .package(url: "https://github.com/apple/swift-docc-plugin", from: "1.0.0")
+  )
+#endif

@@ -4,21 +4,41 @@
   /// A property wrapper type that supports creating bindings to the mutable properties of
   /// perceptible objects.
   ///
-  /// A backport of SwiftUI's `Bindable` property wrapper.
-  @available(iOS, introduced: 13, obsoleted: 17, message: "Use @Bindable without the 'Perception.' prefix.")
-  @available(macOS, introduced: 10.15, obsoleted: 14, message: "Use @Bindable without the 'Perception.' prefix.")
-  @available(tvOS, introduced: 13, obsoleted: 17, message: "Use @Bindable without the 'Perception.' prefix.")
-  @available(watchOS, introduced: 6, obsoleted: 10, message: "Use @Bindable without the 'Perception.' prefix.")
+  /// > Important: This is a back-port of SwiftUI's `Bindable` property wrapper.
+  @available(
+    iOS,
+    introduced: 13,
+    obsoleted: 17,
+    message: "Use @Bindable without the 'Perception.' prefix."
+  )
+  @available(
+    macOS,
+    introduced: 10.15,
+    obsoleted: 14,
+    message: "Use @Bindable without the 'Perception.' prefix."
+  )
+  @available(
+    tvOS,
+    introduced: 13,
+    obsoleted: 17,
+    message: "Use @Bindable without the 'Perception.' prefix."
+  )
+  @available(
+    watchOS,
+    introduced: 6,
+    obsoleted: 10,
+    message: "Use @Bindable without the 'Perception.' prefix."
+  )
   @available(visionOS, unavailable)
   @dynamicMemberLookup
   @propertyWrapper
-  public struct Bindable<Value> {
+  public struct Bindable<Value: Perceptible> {
     @ObservedObject fileprivate var observer: Observer<Value>
 
     /// The wrapped object.
     public var wrappedValue: Value {
-      get { self.observer.object }
-      set { self.observer.object = newValue }
+      get { observer.object }
+      set { observer.object = newValue }
     }
 
     /// The bindable wrapper for the object that creates bindings to its properties using dynamic
@@ -31,25 +51,28 @@
     public subscript<Subject>(
       dynamicMember keyPath: ReferenceWritableKeyPath<Value, Subject>
     ) -> Binding<Subject> where Value: AnyObject {
-      withPerceptionTracking {
-        self.$observer[dynamicMember: (\Observer.object).appending(path: keyPath)]
-      } onChange: { [send = UncheckedSendable(self.observer.objectWillChange.send)] in
-        send.value()
-      }
+      #if DEBUG && canImport(SwiftUI)
+        $observer.object[
+          isPerceptionTracking: _PerceptionLocals.isInPerceptionTracking,
+          keyPath: keyPath
+        ]
+      #else
+        $observer.object[dynamicMember: keyPath]
+      #endif
     }
 
     /// Creates a bindable object from an observable object.
-    public init(wrappedValue: Value) where Value: AnyObject & Perceptible {
+    public init(wrappedValue: Value) where Value: AnyObject {
       self.observer = Observer(wrappedValue)
     }
 
     /// Creates a bindable object from an observable object.
-    public init(_ wrappedValue: Value) where Value: AnyObject & Perceptible {
+    public init(_ wrappedValue: Value) where Value: AnyObject {
       self.init(wrappedValue: wrappedValue)
     }
 
     /// Creates a bindable from the value of another bindable.
-    public init(projectedValue: Bindable<Value>) where Value: AnyObject & Perceptible {
+    public init(projectedValue: Bindable<Value>) where Value: AnyObject {
       self = projectedValue
     }
   }
@@ -76,4 +99,22 @@
       lhs.object === rhs.object
     }
   }
+
+  #if DEBUG
+    extension Perceptible {
+      fileprivate subscript<Member>(
+        isPerceptionTracking isPerceptionTracking: Bool,
+        keyPath keyPath: ReferenceWritableKeyPath<Self, Member>
+      ) -> Member {
+        get {
+          _PerceptionLocals.$isInPerceptionTracking.withValue(isPerceptionTracking) {
+            self[keyPath: keyPath]
+          }
+        }
+        set {
+          self[keyPath: keyPath] = newValue
+        }
+      }
+    }
+  #endif
 #endif

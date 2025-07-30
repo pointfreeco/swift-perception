@@ -9,15 +9,18 @@
 //
 //===----------------------------------------------------------------------===//
 
-/// A type that emits notifications to observers when underlying data changes.
+
+/// A type that emits notifications to perceivers when underlying data changes.
+///
+/// > Important: This is a back-port of Swift's `Observable` protocol.
 ///
 /// Conforming to this protocol signals to other APIs that the type supports
-/// observation. However, applying the `Perceptible` protocol by itself to a
-/// type doesn't add observation functionality to the type. Instead, always use
-/// the ``Perception/Perceptible()`` macro when adding observation
+/// perception. However, applying the `Perceptible` protocol by itself to a
+/// type doesn't add perception functionality to the type. Instead, always use
+/// the ``Perception/Perceptible()`` macro when adding perception
 /// support to a type.
 @available(iOS, deprecated: 17, renamed: "Observable")
 @available(macOS, deprecated: 14, renamed: "Observable")
 @available(watchOS, deprecated: 10, renamed: "Observable")
 @available(tvOS, deprecated: 17, renamed: "Observable")
-public protocol Perceptible {}
+public protocol Perceptible { }

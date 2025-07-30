@@ -1,8 +1,5 @@
 import IssueReporting
 
-#if canImport(Observation)
-  import Observation
-#endif
 #if canImport(SwiftUI)
   import SwiftUI
 #endif

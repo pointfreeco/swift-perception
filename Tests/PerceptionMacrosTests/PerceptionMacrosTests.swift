@@ -31,11 +31,7 @@
               _count = initialValue
             }
             get {
-              #if DEBUG && canImport(SwiftUI)
-                access(keyPath: \.count, location: _callStackReturnAddresses[1])
-              #else
-                access(keyPath: \.count)
-              #endif
+              _$perceptionRegistrar.access(self, keyPath: \.count)
               return _count
             }
             set {
@@ -62,10 +58,9 @@
           private let _$perceptionRegistrar = Perception.PerceptionRegistrar()
 
           internal nonisolated func access<__macro_local_6MemberfMu_>(
-            keyPath: KeyPath<Feature, __macro_local_6MemberfMu_>,
-            location: AnyHashable? = nil
+            keyPath: KeyPath<Feature, __macro_local_6MemberfMu_>
           ) {
-            _$perceptionRegistrar.access(self, keyPath: keyPath, location: location)
+            _$perceptionRegistrar.access(self, keyPath: keyPath)
           }
 
           internal nonisolated func withMutation<__macro_local_6MemberfMu0_, __macro_local_14MutationResultfMu_>(

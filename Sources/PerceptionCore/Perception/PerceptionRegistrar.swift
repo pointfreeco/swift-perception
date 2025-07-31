@@ -18,7 +18,7 @@ public struct PerceptionRegistrar: Sendable {
     public let _isPerceptionCheckingEnabled: Bool
   #endif
   #if DEBUG && canImport(SwiftUI)
-    fileprivate let perceptionChecks = _ManagedCriticalState<[AnyHashable: Bool]>([:])
+    fileprivate let perceptionChecks = _ManagedCriticalState<[Int: Bool]>([:])
   #endif
 
   @usableFromInline var perceptionRegistrar: _PerceptionRegistrar {
@@ -56,10 +56,9 @@ public struct PerceptionRegistrar: Sendable {
   public func access<Subject: Perceptible, Member>(
     _ subject: Subject,
     keyPath: KeyPath<Subject, Member>,
-    location: AnyHashable? = nil
   ) {
     #if DEBUG && canImport(SwiftUI)
-      check(location: location)
+      check()
     #endif
     #if canImport(Observation)
       if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *),
@@ -201,8 +200,7 @@ extension PerceptionRegistrar: Hashable {
     ///   - keyPath: The key path of an observed property.
     public func access<Subject: Observable, Member>(
       _ subject: Subject,
-      keyPath: KeyPath<Subject, Member>,
-      location: AnyHashable? = nil
+      keyPath: KeyPath<Subject, Member>
     ) {
       observationRegistrar.access(subject, keyPath: keyPath)
     }
@@ -252,14 +250,11 @@ extension PerceptionRegistrar: Hashable {
   extension PerceptionRegistrar {
     @_transparent
     @usableFromInline
-    func check(location: AnyHashable?) {
-      guard let location
-      else { return }
-
+    func check() {
       if _isPerceptionCheckingEnabled,
         !_PerceptionLocals.isInPerceptionTracking,
         !_PerceptionLocals.skipPerceptionChecking,
-        isSwiftUI(location: location)
+        isSwiftUI()
       {
         reportIssue(
           """
@@ -300,12 +295,14 @@ extension PerceptionRegistrar: Hashable {
     }
 
     @usableFromInline
-    func isSwiftUI(location: AnyHashable) -> Bool {
-      self.perceptionChecks.withCriticalRegion { perceptionChecks in
+    func isSwiftUI() -> Bool {
+      // NB: Unrelated stacks could potentially collide, but we want to keep debug builds lean, so
+      //     we can afford the rare false positive/negative.
+      let location = Thread.callStackReturnAddresses.hashValue
+      return perceptionChecks.withCriticalRegion { perceptionChecks in
         if let result = perceptionChecks[location] {
           return result
         }
-
         let result = Thread.callStackSymbols.reversed().contains {
           $0.utf8.dropFirst(4).starts(with: "AttributeGraph ".utf8)
         }

@@ -3,40 +3,13 @@ import SwiftUI
 
 @Perceptible
 class CounterModel {
-  var count: Int {
-    @storageRestrictions(initializes: _count)
-    init(initialValue) {
-      _count = initialValue
-    }
-    get {
-      print(Thread.callStackSymbols.dropFirst().first)
-      _$perceptionRegistrar.access(self, keyPath: \.count)
-      return _count
-    }
-    set {
-      guard shouldNotifyObservers(_count, newValue) else {
-        _count = newValue
-        return
-      }
-      withMutation(keyPath: \.count) {
-        _count = newValue
-      }
-    }
-    _modify {
-      print(Thread.callStackSymbols.dropFirst().first)
-      access(keyPath: \.count)
-      _$perceptionRegistrar.willSet(self, keyPath: \.count)
-      defer {
-        _$perceptionRegistrar.didSet(self, keyPath: \.count)
-      }
-      yield &_count
-    }
-  }
-  @PerceptionIgnored private var _count = 0
+  var count: Int = 0
+  var isDisplayingCount = true
+  var isPresentingSheet = false
+  var text = ""
 
-  @PerceptionTracked var isDisplayingCount = true
-  @PerceptionTracked var isPresentingSheet = false
-  @PerceptionTracked var text = ""
+
+
   func decrementButtonTapped() {
     withAnimation {
       count -= 1
@@ -50,9 +23,6 @@ class CounterModel {
   func presentSheetButtonTapped() {
     isPresentingSheet = true
   }
-}
-
-extension CounterModel: Perception.Perceptible, Observation.Observable {
 }
 
 struct ContentView: View {

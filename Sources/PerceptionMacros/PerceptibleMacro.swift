@@ -48,9 +48,10 @@ public struct PerceptibleMacro {
     return
       """
       internal nonisolated func access<\(memberGeneric)>(
-        keyPath: KeyPath<\(perceptibleType), \(memberGeneric)>
+        keyPath: KeyPath<\(perceptibleType), \(memberGeneric)>,
+        location: AnyHashable? = nil
       ) {
-        \(raw: registrarVariableName).access(self, keyPath: keyPath)
+        \(raw: registrarVariableName).access(self, keyPath: keyPath, location: location)
       }
       """
   }
@@ -438,7 +439,11 @@ public struct PerceptionTrackedMacro: AccessorMacro {
     let getAccessor: AccessorDeclSyntax =
       """
       get {
-        _$perceptionRegistrar.access(self, keyPath: \\.\(identifier))
+        #if DEBUG && canImport(SwiftUI)
+          access(keyPath: \\.\(identifier), location: _callStackReturnAddresses[1])
+        #else 
+          access(keyPath: \\.\(identifier))
+        #endif
         return _\(identifier)
       }
       """

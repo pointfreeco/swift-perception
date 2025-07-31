@@ -18,7 +18,7 @@ public struct PerceptionRegistrar: Sendable {
     public let _isPerceptionCheckingEnabled: Bool
   #endif
   #if DEBUG && canImport(SwiftUI)
-    fileprivate let perceptionChecks = _ManagedCriticalState<[String: Bool]>([:])
+  fileprivate let perceptionChecks = _ManagedCriticalState<[AnyHashable: Bool]>([:])
   #endif
 
   @usableFromInline var perceptionRegistrar: _PerceptionRegistrar {
@@ -55,10 +55,11 @@ public struct PerceptionRegistrar: Sendable {
   #endif
   public func access<Subject: Perceptible, Member>(
     _ subject: Subject,
-    keyPath: KeyPath<Subject, Member>
+    keyPath: KeyPath<Subject, Member>,
+    location: AnyHashable? = nil
   ) {
     #if DEBUG && canImport(SwiftUI)
-      check()
+      check(location: location)
     #endif
     #if canImport(Observation)
       if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *),
@@ -200,7 +201,8 @@ extension PerceptionRegistrar: Hashable {
     ///   - keyPath: The key path of an observed property.
     public func access<Subject: Observable, Member>(
       _ subject: Subject,
-      keyPath: KeyPath<Subject, Member>
+      keyPath: KeyPath<Subject, Member>,
+      location: AnyHashable? = nil
     ) {
       observationRegistrar.access(subject, keyPath: keyPath)
     }
@@ -250,11 +252,15 @@ extension PerceptionRegistrar: Hashable {
   extension PerceptionRegistrar {
     @_transparent
     @usableFromInline
-    func check() {
+    func check(location: AnyHashable?) {
+      guard let location
+      else { return }
+      print("!!!!", location)
+
       if _isPerceptionCheckingEnabled,
         !_PerceptionLocals.isInPerceptionTracking,
         !_PerceptionLocals.skipPerceptionChecking,
-         isSwiftUI(location: Thread.callStackSymbols[2])
+         isSwiftUI(location: location)
       {
         reportIssue(
           """
@@ -295,7 +301,7 @@ extension PerceptionRegistrar: Hashable {
     }
 
     @usableFromInline
-    func isSwiftUI(location: String) -> Bool {
+    func isSwiftUI(location: AnyHashable) -> Bool {
       self.perceptionChecks.withCriticalRegion { perceptionChecks in
         if let result = perceptionChecks[location] {
           return result

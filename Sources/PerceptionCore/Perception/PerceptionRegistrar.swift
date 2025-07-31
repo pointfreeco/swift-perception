@@ -56,8 +56,10 @@ public struct PerceptionRegistrar: Sendable {
   public func access<Subject: Perceptible, Member>(
     _ subject: Subject,
     keyPath: KeyPath<Subject, Member>,
+    fileID _: StaticString = #fileID,
     filePath: StaticString = #filePath,
-    line: UInt = #line
+    line: UInt = #line,
+    column _: UInt = #column
   ) {
     #if DEBUG && canImport(SwiftUI)
       check(filePath: filePath, line: line)
@@ -203,8 +205,10 @@ extension PerceptionRegistrar: Hashable {
     public func access<Subject: Observable, Member>(
       _ subject: Subject,
       keyPath: KeyPath<Subject, Member>,
+      fileID _: StaticString = #fileID,
       filePath _: StaticString = #filePath,
-      line _: UInt = #line
+      line _: UInt = #line,
+      column _: UInt = #column
     ) {
       observationRegistrar.access(subject, keyPath: keyPath)
     }

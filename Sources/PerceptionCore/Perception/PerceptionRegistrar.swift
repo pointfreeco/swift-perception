@@ -55,7 +55,7 @@ public struct PerceptionRegistrar: Sendable {
   #endif
   public func access<Subject: Perceptible, Member>(
     _ subject: Subject,
-    keyPath: KeyPath<Subject, Member>,
+    keyPath: KeyPath<Subject, Member>
   ) {
     #if DEBUG && canImport(SwiftUI)
       check()

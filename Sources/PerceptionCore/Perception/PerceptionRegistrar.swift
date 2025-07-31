@@ -14,6 +14,12 @@ import IssueReporting
 @available(tvOS, deprecated: 17, renamed: "ObservationRegistrar")
 public struct PerceptionRegistrar: Sendable {
   private let rawValue: any Sendable
+  #if DEBUG
+    public let _isPerceptionCheckingEnabled: Bool
+  #endif
+  #if DEBUG && canImport(SwiftUI)
+    fileprivate let perceptionChecks = _ManagedCriticalState<[Int: Bool]>([:])
+  #endif
 
   @usableFromInline var perceptionRegistrar: _PerceptionRegistrar {
     rawValue as! _PerceptionRegistrar
@@ -25,7 +31,10 @@ public struct PerceptionRegistrar: Sendable {
   /// ``Perception/PerceptionRegistrar`` when using the
   /// ``Perception/Perceptible()`` macro to indicate perceptibility
   /// of a type.
-  public init() {
+  public init(isPerceptionCheckingEnabled: Bool = true) {
+    #if DEBUG
+      _isPerceptionCheckingEnabled = isPerceptionCheckingEnabled
+    #endif
     #if canImport(Observation)
       if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta {
         rawValue = ObservationRegistrar()
@@ -193,9 +202,6 @@ extension PerceptionRegistrar: Hashable {
       _ subject: Subject,
       keyPath: KeyPath<Subject, Member>
     ) {
-      #if DEBUG && canImport(SwiftUI)
-        check()
-      #endif
       observationRegistrar.access(subject, keyPath: keyPath)
     }
 
@@ -245,9 +251,10 @@ extension PerceptionRegistrar: Hashable {
     @_transparent
     @usableFromInline
     func check() {
-      if !_PerceptionLocals.isInPerceptionTracking,
+      if _isPerceptionCheckingEnabled,
+        !_PerceptionLocals.isInPerceptionTracking,
         !_PerceptionLocals.skipPerceptionChecking,
-        Thread.isSwiftUI()
+        isSwiftUI()
       {
         reportIssue(
           """
@@ -270,10 +277,10 @@ extension PerceptionRegistrar: Hashable {
             \u{2007}     // ...
             \u{002B}   }
             \u{2007} }
-          
+
           If a view is using a binding derived from perceptible '@State', use \
           '@Perception.Bindable', instead. For example:
-          
+
             \u{2007} @State var model = Model()
             \u{2007} var body: some View
             \u{2007}   WithPerceptionTracking {
@@ -281,18 +288,26 @@ extension PerceptionRegistrar: Hashable {
             \u{2007}     Stepper("\\(count)", value: $model.count)
             \u{2007}   }
             \u{2007} }
-          
+
           """
         )
       }
     }
-  }
 
-  extension Thread {
     @usableFromInline
-    static func isSwiftUI() -> Bool {
-      callStackSymbols.reversed().contains {
-        $0.utf8.dropFirst(4).starts(with: "AttributeGraph ".utf8)
+    func isSwiftUI() -> Bool {
+      // NB: Unrelated stacks could potentially collide, but we want to keep debug builds lean, so
+      //     we can afford the rare false positive/negative.
+      let location = Thread.callStackReturnAddresses.hashValue
+      return perceptionChecks.withCriticalRegion { perceptionChecks in
+        if let result = perceptionChecks[location] {
+          return result
+        }
+        let result = Thread.callStackSymbols.reversed().contains {
+          $0.utf8.dropFirst(4).starts(with: "AttributeGraph ".utf8)
+        }
+        perceptionChecks[location] = result
+        return result
       }
     }
   }

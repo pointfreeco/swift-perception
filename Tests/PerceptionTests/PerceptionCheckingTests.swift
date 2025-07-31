@@ -211,7 +211,6 @@
               }
           }
         }
-
         // NB: This failure is triggered out-of-body by the binding.
         XCTExpectFailure { $0.compactDescription.contains("Perceptible state was accessed") }
         try await render(FeatureView(model: Model(child: Model())))
@@ -232,7 +231,6 @@
               }
           }
         }
-
         // NB: This failure is triggered out-of-body by the binding.
         XCTExpectFailure { $0.compactDescription.contains("Perceptible state was accessed") }
         try await render(FeatureView(model: Model(child: Model())))

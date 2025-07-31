@@ -10,8 +10,12 @@ import Foundation
 /// something to fix.
 ///
 /// This check only happens in `DEBUG` builds, and so it does not affect App Store releases of your
-/// app. However, the checks can sometimes be costly and slow down your app in development. If you
-/// wish to fully disable the checks, you can set this boolean to `false`.
+/// app. However, the checks can sometimes be costly and slow down your app in development if you
+/// frequently access state outside of observable contexts. To fully disable the checks, you can
+/// set this boolean to `false`.
+///
+/// > Warning: Turn off perception checks at your own peril. Without them it is much easier to
+/// > introduce broken features to pre-observation platforms.
 @available(
   iOS, deprecated: 17, message: "'isPerceptionCheckingEnabled' is no longer needed in iOS 17+."
 )

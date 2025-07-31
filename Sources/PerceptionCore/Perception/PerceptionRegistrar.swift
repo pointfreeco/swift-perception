@@ -14,7 +14,9 @@ import IssueReporting
 @available(tvOS, deprecated: 17, renamed: "ObservationRegistrar")
 public struct PerceptionRegistrar: Sendable {
   private let rawValue: any Sendable
-  fileprivate let perceptionChecks = _ManagedCriticalState<[Location: Bool]>([:])
+  #if DEBUG && canImport(SwiftUI)
+    fileprivate let perceptionChecks = _ManagedCriticalState<[Location: Bool]>([:])
+  #endif
 
   @usableFromInline var perceptionRegistrar: _PerceptionRegistrar {
     rawValue as! _PerceptionRegistrar
@@ -252,7 +254,7 @@ extension PerceptionRegistrar: Hashable {
     ) {
       if !_PerceptionLocals.isInPerceptionTracking,
         !_PerceptionLocals.skipPerceptionChecking,
-         isSwiftUI(filePath: filePath, line: line)
+        isSwiftUI(filePath: filePath, line: line)
       {
         reportIssue(
           """
@@ -275,10 +277,10 @@ extension PerceptionRegistrar: Hashable {
             \u{2007}     // ...
             \u{002B}   }
             \u{2007} }
-          
+
           If a view is using a binding derived from perceptible '@State', use \
           '@Perception.Bindable', instead. For example:
-          
+
             \u{2007} @State var model = Model()
             \u{2007} var body: some View
             \u{2007}   WithPerceptionTracking {
@@ -286,7 +288,7 @@ extension PerceptionRegistrar: Hashable {
             \u{2007}     Stepper("\\(count)", value: $model.count)
             \u{2007}   }
             \u{2007} }
-          
+
           """
         )
       }
@@ -310,12 +312,12 @@ extension PerceptionRegistrar: Hashable {
     }
   }
 
-private struct Location: Hashable {
-  let file: String
-  let line: UInt
-  init(filePath: StaticString, line: UInt) {
-    self.file = filePath.description
-    self.line = line
+  private struct Location: Hashable {
+    let file: String
+    let line: UInt
+    init(filePath: StaticString, line: UInt) {
+      self.file = filePath.description
+      self.line = line
+    }
   }
-}
 #endif

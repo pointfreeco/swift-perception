@@ -301,13 +301,13 @@ extension PerceptionRegistrar: Hashable {
           return result
         }
 
-        return Thread.callStackSymbols.reversed().contains {
-          let result = $0.utf8.dropFirst(4).starts(with: "AttributeGraph ".utf8)
-          if !result {
-            perceptionChecks[Location(filePath: filePath, line: line)] = false
-          }
-          return result
+        let result = Thread.callStackSymbols.reversed().contains {
+          $0.utf8.dropFirst(4).starts(with: "AttributeGraph ".utf8)
         }
+        if !result {
+          perceptionChecks[Location(filePath: filePath, line: line)] = false
+        }
+        return result
       }
     }
   }

@@ -14,6 +14,7 @@ import IssueReporting
 @available(tvOS, deprecated: 17, renamed: "ObservationRegistrar")
 public struct PerceptionRegistrar: Sendable {
   private let rawValue: any Sendable
+  fileprivate let perceptionChecks = _ManagedCriticalState<[Location: Bool]>([:])
 
   @usableFromInline var perceptionRegistrar: _PerceptionRegistrar {
     rawValue as! _PerceptionRegistrar
@@ -46,10 +47,12 @@ public struct PerceptionRegistrar: Sendable {
   #endif
   public func access<Subject: Perceptible, Member>(
     _ subject: Subject,
-    keyPath: KeyPath<Subject, Member>
+    keyPath: KeyPath<Subject, Member>,
+    filePath: StaticString = #filePath,
+    line: UInt = #line
   ) {
     #if DEBUG && canImport(SwiftUI)
-      check()
+      check(filePath: filePath, line: line)
     #endif
     #if canImport(Observation)
       if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *),
@@ -191,7 +194,9 @@ extension PerceptionRegistrar: Hashable {
     ///   - keyPath: The key path of an observed property.
     public func access<Subject: Observable, Member>(
       _ subject: Subject,
-      keyPath: KeyPath<Subject, Member>
+      keyPath: KeyPath<Subject, Member>,
+      filePath _: StaticString,
+      line _: UInt
     ) {
       observationRegistrar.access(subject, keyPath: keyPath)
     }
@@ -241,10 +246,13 @@ extension PerceptionRegistrar: Hashable {
   extension PerceptionRegistrar {
     @_transparent
     @usableFromInline
-    func check() {
+    func check(
+      filePath: StaticString,
+      line: UInt
+    ) {
       if !_PerceptionLocals.isInPerceptionTracking,
         !_PerceptionLocals.skipPerceptionChecking,
-        Thread.isSwiftUI()
+         isSwiftUI(filePath: filePath, line: line)
       {
         reportIssue(
           """
@@ -283,14 +291,31 @@ extension PerceptionRegistrar: Hashable {
         )
       }
     }
-  }
 
-  extension Thread {
     @usableFromInline
-    static func isSwiftUI() -> Bool {
-      callStackSymbols.reversed().contains {
-        $0.utf8.dropFirst(4).starts(with: "AttributeGraph ".utf8)
+    func isSwiftUI(filePath: StaticString, line: UInt) -> Bool {
+      self.perceptionChecks.withCriticalRegion { perceptionChecks in
+        if let result = perceptionChecks[Location(filePath: filePath, line: line)] {
+          return result
+        }
+
+        return Thread.callStackSymbols.reversed().contains {
+          let result = $0.utf8.dropFirst(4).starts(with: "AttributeGraph ".utf8)
+          if !result {
+            perceptionChecks[Location(filePath: filePath, line: line)] = false
+          }
+          return result
+        }
       }
     }
   }
+
+private struct Location: Hashable {
+  let file: String
+  let line: UInt
+  init(filePath: StaticString, line: UInt) {
+    self.file = filePath.description
+    self.line = line
+  }
+}
 #endif

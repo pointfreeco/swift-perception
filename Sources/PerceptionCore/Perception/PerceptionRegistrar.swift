@@ -255,7 +255,6 @@ extension PerceptionRegistrar: Hashable {
     func check(location: AnyHashable?) {
       guard let location
       else { return }
-      print("!!!!", location)
 
       if _isPerceptionCheckingEnabled,
         !_PerceptionLocals.isInPerceptionTracking,

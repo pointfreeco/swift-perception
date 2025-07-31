@@ -111,3 +111,4 @@ struct FeatureView: View {
 - ``WithPerceptionTracking``
 - ``Bindable``
 - ``SwiftUICore``
+- ``isPerceptionCheckingEnabled``

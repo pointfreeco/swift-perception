@@ -14,6 +14,9 @@ import IssueReporting
 @available(tvOS, deprecated: 17, renamed: "ObservationRegistrar")
 public struct PerceptionRegistrar: Sendable {
   private let rawValue: any Sendable
+  #if DEBUG
+    public let _isPerceptionCheckingEnabled: Bool
+  #endif
   #if DEBUG && canImport(SwiftUI)
     fileprivate let perceptionChecks = _ManagedCriticalState<[Location: Bool]>([:])
   #endif
@@ -28,7 +31,10 @@ public struct PerceptionRegistrar: Sendable {
   /// ``Perception/PerceptionRegistrar`` when using the
   /// ``Perception/Perceptible()`` macro to indicate perceptibility
   /// of a type.
-  public init() {
+  public init(isPerceptionCheckingEnabled: Bool = true) {
+    #if DEBUG
+      _isPerceptionCheckingEnabled = isPerceptionCheckingEnabled
+    #endif
     #if canImport(Observation)
       if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta {
         rawValue = ObservationRegistrar()
@@ -252,7 +258,8 @@ extension PerceptionRegistrar: Hashable {
       filePath: StaticString,
       line: UInt
     ) {
-      if !_PerceptionLocals.isInPerceptionTracking,
+      if _isPerceptionCheckingEnabled,
+        !_PerceptionLocals.isInPerceptionTracking,
         !_PerceptionLocals.skipPerceptionChecking,
         isSwiftUI(filePath: filePath, line: line)
       {

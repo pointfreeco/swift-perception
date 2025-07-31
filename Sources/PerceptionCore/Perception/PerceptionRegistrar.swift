@@ -18,7 +18,7 @@ public struct PerceptionRegistrar: Sendable {
     public let _isPerceptionCheckingEnabled: Bool
   #endif
   #if DEBUG && canImport(SwiftUI)
-    fileprivate let perceptionChecks = _ManagedCriticalState<[Location: Bool]>([:])
+    fileprivate let perceptionChecks = _ManagedCriticalState<[String: Bool]>([:])
   #endif
 
   @usableFromInline var perceptionRegistrar: _PerceptionRegistrar {
@@ -55,14 +55,10 @@ public struct PerceptionRegistrar: Sendable {
   #endif
   public func access<Subject: Perceptible, Member>(
     _ subject: Subject,
-    keyPath: KeyPath<Subject, Member>,
-    fileID _: StaticString = #fileID,
-    filePath: StaticString = #filePath,
-    line: UInt = #line,
-    column _: UInt = #column
+    keyPath: KeyPath<Subject, Member>
   ) {
     #if DEBUG && canImport(SwiftUI)
-      check(filePath: filePath, line: line)
+      check()
     #endif
     #if canImport(Observation)
       if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *),
@@ -204,11 +200,7 @@ extension PerceptionRegistrar: Hashable {
     ///   - keyPath: The key path of an observed property.
     public func access<Subject: Observable, Member>(
       _ subject: Subject,
-      keyPath: KeyPath<Subject, Member>,
-      fileID _: StaticString = #fileID,
-      filePath _: StaticString = #filePath,
-      line _: UInt = #line,
-      column _: UInt = #column
+      keyPath: KeyPath<Subject, Member>
     ) {
       observationRegistrar.access(subject, keyPath: keyPath)
     }
@@ -258,14 +250,11 @@ extension PerceptionRegistrar: Hashable {
   extension PerceptionRegistrar {
     @_transparent
     @usableFromInline
-    func check(
-      filePath: StaticString,
-      line: UInt
-    ) {
+    func check() {
       if _isPerceptionCheckingEnabled,
         !_PerceptionLocals.isInPerceptionTracking,
         !_PerceptionLocals.skipPerceptionChecking,
-        isSwiftUI(filePath: filePath, line: line)
+         isSwiftUI(location: Thread.callStackSymbols[2])
       {
         reportIssue(
           """
@@ -306,29 +295,18 @@ extension PerceptionRegistrar: Hashable {
     }
 
     @usableFromInline
-    func isSwiftUI(filePath: StaticString, line: UInt) -> Bool {
+    func isSwiftUI(location: String) -> Bool {
       self.perceptionChecks.withCriticalRegion { perceptionChecks in
-        if let result = perceptionChecks[Location(filePath: filePath, line: line)] {
+        if let result = perceptionChecks[location] {
           return result
         }
 
         let result = Thread.callStackSymbols.reversed().contains {
           $0.utf8.dropFirst(4).starts(with: "AttributeGraph ".utf8)
         }
-        if !result {
-          perceptionChecks[Location(filePath: filePath, line: line)] = false
-        }
+        perceptionChecks[location] = result
         return result
       }
-    }
-  }
-
-  private struct Location: Hashable {
-    let file: String
-    let line: UInt
-    init(filePath: StaticString, line: UInt) {
-      self.file = filePath.description
-      self.line = line
     }
   }
 #endif

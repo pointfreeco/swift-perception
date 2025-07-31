@@ -193,9 +193,6 @@ extension PerceptionRegistrar: Hashable {
       _ subject: Subject,
       keyPath: KeyPath<Subject, Member>
     ) {
-      #if DEBUG && canImport(SwiftUI)
-        check()
-      #endif
       observationRegistrar.access(subject, keyPath: keyPath)
     }
 

@@ -197,8 +197,8 @@ extension PerceptionRegistrar: Hashable {
     public func access<Subject: Observable, Member>(
       _ subject: Subject,
       keyPath: KeyPath<Subject, Member>,
-      filePath _: StaticString,
-      line _: UInt
+      filePath _: StaticString = #filePath,
+      line _: UInt = #line
     ) {
       observationRegistrar.access(subject, keyPath: keyPath)
     }

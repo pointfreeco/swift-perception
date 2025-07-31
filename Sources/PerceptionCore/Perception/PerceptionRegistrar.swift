@@ -252,6 +252,7 @@ extension PerceptionRegistrar: Hashable {
     @usableFromInline
     func check() {
       if _isPerceptionCheckingEnabled,
+        PerceptionCore.isPerceptionCheckingEnabled,
         !_PerceptionLocals.isInPerceptionTracking,
         !_PerceptionLocals.skipPerceptionChecking,
         isSwiftUI()

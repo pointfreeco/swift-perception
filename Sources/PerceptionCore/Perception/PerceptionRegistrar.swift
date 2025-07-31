@@ -18,7 +18,7 @@ public struct PerceptionRegistrar: Sendable {
     public let _isPerceptionCheckingEnabled: Bool
   #endif
   #if DEBUG && canImport(SwiftUI)
-  fileprivate let perceptionChecks = _ManagedCriticalState<[AnyHashable: Bool]>([:])
+    fileprivate let perceptionChecks = _ManagedCriticalState<[AnyHashable: Bool]>([:])
   #endif
 
   @usableFromInline var perceptionRegistrar: _PerceptionRegistrar {
@@ -259,7 +259,7 @@ extension PerceptionRegistrar: Hashable {
       if _isPerceptionCheckingEnabled,
         !_PerceptionLocals.isInPerceptionTracking,
         !_PerceptionLocals.skipPerceptionChecking,
-         isSwiftUI(location: location)
+        isSwiftUI(location: location)
       {
         reportIssue(
           """

@@ -9,10 +9,10 @@
 //
 //===----------------------------------------------------------------------===//
 
-@available(iOS, deprecated: 26, renamed: "ObservationRegistrar")
-@available(macOS, deprecated: 26, renamed: "ObservationRegistrar")
-@available(watchOS, deprecated: 26, renamed: "ObservationRegistrar")
-@available(tvOS, deprecated: 26, renamed: "ObservationRegistrar")
+@available(iOS, deprecated: 17, renamed: "ObservationRegistrar")
+@available(macOS, deprecated: 14, renamed: "ObservationRegistrar")
+@available(watchOS, deprecated: 10, renamed: "ObservationRegistrar")
+@available(tvOS, deprecated: 17, renamed: "ObservationRegistrar")
 @usableFromInline
 internal struct _PerceptionRegistrar: Sendable {
   internal class ValuePerceptionStorage {

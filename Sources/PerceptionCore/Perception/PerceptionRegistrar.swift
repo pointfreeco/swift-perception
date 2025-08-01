@@ -8,10 +8,10 @@ import IssueReporting
 ///
 /// You don't need to create an instance of `PerceptionRegistrar` when using
 /// the ``Perception/Perceptible()`` macro to indicate perceptibility of a type.
-@available(iOS, deprecated: 17, renamed: "ObservationRegistrar")
-@available(macOS, deprecated: 14, renamed: "ObservationRegistrar")
-@available(watchOS, deprecated: 10, renamed: "ObservationRegistrar")
-@available(tvOS, deprecated: 17, renamed: "ObservationRegistrar")
+@available(iOS, deprecated: 26, renamed: "ObservationRegistrar")
+@available(macOS, deprecated: 26, renamed: "ObservationRegistrar")
+@available(watchOS, deprecated: 26, renamed: "ObservationRegistrar")
+@available(tvOS, deprecated: 26, renamed: "ObservationRegistrar")
 public struct PerceptionRegistrar: Sendable {
   private let rawValue: any Sendable
   #if DEBUG

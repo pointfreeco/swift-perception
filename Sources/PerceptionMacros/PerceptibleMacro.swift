@@ -43,27 +43,27 @@ public struct PerceptibleMacro {
       """
   }
   
-  static func accessFunction(_ perceptibleType: TokenSyntax, context: some MacroExpansionContext) -> DeclSyntax {
+  static func accessFunction(_ perceptibleType: TokenSyntax, isFinal: Bool, context: some MacroExpansionContext) -> DeclSyntax {
     let memberGeneric = context.makeUniqueName("Member")
     return
       """
-      internal nonisolated func access<\(memberGeneric)>(
-        keyPath: KeyPath<\(perceptibleType), \(memberGeneric)>
+      \(raw: isFinal ? "private" : "internal") nonisolated func access<M>(
+        keyPath: KeyPath<\(perceptibleType), M>
       ) {
         \(raw: registrarVariableName).access(self, keyPath: keyPath)
       }
       """
   }
   
-  static func withMutationFunction(_ perceptibleType: TokenSyntax, context: some MacroExpansionContext) -> DeclSyntax {
+  static func withMutationFunction(_ perceptibleType: TokenSyntax, isFinal: Bool, context: some MacroExpansionContext) -> DeclSyntax {
     let memberGeneric = context.makeUniqueName("Member")
     let mutationGeneric = context.makeUniqueName("MutationResult")
     return
       """
-      internal nonisolated func withMutation<\(memberGeneric), \(mutationGeneric)>(
-        keyPath: KeyPath<\(perceptibleType), \(memberGeneric)>,
-        _ mutation: () throws -> \(mutationGeneric)
-      ) rethrows -> \(mutationGeneric) {
+      \(raw: isFinal ? "private" : "internal") nonisolated func withMutation<M, R>(
+        keyPath: KeyPath<\(perceptibleType), M>,
+        _ mutation: () throws -> R
+      ) rethrows -> R {
         try \(raw: registrarVariableName).withMutation(of: self, keyPath: keyPath, mutation)
       }
       """
@@ -73,7 +73,7 @@ public struct PerceptibleMacro {
     let memberGeneric = context.makeUniqueName("Member")
     return
       """
-       private nonisolated func shouldNotifyObservers<\(memberGeneric)>(_ lhs: \(memberGeneric), _ rhs: \(memberGeneric)) -> Bool { true }
+       private nonisolated func shouldNotifyObservers<M>(_ lhs: M, _ rhs: M) -> Bool { true }
       """
   }
   
@@ -81,7 +81,7 @@ public struct PerceptibleMacro {
     let memberGeneric = context.makeUniqueName("Member")
     return
       """
-      private nonisolated func shouldNotifyObservers<\(memberGeneric): Equatable>(_ lhs: \(memberGeneric), _ rhs: \(memberGeneric)) -> Bool { lhs != rhs }
+      private nonisolated func shouldNotifyObservers<M: Equatable>(_ lhs: M, _ rhs: M) -> Bool { lhs != rhs }
       """
   }
   
@@ -89,7 +89,7 @@ public struct PerceptibleMacro {
     let memberGeneric = context.makeUniqueName("Member")
     return
       """
-       private nonisolated func shouldNotifyObservers<\(memberGeneric): AnyObject>(_ lhs: \(memberGeneric), _ rhs: \(memberGeneric)) -> Bool { lhs !== rhs }
+       private nonisolated func shouldNotifyObservers<M: AnyObject>(_ lhs: M, _ rhs: M) -> Bool { lhs !== rhs }
       """
   }
 
@@ -97,7 +97,7 @@ public struct PerceptibleMacro {
     let memberGeneric = context.makeUniqueName("Member")
     return
       """
-      private nonisolated func shouldNotifyObservers<\(memberGeneric): Equatable & AnyObject>(_ lhs: \(memberGeneric), _ rhs: \(memberGeneric)) -> Bool { lhs != rhs }
+      private nonisolated func shouldNotifyObservers<M: Equatable & AnyObject>(_ lhs: M, _ rhs: M) -> Bool { lhs != rhs }
       """
   }
 
@@ -274,8 +274,8 @@ extension PatternBindingListSyntax {
 
 extension VariableDeclSyntax {
   func privatePrefixed(_ prefix: String, addingAttribute attribute: AttributeSyntax, removingAttribute toRemove: AttributeSyntax, in context: LocalMacroExpansionContext<some MacroExpansionContext>) -> VariableDeclSyntax {
-    let newAttributes = attributes.filter { attribute in
-      switch attribute {
+    let newAttributes = attributes.filter {
+      switch $0 {
       case .attribute(let attr):
         attr.attributeName.identifier != toRemove.attributeName.identifier
       default: true
@@ -296,8 +296,20 @@ extension VariableDeclSyntax {
   }
 }
 
+extension DeclGroupSyntax {
+  var isFinal: Bool {
+    modifiers.contains { $0.name.tokenKind == .keyword(.final) }
+  }
+
+  func addIfNeeded(_ decl: DeclSyntax, to declarations: inout [DeclSyntax]) {
+    if !memberBlock.members.contains(where: { $0.decl.isEquivalent(to: decl) }) {
+      declarations.append(decl)
+    }
+  }
+}
+
 extension PerceptibleMacro: MemberMacro {
-  public static func expansion<
+  public static func expansion< 
     Declaration: DeclGroupSyntax,
     Context: MacroExpansionContext
   >(
@@ -313,23 +325,28 @@ extension PerceptibleMacro: MemberMacro {
     let perceptibleType = identified.name.trimmed
 
     if declaration.isEnum {
-      // enumerations cannot store properties
-      throw DiagnosticsError(syntax: node, message: "'@Perceptible' cannot be applied to enumeration type '\(perceptibleType.text)'", id: .invalidApplication)
+      throw DiagnosticsError(syntax: node, message: "'@Perceptible' can only be applied to classes", id: .invalidApplication)
     }
     if declaration.isStruct {
-      // structs are not yet supported; copying/mutation semantics tbd
-      throw DiagnosticsError(syntax: node, message: "'@Perceptible' cannot be applied to struct type '\(perceptibleType.text)'", id: .invalidApplication)
+      throw DiagnosticsError(syntax: node, message: "'@Perceptible' can only be applied to classes", id: .invalidApplication)
     }
     if declaration.isActor {
-      // actors cannot yet be supported for their isolation
-      throw DiagnosticsError(syntax: node, message: "'@Perceptible' cannot be applied to actor type '\(perceptibleType.text)'", id: .invalidApplication)
+      throw DiagnosticsError(syntax: node, message: "'@Perceptible' can only be applied to classes", id: .invalidApplication)
+    }
+    
+    if !declaration.isClass {
+        throw DiagnosticsError(syntax: node, message: "'@Perceptible' can only be applied to classes", id: .invalidApplication)
+    }
+
+    if !declaration.memberBlock.members.contains(where: { $0.decl.is(InitializerDeclSyntax.self) }) {
+        context.diagnose(Diagnostic(node: Syntax(node), message: PerceptionDiagnostic(message: "'@Perceptible' requires an initializer", domain: "Perception", id: .missingInitializer)))
     }
     
     var declarations = [DeclSyntax]()
 
     declaration.addIfNeeded(PerceptibleMacro.registrarVariable(perceptibleType, context: context), to: &declarations)
-    declaration.addIfNeeded(PerceptibleMacro.accessFunction(perceptibleType, context: context), to: &declarations)
-    declaration.addIfNeeded(PerceptibleMacro.withMutationFunction(perceptibleType, context: context), to: &declarations)
+    declaration.addIfNeeded(PerceptibleMacro.accessFunction(perceptibleType, isFinal: declaration.isFinal, context: context), to: &declarations)
+    declaration.addIfNeeded(PerceptibleMacro.withMutationFunction(perceptibleType, isFinal: declaration.isFinal, context: context), to: &declarations)
     declaration.addIfNeeded(PerceptibleMacro.shouldNotifyObserversNonEquatableFunction(perceptibleType, context: context), to: &declarations)
     declaration.addIfNeeded(PerceptibleMacro.shouldNotifyObserversEquatableFunction(perceptibleType, context: context), to: &declarations)
     declaration.addIfNeeded(PerceptibleMacro.shouldNotifyObserversNonEquatableObjectFunction(perceptibleType, context: context), to: &declarations)
@@ -340,7 +357,7 @@ extension PerceptibleMacro: MemberMacro {
 }
 
 extension PerceptibleMacro: MemberAttributeMacro {
-  public static func expansion<
+  public static func expansion< 
     Declaration: DeclGroupSyntax,
     MemberDeclaration: DeclSyntaxProtocol,
     Context: MacroExpansionContext
@@ -384,13 +401,13 @@ extension PerceptibleMacro: ExtensionMacro {
 
     #if compiler(>=6.2)
     let decl: DeclSyntax = """
-        extension \(raw: type.trimmedDescription): nonisolated \(raw: qualifiedConformanceName), \
-        nonisolated Observation.Observable {}
+        extension \(type.trimmedDescription): nonisolated \(qualifiedConformanceName), \ 
+        nonisolated Observation.Observable {} 
         """
     #else
     let decl: DeclSyntax = """
-        extension \(raw: type.trimmedDescription): \(raw: qualifiedConformanceName), \
-        Observation.Observable {}
+        extension \(type.trimmedDescription): \(qualifiedConformanceName), \ 
+        Observation.Observable {} 
         """
     #endif
     let ext = decl.cast(ExtensionDeclSyntax.self)
@@ -404,7 +421,7 @@ extension PerceptibleMacro: ExtensionMacro {
 }
 
 public struct PerceptionTrackedMacro: AccessorMacro {
-  public static func expansion<
+  public static func expansion< 
     Context: MacroExpansionContext,
     Declaration: DeclSyntaxProtocol
   >(
@@ -481,7 +498,7 @@ public struct PerceptionTrackedMacro: AccessorMacro {
 }
 
 extension PerceptionTrackedMacro: PeerMacro {
-  public static func expansion<
+  public static func expansion< 
     Context: MacroExpansionContext,
     Declaration: DeclSyntaxProtocol
   >(
@@ -512,7 +529,7 @@ extension PerceptionTrackedMacro: PeerMacro {
 }
 
 public struct PerceptionIgnoredMacro: AccessorMacro {
-  public static func expansion<
+  public static func expansion< 
     Context: MacroExpansionContext,
     Declaration: DeclSyntaxProtocol
   >(

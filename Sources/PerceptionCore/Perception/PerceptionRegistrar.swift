@@ -264,31 +264,31 @@ extension PerceptionRegistrar: Hashable {
           Use this warning's stack trace to locate the view in question and wrap it with a \
           'WithPerceptionTracking' view. For example:
 
-            \u{2007} var body: some View
-            \u{002B}   WithPerceptionTracking {
-            \u{2007}     // ...
-            \u{002B}   }
-            \u{2007} }
+            var body: some View
+              WithPerceptionTracking {
+                // ...
+              }
+            }
 
           This must also be done for any subviews with escaping trailing closures, such as \
           'GeometryReader':
 
-            \u{2007} GeometryReader { proxy in
-            \u{002B}   WithPerceptionTracking {
-            \u{2007}     // ...
-            \u{002B}   }
-            \u{2007} }
+            GeometryReader { proxy in
+              WithPerceptionTracking {
+                // ...
+              }
+            }
 
           If a view is using a binding derived from perceptible '@State', use \
           '@Perception.Bindable', instead. For example:
 
-            \u{2007} @State var model = Model()
-            \u{2007} var body: some View
-            \u{2007}   WithPerceptionTracking {
-            \u{002B}     @Perception.Bindable var model = model
-            \u{2007}     Stepper("\\(count)", value: $model.count)
-            \u{2007}   }
-            \u{2007} }
+            @State var model = Model()
+            var body: some View
+              WithPerceptionTracking {
+                @Perception.Bindable var model = model
+                Stepper("\\(count)", value: $model.count)
+              }
+            }
 
           """
         )

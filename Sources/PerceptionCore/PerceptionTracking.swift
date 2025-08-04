@@ -261,3 +261,47 @@ public func withPerceptionTracking<T>(
   PerceptionTracking._installTracking(PerceptionTracking(accessList), willSet: nil, didSet: didSet)
   return result
 }
+
+/// Tracks access to a specific property.
+///
+/// This method tracks access to a specific property within the `apply` closure, and
+/// informs the caller of value changes made to that property by way
+/// of the `onChange` closure. The `onChange` closure is only invoked when the
+/// specified `keyPath` changes.
+///
+/// - Parameters:
+///     - apply: A closure that contains properties to track.
+///     - for: The `KeyPath` of the property to observe.
+///     - onChange: The closure invoked when the value of the specific property changes.
+///
+/// - Returns: The value that the `apply` closure returns if it has a return
+/// value; otherwise, there is no return value.
+@available(iOS, deprecated: 17, renamed: "withObservationTracking")
+@available(macOS, deprecated: 14, renamed: "withObservationTracking")
+@available(watchOS, deprecated: 10, renamed: "withObservationTracking")
+@available(tvOS, deprecated: 17, renamed: "withObservationTracking")
+public func withPerceptionTracking<T>(
+  _ apply: () -> T,
+  for keyPath: AnyKeyPath,
+  onChange: @autoclosure () -> @Sendable () -> Void
+) -> T {
+  #if DEBUG && canImport(SwiftUI)
+    let apply = { _PerceptionLocals.$isInPerceptionTracking.withValue(true, operation: apply) }
+  #endif
+  #if canImport(Observation)
+    if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta {
+      return withObservationTracking(apply, onChange: onChange())
+    }
+  #endif
+  let (result, accessList) = generateAccessList(apply)
+  if let accessList {
+    let tracking = PerceptionTracking(accessList)
+    PerceptionTracking._installTracking(tracking, willSet: { t in
+      if t.changed == keyPath {
+        onChange()()
+      }
+      t.cancel()
+    })
+  }
+  return result
+}

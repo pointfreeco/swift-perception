@@ -38,6 +38,31 @@ final class PerceptionTrackingTests: XCTestCase {
     XCTAssertEqual(model.count2, 1)
     isComplete = true
   }
+
+  func testMutateSpecificAccessedField() {
+    let model = Model()
+
+    let expectation = self.expectation(description: "count1 changed")
+    withPerceptionTracking {
+      _ = model.count1
+      _ = model.count2
+    } for: \.count1 onChange: { [weak self] in
+      guard let self else { return }
+      if !self.isComplete {
+        expectation.fulfill()
+      }
+    }
+    model.count2 += 1
+    XCTAssertEqual(model.count1, 0)
+    XCTAssertEqual(model.count2, 1)
+    self.wait(for: [expectation], timeout: 0.001) // Should not fulfill
+
+    model.count1 += 1
+    XCTAssertEqual(model.count1, 1)
+    XCTAssertEqual(model.count2, 1)
+    self.wait(for: [expectation], timeout: 0)
+    isComplete = true
+  }
 }
 
 @Perceptible

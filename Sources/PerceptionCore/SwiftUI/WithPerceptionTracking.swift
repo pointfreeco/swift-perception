@@ -213,6 +213,7 @@
 
     @available(iOS 16, macOS 13, tvOS 16, watchOS 9, *)
     extension WithPerceptionTracking: ChartContent where Content: ChartContent {
+      @_disfavoredOverload
       public init(@ChartContentBuilder content: @escaping () -> Content) {
         self.init(content: content())
       }

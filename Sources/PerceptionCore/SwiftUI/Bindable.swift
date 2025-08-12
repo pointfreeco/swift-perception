@@ -32,7 +32,7 @@
   @available(visionOS, unavailable)
   @dynamicMemberLookup
   @propertyWrapper
-  public struct Bindable<Value: Perceptible> {
+  public struct Bindable<Value> {
     @ObservedObject fileprivate var observer: Observer<Value>
 
     /// The wrapped object.
@@ -52,27 +52,31 @@
       dynamicMember keyPath: ReferenceWritableKeyPath<Value, Subject>
     ) -> Binding<Subject> where Value: AnyObject {
       #if DEBUG && canImport(SwiftUI)
-        $observer.object[
-          isPerceptionTracking: _PerceptionLocals.isInPerceptionTracking,
-          keyPath: keyPath
-        ]
+        func open<V: Perceptible>(_: V.Type) -> Binding<Subject> {
+          ($observer as! ObservedObject<Observer<V>>.Wrapper).object[
+            isPerceptionTracking: _PerceptionLocals.isInPerceptionTracking,
+            keyPath: unsafeDowncast(keyPath, to: ReferenceWritableKeyPath<V, Subject>.self)
+          ]
+        }
+        guard let valueType = Value.self as? any Perceptible.Type else { fatalError() }
+        return open(valueType)
       #else
         $observer.object[dynamicMember: keyPath]
       #endif
     }
 
     /// Creates a bindable object from an observable object.
-    public init(wrappedValue: Value) where Value: AnyObject {
+    public init(wrappedValue: Value) where Value: AnyObject & Perceptible {
       self.observer = Observer(wrappedValue)
     }
 
     /// Creates a bindable object from an observable object.
-    public init(_ wrappedValue: Value) where Value: AnyObject {
+    public init(_ wrappedValue: Value) where Value: AnyObject & Perceptible {
       self.init(wrappedValue: wrappedValue)
     }
 
     /// Creates a bindable from the value of another bindable.
-    public init(projectedValue: Bindable<Value>) where Value: AnyObject {
+    public init(projectedValue: Bindable<Value>) where Value: AnyObject & Perceptible {
       self = projectedValue
     }
   }

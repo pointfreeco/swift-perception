@@ -110,20 +110,9 @@ internal struct _PerceptionRegistrar: Sendable {
       }
     }
 
-    internal mutating func deinitialize() -> [@Sendable () -> Void] {
-      var trackers = [@Sendable () -> Void]()
-      for (keyPath, ids) in lookups {
-        for id in ids {
-          if let tracker = perceptions[id]?.willSetTracker {
-             trackers.append({
-               tracker(keyPath)
-             })
-          }
-        }
-      }
+    internal mutating func cancelAll() {
       perceptions.removeAll()
       lookups.removeAll()
-      return trackers
     }
     
     internal mutating func willSet(keyPath: AnyKeyPath) -> [@Sendable (AnyKeyPath) -> Void] {
@@ -168,13 +157,10 @@ internal struct _PerceptionRegistrar: Sendable {
       state.withCriticalRegion { $0.cancel(id) }
     }
 
-    internal func deinitialize() {
-      let tracking = state.withCriticalRegion { $0.deinitialize() }
-      for action in tracking {
-        action()
-      }
+    internal func cancelAll() {
+      state.withCriticalRegion { $0.cancelAll() }
     }
-    
+
     internal func willSet<Subject: Perceptible, Member>(
        _ subject: Subject,
        keyPath: KeyPath<Subject, Member>
@@ -203,7 +189,7 @@ internal struct _PerceptionRegistrar: Sendable {
     }
 
     deinit {
-      context.deinitialize()
+      context.cancelAll()
     }
   }
   

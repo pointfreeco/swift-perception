@@ -209,12 +209,31 @@
   }
 
   #if canImport(Charts)
-    import Charts
+    public import Charts
 
-    @available(iOS 16, macOS 13, tvOS 16, watchOS 9, *)
-    extension WithPerceptionTracking: ChartContent where Content: ChartContent {
-      @_disfavoredOverload
-      public init(@ChartContentBuilder content: @escaping () -> Content) {
+    @available(iOS, introduced: 16.0, obsoleted: 18.0)
+    @available(macOS, introduced: 13.0, obsoleted: 15.0)
+    @available(tvOS, introduced: 16.0, obsoleted: 18.0)
+    @available(watchOS, introduced: 9.0, obsoleted: 11.0)
+    @available(visionOS, introduced: 1.0, obsoleted: 2.0)
+    public struct _ChartsSentinel1 { public init() {} }
+
+    @available(iOS 18.0, macOS 15.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+    public struct _ChartsSentinel2 { public init() {} }
+
+    @available(iOS 16.0, macOS 13.0, tvOS 16.0, watchOS 9.0, *)
+    public extension WithPerceptionTracking where Content: ChartContent {
+      @available(iOS, introduced: 16.0, obsoleted: 18.0)
+      @available(macOS, introduced: 13.0, obsoleted: 15.0)
+      @available(tvOS, introduced: 16.0, obsoleted: 18.0)
+      @available(watchOS, introduced: 9.0, obsoleted: 11.0)
+      @available(visionOS, introduced: 1.0, obsoleted: 2.0)
+      init(@ChartContentBuilder content: @escaping () -> Content, _ sentinel: _ChartsSentinel1 = .init()) {
+        self.init(content: content())
+      }
+
+      @available(iOS 18.0, macOS 15.0, tvOS 18.0, watchOS 11.0, visionOS 2.0, *)
+      init(@ChartContentBuilder content: @escaping () -> Content, _ sentinel: _ChartsSentinel2 = .init()) {
         self.init(content: content())
       }
     }

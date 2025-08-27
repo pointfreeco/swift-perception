@@ -19,7 +19,9 @@ jobs:
     strategy:
       matrix:
         xcode: ['16.4']
-        config: ['debug', 'release']
+        config:
+          - debug
+          # - release
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4

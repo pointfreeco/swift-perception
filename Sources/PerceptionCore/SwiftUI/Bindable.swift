@@ -116,7 +116,9 @@
           }
         }
         set {
-          self[keyPath: keyPath] = newValue
+          _PerceptionLocals.$isInPerceptionTracking.withValue(isPerceptionTracking) {
+            self[keyPath: keyPath] = newValue
+          }
         }
       }
     }

@@ -264,7 +264,7 @@ extension PerceptionRegistrar: Hashable {
           Use this warning's stack trace to locate the view in question and wrap it with a \
           'WithPerceptionTracking' view. For example:
 
-            var body: some View
+            var body: some View {
               WithPerceptionTracking {
                 // ...
               }
@@ -283,7 +283,7 @@ extension PerceptionRegistrar: Hashable {
           '@Perception.Bindable', instead. For example:
 
             @State var model = Model()
-            var body: some View
+            var body: some View {
               WithPerceptionTracking {
                 @Perception.Bindable var model = model
                 Stepper("\\(count)", value: $model.count)

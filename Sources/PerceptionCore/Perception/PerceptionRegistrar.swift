@@ -456,7 +456,7 @@ extension PerceptionRegistrar: Hashable {
               _storage[lastValid].upperBound,
               _storage[current].upperBound
             )
-            _storage[lastValid] = unsafe Range(
+            _storage[lastValid] = Range(
               uncheckedBounds: (_storage[lastValid].lowerBound, newUpper)
             )
           } else {

@@ -4,6 +4,10 @@ import IssueReporting
   import SwiftUI
 #endif
 
+#if DEBUG && canImport(SwiftUI)
+  import MachO
+#endif
+
 /// Provides storage for tracking and access to data changes.
 ///
 /// You don't need to create an instance of `PerceptionRegistrar` when using
@@ -295,6 +299,48 @@ extension PerceptionRegistrar: Hashable {
       }
     }
 
+    // Parse Mach-O load commands to get all segment address ranges
+    private func getMachOSegmentRanges(header: UnsafePointer<mach_header>, slide: Int) -> [(UInt, UInt)] {
+      var ranges: [(UInt, UInt)] = []
+      
+      #if arch(x86_64) || arch(arm64)
+        let header64 = header.withMemoryRebound(to: mach_header_64.self, capacity: 1) { $0.pointee }
+        var commandPtr = UnsafeRawPointer(header).advanced(by: MemoryLayout<mach_header_64>.size)
+        
+        for _ in 0..<header64.ncmds {
+          let cmd = commandPtr.load(as: load_command.self)
+          if cmd.cmd == LC_SEGMENT_64 {
+            let segment = commandPtr.load(as: segment_command_64.self)
+            // Only include segments with actual size
+            if segment.vmsize > 0 {
+              let start = UInt(bitPattern: Int(segment.vmaddr) + slide)
+              let end = UInt(bitPattern: Int(segment.vmaddr + segment.vmsize) + slide)
+              ranges.append((start, end))
+            }
+          }
+          commandPtr = commandPtr.advanced(by: Int(cmd.cmdsize))
+        }
+      #else
+        let header32 = header.pointee
+        var commandPtr = UnsafeRawPointer(header).advanced(by: MemoryLayout<mach_header>.size)
+        
+        for _ in 0..<header32.ncmds {
+          let cmd = commandPtr.load(as: load_command.self)
+          if cmd.cmd == LC_SEGMENT {
+            let segment = commandPtr.load(as: segment_command.self)
+            if segment.vmsize > 0 {
+              let start = UInt(bitPattern: Int(segment.vmaddr) + slide)
+              let end = UInt(bitPattern: Int(segment.vmaddr + segment.vmsize) + slide)
+              ranges.append((start, end))
+            }
+          }
+          commandPtr = commandPtr.advanced(by: Int(cmd.cmdsize))
+        }
+      #endif
+      
+      return ranges
+    }
+    
     @usableFromInline
     func isSwiftUI() -> Bool {
       // NB: Unrelated stacks could potentially collide, but we want to keep debug builds lean, so
@@ -304,9 +350,35 @@ extension PerceptionRegistrar: Hashable {
         if let result = perceptionChecks[location] {
           return result
         }
-        let result = Thread.callStackSymbols.reversed().contains {
-          $0.utf8.dropFirst(4).starts(with: "AttributeGraph ".utf8)
+        // Check return addresses against AttributeGraph segment ranges.
+        // Parse Mach-O segments to get exact loaded address ranges.
+        // This avoids expensive dladdr()/findClosestSymbol() calls.
+        // See: https://mjtsai.com/blog/2025/10/03/spamsieve-3-2-1/
+        
+        // Find AttributeGraph segment address ranges
+        var attributeGraphRanges: [(UInt, UInt)] = []
+        let imageCount = _dyld_image_count()
+        for i in 0..<imageCount {
+          guard let imageName = _dyld_get_image_name(i) else { continue }
+          let name = String(cString: imageName)
+          if name.contains("AttributeGraph") {
+            guard let header = _dyld_get_image_header(i) else { continue }
+            let slide = _dyld_get_image_vmaddr_slide(i)
+            
+            // Parse Mach-O to get individual segment ranges
+            let segmentRanges = getMachOSegmentRanges(header: header, slide: slide)
+            attributeGraphRanges.append(contentsOf: segmentRanges)
+          }
         }
+        
+        // Check if any return address is in AttributeGraph segment ranges
+        let result = Thread.callStackReturnAddresses.contains { address in
+          let addressValue = UInt(bitPattern: address.pointerValue)
+          return attributeGraphRanges.contains { start, end in
+            addressValue >= start && addressValue < end
+          }
+        }
+        
         perceptionChecks[location] = result
         return result
       }

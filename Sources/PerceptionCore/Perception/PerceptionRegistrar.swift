@@ -303,13 +303,14 @@ extension PerceptionRegistrar: Hashable {
     func isSwiftUI() -> Bool {
       // NB: Unrelated stacks could potentially collide, but we want to keep debug builds lean, so
       //     we can afford the rare false positive/negative.
-      let location = Thread.callStackReturnAddresses.hashValue
+      let addresses = Thread.callStackReturnAddresses
+      let location = addresses.hashValue
       return perceptionChecks.withCriticalRegion { perceptionChecks in
         if let result = perceptionChecks[location] {
           return result
         }
 
-        let result = Thread.callStackReturnAddresses.reversed().contains { address in
+        let result = addresses.reversed().contains { address in
           attributeGraphAddresses.contains(UInt(bitPattern: address.pointerValue))
         }
 

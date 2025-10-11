@@ -309,7 +309,7 @@ extension PerceptionRegistrar: Hashable {
           return result
         }
 
-        let result = Thread.callStackReturnAddresses.contains { address in
+        let result = Thread.callStackReturnAddresses.reversed().contains { address in
           attributeGraphAddresses.contains(UInt(bitPattern: address.pointerValue))
         }
 

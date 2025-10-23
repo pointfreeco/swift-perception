@@ -614,6 +614,7 @@
 
     @MainActor
     private func render(_ view: some View) async throws {
+      try checkImageRendererAvailable()
       let image = ImageRenderer(content: view).cgImage
       _ = image
       try await Task.sleep(for: .seconds(0.1))
@@ -658,4 +659,10 @@
 
   @_disfavoredOverload
   private func deploymentTargetIncludesObservation(_dummy: Void = ()) -> Bool { false }
+
+  private func checkImageRendererAvailable() throws {
+    guard #available(iOS 16, macOS 13, tvOS 16, watchOS 9, *) else {
+      throw XCTSkip("This test requires 'SwiftUI.ImageRenderer' to be available.")
+    }
+  }
 #endif

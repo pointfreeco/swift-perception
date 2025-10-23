@@ -21,7 +21,7 @@ jobs:
         xcode: ['16.4']
         config:
           - debug
-          # - release
+          - release
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
@@ -29,9 +29,10 @@ jobs:
         run: sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode }}.app
       - name: List available devices
         run: xcrun simctl list devices available
-      # NB: GitHub CI only contains newer runtimes
-      # - name: Run ${{ matrix.config }} tests
-      #   run: swift test -c ${{ matrix.config }}
+        if: ${{ matrix.config == 'debug' }}
+      # NB: GitHub CI only contains newer runtimes, but we force tests to build against deployment target predating Observation
+      - name: Run ${{ matrix.config }} tests
+        run: swift test -c ${{ matrix.config }} -Xswiftc -target -Xswiftc arm64-apple-macosx13.0
       - name: Run compatibility tests
         run: make test-compatibility
         if: ${{ matrix.config == 'debug' }}

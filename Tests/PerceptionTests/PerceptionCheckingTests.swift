@@ -4,8 +4,25 @@
   import SwiftUI
   import XCTest
 
-  @available(iOS 16, macOS 13, tvOS 16, watchOS 9, *)
+  @available(iOS, introduced: 16, deprecated: 17)
+  @available(macOS, introduced: 13, deprecated: 14)
+  @available(tvOS, introduced: 16, deprecated: 17)
+  @available(watchOS, introduced: 9, deprecated: 10)
   final class PerceptionCheckingTests: XCTestCase {
+    override func setUp() async throws {
+      guard !deploymentTargetIncludesObservation() else {
+        throw XCTSkip(
+          """
+          PercecptionTests were built against a deployment target too recent for perception checking.
+
+          To force these tests to run on macOS, you can override the target OS version explicitly as:
+
+            swift test -Xswiftc -target -Xswiftc arm64-apple-macosx13.0
+          """
+        )
+      }
+    }
+
     @MainActor
     func testNotInPerceptionBody() {
       let model = Model()
@@ -635,4 +652,10 @@
       self.content
     }
   }
+
+  @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
+  private func deploymentTargetIncludesObservation() -> Bool { true }
+
+  @_disfavoredOverload
+  private func deploymentTargetIncludesObservation(_dummy: Void = ()) -> Bool { false }
 #endif

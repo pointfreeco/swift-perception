@@ -13,7 +13,7 @@
       guard !deploymentTargetIncludesObservation() else {
         throw XCTSkip(
           """
-          PercecptionTests were built against a deployment target too recent for perception checking.
+          PerceptionTests were built against a deployment target too recent for perception checking.
 
           To force these tests to run on macOS, you can override the target OS version explicitly as:
 
@@ -650,7 +650,7 @@
   private func deploymentTargetIncludesObservation() -> Bool { true }
 
   @_disfavoredOverload
-  private func deploymentTargetIncludesObservation(_dummy: Void = ()) -> Bool { false }
+  private func deploymentTargetIncludesObservation(_: Void = ()) -> Bool { false }
 
   private func checkImageRendererAvailable() throws {
     guard #available(iOS 16, macOS 13, tvOS 16, watchOS 9, *) else {

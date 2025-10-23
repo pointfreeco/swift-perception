@@ -18,20 +18,21 @@ jobs:
     name: macOS
     strategy:
       matrix:
-        xcode: ['16.4']
+        xcode: ['16.4', '26.0']
         config:
           - debug
-          # - release
+          - release
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Select Xcode ${{ matrix.xcode }}
         run: sudo xcode-select -s /Applications/Xcode_${{ matrix.xcode }}.app
       - name: List available devices
         run: xcrun simctl list devices available
-      # NB: GitHub CI only contains newer runtimes
-      # - name: Run ${{ matrix.config }} tests
-      #   run: swift test -c ${{ matrix.config }}
+        if: ${{ matrix.config == 'debug' }}
+      # NB: GitHub CI only contains newer runtimes, but we force tests to build against deployment target predating Observation
+      - name: Run ${{ matrix.config }} tests
+        run: swift test -c ${{ matrix.config }} -Xswiftc -target -Xswiftc arm64-apple-macosx13.0
       - name: Run compatibility tests
         run: make test-compatibility
         if: ${{ matrix.config == 'debug' }}
@@ -45,7 +46,7 @@ jobs:
     runs-on: ubuntu-latest
     container: swift:${{ matrix.swift }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Build
         run: swift build
 
@@ -53,7 +54,7 @@ jobs:
     name: Wasm
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - uses: bytecodealliance/actions/wasmtime/setup@v1
       - name: Install Swift and Swift SDK for WebAssembly
         run: |

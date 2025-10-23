@@ -1,6 +1,10 @@
 import Perception
 import XCTest
 
+@available(iOS, introduced: 16, deprecated: 17)
+@available(macOS, introduced: 13, deprecated: 14)
+@available(tvOS, introduced: 16, deprecated: 17)
+@available(watchOS, introduced: 9, deprecated: 10)
 final class PerceptionTrackingTests: XCTestCase {
   var isComplete = false
 

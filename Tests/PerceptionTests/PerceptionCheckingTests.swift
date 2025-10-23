@@ -650,7 +650,7 @@
   private func deploymentTargetIncludesObservation() -> Bool { true }
 
   @_disfavoredOverload
-  private func deploymentTargetIncludesObservation(_dummy: Void = ()) -> Bool { false }
+  private func deploymentTargetIncludesObservation(_: Void = ()) -> Bool { false }
 
   private func checkImageRendererAvailable() throws {
     guard #available(iOS 16, macOS 13, tvOS 16, watchOS 9, *) else {

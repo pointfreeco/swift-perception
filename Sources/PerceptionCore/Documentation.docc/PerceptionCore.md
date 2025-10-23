@@ -53,7 +53,7 @@ It's unfortunate to have to wrap your view's content in `WithPerceptionTracking`
 then you will helpfully get a runtime warning letting you know that observation is not set up
 correctly:
 
-> 🟣 Runtime Warning: Perceptible state was accessed from a view but is not being tracked.
+> 🟣 Runtime Warning: Perceptible state '\FeatureModel.count' was accessed from a view but is not being tracked.
 
 Finally, the `Observations` async sequence has been back-ported as `Perceptions`, which can be used
 to observe changes to perceptible and observable objects over time:

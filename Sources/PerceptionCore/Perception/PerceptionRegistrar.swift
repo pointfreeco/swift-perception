@@ -62,7 +62,7 @@ public struct PerceptionRegistrar: Sendable {
     keyPath: KeyPath<Subject, Member>
   ) {
     #if DEBUG && canImport(SwiftUI)
-      check()
+      check(keyPath)
     #endif
     #if canImport(Observation)
       if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *),
@@ -254,7 +254,7 @@ extension PerceptionRegistrar: Hashable {
   extension PerceptionRegistrar {
     @_transparent
     @usableFromInline
-    func check() {
+    func check<Subject, Member>(_ keyPath: KeyPath<Subject, Member>) {
       if _isPerceptionCheckingEnabled,
         PerceptionCore.isPerceptionCheckingEnabled,
         !_PerceptionLocals.isInPerceptionTracking,
@@ -263,7 +263,7 @@ extension PerceptionRegistrar: Hashable {
       {
         reportIssue(
           """
-          Perceptible state was accessed from a view but is not being tracked.
+          Perceptible state '\(keyPath)' was accessed from a view but is not being tracked.
 
           Use this warning's stack trace to locate the view in question and wrap it with a \
           'WithPerceptionTracking' view. For example:

@@ -40,7 +40,7 @@
   /// If a field of a `@Perceptible` model is accessed in a view while _not_ inside
   /// ``WithPerceptionTracking``, then a runtime warning will helpfully be triggered:
   ///
-  /// > Warning: Perceptible state was accessed but is not being tracked.
+  /// > Warning: Perceptible state '\FeatureModel.count' was accessed but is not being tracked.
   ///
   /// To debug this, expand the warning in the Issue Navigator of Xcode (cmd+5), and click through
   /// the stack frames displayed to find the line in your view where you are accessing state without

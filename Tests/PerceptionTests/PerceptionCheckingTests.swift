@@ -35,7 +35,7 @@
       struct FeatureView: View {
         let model = Model()
         var body: some View {
-          Text(expectRuntimeWarning { model.count }.description)
+          Text(expectRuntimeWarning(on: #"\Model.count"#) { model.count }.description)
         }
       }
       try await render(FeatureView())
@@ -47,7 +47,7 @@
         let model = Model()
         var body: some View {
           Wrapper {
-            Text(expectRuntimeWarning { model.count }.description)
+            Text(expectRuntimeWarning(on: #"\Model.count"#) { model.count }.description)
           }
         }
       }
@@ -88,13 +88,13 @@
         @Perception.Bindable var model: Model
         var body: some View {
           Form {
-            TextField("", text: expectRuntimeWarning { $model.text })
+            TextField("", text: expectRuntimeWarning(on: #"\Model.text"#) { $model.text })
           }
         }
       }
       #if os(macOS)
         // NB: This failure is triggered out-of-body by the binding.
-        XCTExpectFailure { $0.compactDescription.contains("Perceptible state was accessed") }
+        XCTExpectFailure { $0.compactDescription.contains(#"Perceptible state '\Model.text' was accessed"#) }
       #endif
       try await render(FeatureView(model: Model()))
     }
@@ -117,8 +117,8 @@
       struct FeatureView: View {
         let model: Model
         var body: some View {
-          ForEach(expectRuntimeWarning { model.list }) { model in
-            Text(expectRuntimeWarning { model.count }.description)
+          ForEach(expectRuntimeWarning(on: #"\Model.list"#) { model.list }) { model in
+            Text(expectRuntimeWarning(on: #"\Model.count"#) { model.count }.description)
           }
         }
       }
@@ -141,7 +141,7 @@
       struct FeatureView: View {
         let model: Model
         var body: some View {
-          ForEach(expectRuntimeWarning { model.list }) { model in
+          ForEach(expectRuntimeWarning(on: #"\Model.list"#) { model.list }) { model in
             WithPerceptionTracking {
               Text(model.count.description)
             }
@@ -169,7 +169,7 @@
         var body: some View {
           WithPerceptionTracking {
             ForEach(model.list) { model in
-              Text(expectRuntimeWarning { model.count }.description)
+              Text(expectRuntimeWarning(on: #"\Model.count"#) { model.count }.description)
             }
           }
         }
@@ -222,13 +222,13 @@
         @Perception.Bindable var model: Model
         var body: some View {
           Text("Parent")
-            .sheet(item: expectRuntimeWarning { $model.child }) { child in
-              Text(expectRuntimeWarning { child.count }.description)
+            .sheet(item: expectRuntimeWarning(on: #"\Model.child"#) { $model.child }) { child in
+              Text(expectRuntimeWarning(on: #"\Model.count"#) { child.count }.description)
             }
         }
       }
       // NB: This failure is triggered out-of-body by the binding.
-      XCTExpectFailure { $0.compactDescription.contains("Perceptible state was accessed") }
+      XCTExpectFailure { $0.compactDescription.contains(#"Perceptible state '\Model.child' was accessed"#) }
       try await render(FeatureView(model: Model(child: Model())))
     }
 
@@ -238,7 +238,7 @@
         @Perception.Bindable var model: Model
         var body: some View {
           Text("Parent")
-            .sheet(item: expectRuntimeWarning { $model.child }) { child in
+            .sheet(item: expectRuntimeWarning(on: #"\Model.child"#) { $model.child }) { child in
               WithPerceptionTracking {
                 Text(child.count.description)
               }
@@ -246,7 +246,7 @@
         }
       }
       // NB: This failure is triggered out-of-body by the binding.
-      XCTExpectFailure { $0.compactDescription.contains("Perceptible state was accessed") }
+      XCTExpectFailure { $0.compactDescription.contains(#"Perceptible state '\Model.child' was accessed"#) }
       try await render(FeatureView(model: Model(child: Model())))
     }
 
@@ -258,7 +258,7 @@
           WithPerceptionTracking {
             Text("Parent")
               .sheet(item: $model.child) { child in
-                Text(expectRuntimeWarning { child.count }.description)
+                Text(expectRuntimeWarning(on: #"\Model.count"#) { child.count }.description)
               }
           }
         }
@@ -384,7 +384,7 @@
         var body: some View {
           VStack {
             ChildView(model: self.childModel)
-            Text(expectRuntimeWarning { childModel.count }.description)
+            Text(expectRuntimeWarning(on: #"\Model.count"#) { childModel.count }.description)
           }
           .onAppear { let _ = childModel.count }
         }
@@ -398,7 +398,7 @@
       struct ChildView: View {
         let model: Model
         var body: some View {
-          Text(expectRuntimeWarning { model.count }.description)
+          Text(expectRuntimeWarning(on: #"\Model.count"#) { model.count }.description)
             .onAppear { let _ = model.count }
         }
       }
@@ -426,7 +426,7 @@
       struct ChildView: View {
         let model: Model
         var body: some View {
-          Text(expectRuntimeWarning { model.count }.description)
+          Text(expectRuntimeWarning(on: #"\Model.count"#) { model.count }.description)
             .onAppear { let _ = model.count }
         }
       }
@@ -440,7 +440,7 @@
         var body: some View {
           VStack {
             ChildView(model: self.childModel)
-            Text(expectRuntimeWarning { childModel.count }.description)
+            Text(expectRuntimeWarning(on: #"\Model.count"#) { childModel.count }.description)
           }
           .onAppear { let _ = childModel.count }
         }
@@ -535,7 +535,7 @@
         var body: some View {
           WithPerceptionTracking {
             GeometryReader { _ in
-              Text(expectRuntimeWarning { model.count }.description)
+              Text(expectRuntimeWarning(on: #"\Model.count"#) { model.count }.description)
             }
           }
         }
@@ -569,7 +569,7 @@
         }
         var content: some View {
           GeometryReader { _ in
-            Text(expectRuntimeWarning { model.count }.description)
+            Text(expectRuntimeWarning(on: #"\Model.count"#) { model.count }.description)
           }
         }
       }
@@ -613,9 +613,9 @@
     }
   }
 
-  private func expectRuntimeWarning<R>(failingBlock: () -> R) -> R {
+  private func expectRuntimeWarning<R>(on keyPathString: String, failingBlock: () -> R) -> R {
     XCTExpectFailure(failingBlock: failingBlock) {
-      $0.compactDescription.contains("Perceptible state was accessed")
+      $0.compactDescription.contains("Perceptible state '\(keyPathString)' was accessed")
     }
   }
 

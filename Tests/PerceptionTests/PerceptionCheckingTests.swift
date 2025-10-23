@@ -13,7 +13,7 @@
       guard !deploymentTargetIncludesObservation() else {
         throw XCTSkip(
           """
-          PercecptionTests were built against a deployment target too recent for perception checking.
+          PerceptionTests were built against a deployment target too recent for perception checking.
 
           To force these tests to run on macOS, you can override the target OS version explicitly as:
 

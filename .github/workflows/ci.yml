@@ -18,7 +18,7 @@ jobs:
     name: macOS
     strategy:
       matrix:
-        xcode: ['16.4']
+        xcode: ['16.4', '26.0']
         config:
           - debug
           - release

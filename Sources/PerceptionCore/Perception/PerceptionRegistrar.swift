@@ -1,4 +1,4 @@
-import IssueReporting
+public import IssueReporting
 
 #if canImport(SwiftUI)
   import SwiftUI

@@ -1,5 +1,6 @@
-#if canImport(SwiftUI)
-  import SwiftUI
+#if canImport(Combine) && canImport(SwiftUI)
+  import Combine
+  public import SwiftUI
 
   /// A property wrapper type that supports creating bindings to the mutable properties of
   /// perceptible objects.

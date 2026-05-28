@@ -9,8 +9,8 @@
 //
 //===----------------------------------------------------------------------===//
 
-import SwiftSyntax
-import SwiftSyntaxMacros
+public import SwiftSyntax
+public import SwiftSyntaxMacros
 import SwiftDiagnostics
 import SwiftSyntaxBuilder
 
@@ -306,7 +306,7 @@ extension PerceptibleMacro: MemberMacro {
     conformingTo protocols: [TypeSyntax],
     in context: Context
   ) throws -> [DeclSyntax] {
-    guard let identified = declaration.asProtocol(NamedDeclSyntax.self) else {
+    guard let identified = declaration.asProtocol((any NamedDeclSyntax).self) else {
       return []
     }
     

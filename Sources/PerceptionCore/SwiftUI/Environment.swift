@@ -1,5 +1,5 @@
 #if canImport(SwiftUI)
-  import SwiftUI
+  public import SwiftUI
 
   extension Environment {
     /// Creates an environment property to read a perceptible object from the environment.

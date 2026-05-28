@@ -1,5 +1,5 @@
 #if canImport(SwiftUI)
-  import SwiftUI
+  public import SwiftUI
 
   /// A view that perceives changes to perceptible models.
   ///
@@ -209,7 +209,7 @@
   }
 
   #if canImport(Charts)
-    import Charts
+    public import Charts
 
     @available(iOS 16, macOS 13, tvOS 16, watchOS 9, *)
     extension WithPerceptionTracking: ChartContent where Content: ChartContent {

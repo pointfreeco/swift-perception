@@ -4,6 +4,10 @@
   import SwiftUI
   import XCTest
 
+  #if canImport(Charts)
+    import Charts
+  #endif
+
   @available(iOS, introduced: 16, deprecated: 17, obsoleted: 17)
   @available(macOS, introduced: 13, deprecated: 14, obsoleted: 14)
   @available(tvOS, introduced: 16, deprecated: 17, obsoleted: 17)

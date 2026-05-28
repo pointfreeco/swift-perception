@@ -1,6 +1,7 @@
 #if os(macOS)
   import MacroTesting
   import PerceptionMacros
+  import SnapshotTesting
   import Testing
 
   @Suite(

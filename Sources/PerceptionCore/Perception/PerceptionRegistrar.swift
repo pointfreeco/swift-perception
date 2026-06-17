@@ -14,22 +14,19 @@ public import IssueReporting
 ///
 /// You don't need to create an instance of `PerceptionRegistrar` when using
 /// the ``Perception/Perceptible()`` macro to indicate perceptibility of a type.
-@available(iOS, deprecated: 26, renamed: "ObservationRegistrar")
-@available(macOS, deprecated: 26, renamed: "ObservationRegistrar")
-@available(watchOS, deprecated: 26, renamed: "ObservationRegistrar")
-@available(tvOS, deprecated: 26, renamed: "ObservationRegistrar")
+@available(iOS, deprecated: 27, renamed: "ObservationRegistrar")
+@available(macOS, deprecated: 27, renamed: "ObservationRegistrar")
+@available(watchOS, deprecated: 27, renamed: "ObservationRegistrar")
+@available(tvOS, deprecated: 27, renamed: "ObservationRegistrar")
 public struct PerceptionRegistrar: Sendable {
-  private let rawValue: any Sendable
+  @usableFromInline let perceptionRegistrar = _PerceptionRegistrar()
+  @usableFromInline let _observationRegistrar: (any Sendable)?
   #if DEBUG
     public let _isPerceptionCheckingEnabled: Bool
   #endif
   #if DEBUG && canImport(SwiftUI)
     fileprivate let perceptionChecks = _ManagedCriticalState<[Int: Bool]>([:])
   #endif
-
-  @usableFromInline var perceptionRegistrar: _PerceptionRegistrar {
-    rawValue as! _PerceptionRegistrar
-  }
 
   /// Creates an instance of the perception registrar.
   ///
@@ -43,11 +40,11 @@ public struct PerceptionRegistrar: Sendable {
     #endif
     #if canImport(Observation)
       if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *), !isObservationBeta {
-        rawValue = ObservationRegistrar()
+        _observationRegistrar = ObservationRegistrar()
         return
       }
     #endif
-    rawValue = _PerceptionRegistrar()
+    _observationRegistrar = nil
   }
 
   /// Registers access to a specific property for perception.
@@ -55,7 +52,6 @@ public struct PerceptionRegistrar: Sendable {
   /// - Parameters:
   ///   - subject: An instance of a perceptible type.
   ///   - keyPath: The key path of a perceived property.
-  @_disfavoredOverload
   #if DEBUG && canImport(SwiftUI)
     @_transparent
   #endif
@@ -77,7 +73,7 @@ public struct PerceptionRegistrar: Sendable {
             keyPath: unsafeDowncast(keyPath, to: KeyPath<S, Member>.self)
           )
         }
-        return open(subject)
+        open(subject)
       }
     #endif
     perceptionRegistrar.access(subject, keyPath: keyPath)
@@ -88,7 +84,6 @@ public struct PerceptionRegistrar: Sendable {
   /// - Parameters:
   ///     - subject: An instance of a perceptible type.
   ///     - keyPath: The key path of a perceived property.
-  @_disfavoredOverload
   public func willSet<Subject: Perceptible, Member>(
     _ subject: Subject,
     keyPath: KeyPath<Subject, Member>
@@ -104,7 +99,7 @@ public struct PerceptionRegistrar: Sendable {
             keyPath: unsafeDowncast(keyPath, to: KeyPath<S, Member>.self)
           )
         }
-        return open(subject)
+        open(subject)
       }
     #endif
     perceptionRegistrar.willSet(subject, keyPath: keyPath)
@@ -115,7 +110,6 @@ public struct PerceptionRegistrar: Sendable {
   /// - Parameters:
   ///   - subject: An instance of a perceptible type.
   ///   - keyPath: The key path of a perceived property.
-  @_disfavoredOverload
   public func didSet<Subject: Perceptible, Member>(
     _ subject: Subject,
     keyPath: KeyPath<Subject, Member>
@@ -131,7 +125,7 @@ public struct PerceptionRegistrar: Sendable {
             keyPath: unsafeDowncast(keyPath, to: KeyPath<S, Member>.self)
           )
         }
-        return open(subject)
+        open(subject)
       }
     #endif
     perceptionRegistrar.didSet(subject, keyPath: keyPath)
@@ -144,7 +138,6 @@ public struct PerceptionRegistrar: Sendable {
   /// - Parameters:
   ///   - of: An instance of a perceptible type.
   ///   - keyPath: The key path of a perceived property.
-  @_disfavoredOverload
   public func withMutation<Subject: Perceptible, Member, T>(
     of subject: Subject,
     keyPath: KeyPath<Subject, Member>,
@@ -153,16 +146,17 @@ public struct PerceptionRegistrar: Sendable {
     #if canImport(Observation)
       if #available(iOS 17, macOS 14, tvOS 17, watchOS 10, *),
         !isObservationBeta,
-        let subject = subject as? any Observable
+        let observable = subject as? any Observable
       {
-        func open<S: Observable>(_ subject: S) throws -> T {
+        func open<S: Observable>(_ observable: S) throws -> T {
           try observationRegistrar.withMutation(
-            of: subject,
-            keyPath: unsafeDowncast(keyPath, to: KeyPath<S, Member>.self),
-            mutation
-          )
+            of: observable,
+            keyPath: unsafeDowncast(keyPath, to: KeyPath<S, Member>.self)
+          ) {
+            try perceptionRegistrar.withMutation(of: subject, keyPath: keyPath, mutation)
+          }
         }
-        return try open(subject)
+        return try open(observable)
       }
     #endif
     return try perceptionRegistrar.withMutation(of: subject, keyPath: keyPath, mutation)
@@ -196,58 +190,7 @@ extension PerceptionRegistrar: Hashable {
   @available(iOS 17, macOS 14, tvOS 17, watchOS 10, *)
   extension PerceptionRegistrar {
     @usableFromInline var observationRegistrar: ObservationRegistrar {
-      rawValue as! ObservationRegistrar
-    }
-
-    /// Registers access to a specific property for observation.
-    ///
-    /// - Parameters:
-    ///   - subject: An instance of an observable type.
-    ///   - keyPath: The key path of an observed property.
-    public func access<Subject: Observable, Member>(
-      _ subject: Subject,
-      keyPath: KeyPath<Subject, Member>
-    ) {
-      observationRegistrar.access(subject, keyPath: keyPath)
-    }
-
-    /// A property observation called before setting the value of the subject.
-    ///
-    /// - Parameters:
-    ///     - subject: An instance of an observable type.
-    ///     - keyPath: The key path of an observed property.
-    public func willSet<Subject: Observable, Member>(
-      _ subject: Subject,
-      keyPath: KeyPath<Subject, Member>
-    ) {
-      observationRegistrar.willSet(subject, keyPath: keyPath)
-    }
-
-    /// A property observation called after setting the value of the subject.
-    ///
-    /// - Parameters:
-    ///   - subject: An instance of an observable type.
-    ///   - keyPath: The key path of an observed property.
-    public func didSet<Subject: Observable, Member>(
-      _ subject: Subject,
-      keyPath: KeyPath<Subject, Member>
-    ) {
-      observationRegistrar.didSet(subject, keyPath: keyPath)
-    }
-
-    /// Identifies mutations to the transactions registered for observers.
-    ///
-    /// This method calls ``willSet(_:keyPath:)`` before the mutation. Then it
-    /// calls ``didSet(_:keyPath:)`` after the mutation.
-    /// - Parameters:
-    ///   - of: An instance of an observable type.
-    ///   - keyPath: The key path of an observed property.
-    public func withMutation<Subject: Observable, Member, T>(
-      of subject: Subject,
-      keyPath: KeyPath<Subject, Member>,
-      _ mutation: () throws -> T
-    ) rethrows -> T {
-      try observationRegistrar.withMutation(of: subject, keyPath: keyPath, mutation)
+      _observationRegistrar as! ObservationRegistrar
     }
   }
 #endif

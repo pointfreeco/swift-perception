@@ -18,8 +18,8 @@
 /// type doesn't add perception functionality to the type. Instead, always use
 /// the ``Perception/Perceptible()`` macro when adding perception
 /// support to a type.
-@available(iOS, deprecated: 26, renamed: "Observable")
-@available(macOS, deprecated: 26, renamed: "Observable")
-@available(watchOS, deprecated: 26, renamed: "Observable")
-@available(tvOS, deprecated: 26, renamed: "Observable")
+@available(iOS, deprecated: 27, renamed: "Observable")
+@available(macOS, deprecated: 27, renamed: "Observable")
+@available(watchOS, deprecated: 27, renamed: "Observable")
+@available(tvOS, deprecated: 27, renamed: "Observable")
 public protocol Perceptible {}

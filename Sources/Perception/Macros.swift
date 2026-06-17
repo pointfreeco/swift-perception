@@ -33,10 +33,10 @@
   ///            self.needsRepairs = needsRepairs
   ///        }
   ///     }
-  @available(iOS, deprecated: 26, renamed: "Observable")
-  @available(macOS, deprecated: 26, renamed: "Observable")
-  @available(watchOS, deprecated: 26, renamed: "Observable")
-  @available(tvOS, deprecated: 26, renamed: "Observable")
+  @available(iOS, deprecated: 27, renamed: "Observable")
+  @available(macOS, deprecated: 27, renamed: "Observable")
+  @available(watchOS, deprecated: 27, renamed: "Observable")
+  @available(tvOS, deprecated: 27, renamed: "Observable")
   @attached(
     member,
     names: named(_$perceptionRegistrar),
@@ -55,10 +55,10 @@
   ///
   /// The ``Perception`` module uses this macro. Its use outside of the
   /// framework isn't necessary.
-  @available(iOS, deprecated: 26, renamed: "ObservationTracked")
-  @available(macOS, deprecated: 26, renamed: "ObservationTracked")
-  @available(watchOS, deprecated: 26, renamed: "ObservationTracked")
-  @available(tvOS, deprecated: 26, renamed: "ObservationTracked")
+  @available(iOS, deprecated: 27, renamed: "ObservationTracked")
+  @available(macOS, deprecated: 27, renamed: "ObservationTracked")
+  @available(watchOS, deprecated: 27, renamed: "ObservationTracked")
+  @available(tvOS, deprecated: 27, renamed: "ObservationTracked")
   @attached(accessor, names: named(init), named(get), named(set), named(_modify))
   @attached(peer, names: prefixed(_))
   public macro PerceptionTracked() =
@@ -71,10 +71,10 @@
   /// By default, an object can perceive any property of a perceptible type that
   /// is accessible to the perceiving object. To prevent perception of an
   /// accessible property, attach the `PerceptionIgnored` macro to the property.
-  @available(iOS, deprecated: 26, renamed: "ObservationIgnored")
-  @available(macOS, deprecated: 26, renamed: "ObservationIgnored")
-  @available(watchOS, deprecated: 26, renamed: "ObservationIgnored")
-  @available(tvOS, deprecated: 26, renamed: "ObservationIgnored")
+  @available(iOS, deprecated: 27, renamed: "ObservationIgnored")
+  @available(macOS, deprecated: 27, renamed: "ObservationIgnored")
+  @available(watchOS, deprecated: 27, renamed: "ObservationIgnored")
+  @available(tvOS, deprecated: 27, renamed: "ObservationIgnored")
   @attached(accessor, names: named(willSet))
   public macro PerceptionIgnored() =
     #externalMacro(module: "PerceptionMacros", type: "PerceptionIgnoredMacro")

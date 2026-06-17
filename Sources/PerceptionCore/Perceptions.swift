@@ -42,10 +42,10 @@ func withIsolatedTaskCancellationHandler<T: Sendable>(
 /// `Perceptions` conforms to `AsyncSequence`, providing a intutive and safe mechanism to track changes to
 /// types that are marked as `@Perceptible` by using Swift Concurrency to indicate transactional boundaries
 /// starting from the willSet of the first mutation to the next suspension point of the safe access.
-@available(iOS, deprecated: 26, renamed: "Observations")
-@available(macOS, deprecated: 26, renamed: "Observations")
-@available(watchOS, deprecated: 26, renamed: "Observations")
-@available(tvOS, deprecated: 26, renamed: "Observations")
+@available(iOS, deprecated: 27, renamed: "Observations")
+@available(macOS, deprecated: 27, renamed: "Observations")
+@available(watchOS, deprecated: 27, renamed: "Observations")
+@available(tvOS, deprecated: 27, renamed: "Observations")
 public struct Perceptions<Element: Sendable, Failure: Error>: AsyncSequence, Sendable {
   public enum Iteration: Sendable {
     case next(Element)
@@ -212,7 +212,7 @@ public struct Perceptions<Element: Sendable, Failure: Error>: AsyncSequence, Sen
       // this ferries in an intermediate form with Result to skip over `withObservationTracking` not handling errors being thrown
       // particularly this case is that the error is also an iteration state transition data point (it terminates the sequence)
       // so we need to hold that to get a chance to catch and clean-up
-      let result = withPerceptionTracking {
+      let result = withPerceptionTracking(options: [.willSet, .deinit]) {
         switch emit {
         case .element(let element):
           // NB: This warning exists in the Swift standard library and appears to be unavoidable
@@ -221,7 +221,7 @@ public struct Perceptions<Element: Sendable, Failure: Error>: AsyncSequence, Sen
           // NB: This warning exists in the Swift standard library and appears to be unavoidable
           Result(catching: iteration)
         }
-      } onChange: { [state] in
+      } onChange: { [state] (event) in
         // resume all cases where the awaiting continuations are awaiting a willSet
         State.emitWillChange(state)
       }

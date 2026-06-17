@@ -13,12 +13,11 @@
   import Observation
 #endif
 
-@_spi(SwiftUI)
 public struct PerceptionTracking: Sendable {
-  enum Id {
-    case willSet(Int)
-    case didSet(Int)
-    case full(Int, Int)
+  struct Id {
+    var willSet: Int?
+    var didSet: Int?
+    var `deinit`: Int?
   }
 
   struct Entry: @unchecked Sendable {
@@ -37,6 +36,10 @@ public struct PerceptionTracking: Sendable {
 
     func addDidSetPerceiver(_ changed: @Sendable @escaping (AnyKeyPath) -> Void) -> Int {
       return context.registerTracking(for: properties, didSet: changed)
+    }
+
+    func addDeinitPerceiver(_ changed: @Sendable @escaping () -> Void) -> Int {
+      return context.registerTracking(deinit: changed)
     }
 
     func removePerceiver(_ token: Int) {
@@ -72,6 +75,36 @@ public struct PerceptionTracking: Sendable {
     }
   }
 
+  static func _installTracking(
+    options: PerceptionTracking.Options,
+    _ tracking: PerceptionTracking,
+    willSet: (@Sendable (PerceptionTracking) -> Void)? = nil,
+    didSet: (@Sendable (PerceptionTracking) -> Void)? = nil,
+    `deinit`: (@Sendable () -> Void)? = nil
+  ) {
+    let values = tracking.list.entries.mapValues {
+      var id = Id()
+      if let willSet {
+        id.willSet = $0.addWillSetPerceiver { keyPath in
+          tracking.state.withCriticalRegion { $0.changed = keyPath }
+          willSet(tracking)
+        }
+      }
+      if let didSet {
+        id.didSet = $0.addDidSetPerceiver { keyPath in
+          tracking.state.withCriticalRegion { $0.changed = keyPath }
+          didSet(tracking)
+        }
+      }
+      if let `deinit` {
+        id.deinit = $0.addDeinitPerceiver(`deinit`)
+      }
+      return id
+    }
+
+    tracking.install(values)
+  }
+
   @_spi(SwiftUI)
   public static func _installTracking(
     _ tracking: PerceptionTracking,
@@ -79,32 +112,20 @@ public struct PerceptionTracking: Sendable {
     didSet: (@Sendable (PerceptionTracking) -> Void)? = nil
   ) {
     let values = tracking.list.entries.mapValues {
-      switch (willSet, didSet) {
-      case (.some(let willSetPerceiver), .some(let didSetPerceiver)):
-        return Id.full(
-          $0.addWillSetPerceiver { keyPath in
-            tracking.state.withCriticalRegion { $0.changed = keyPath }
-            willSetPerceiver(tracking)
-          },
-          $0.addDidSetPerceiver { keyPath in
-            tracking.state.withCriticalRegion { $0.changed = keyPath }
-            didSetPerceiver(tracking)
-          })
-      case (.some(let willSetPerceiver), .none):
-        return Id.willSet(
-          $0.addWillSetPerceiver { keyPath in
-            tracking.state.withCriticalRegion { $0.changed = keyPath }
-            willSetPerceiver(tracking)
-          })
-      case (.none, .some(let didSetPerceiver)):
-        return Id.didSet(
-          $0.addDidSetPerceiver { keyPath in
-            tracking.state.withCriticalRegion { $0.changed = keyPath }
-            didSetPerceiver(tracking)
-          })
-      case (.none, .none):
-        fatalError()
+      var id = Id()
+      if let willSet {
+        id.willSet = $0.addWillSetPerceiver { keyPath in
+          tracking.state.withCriticalRegion { $0.changed = keyPath }
+          willSet(tracking)
+        }
       }
+      if let didSet {
+        id.didSet = $0.addDidSetPerceiver { keyPath in
+          tracking.state.withCriticalRegion { $0.changed = keyPath }
+          didSet(tracking)
+        }
+      }
+      return id
     }
 
     tracking.install(values)
@@ -146,6 +167,7 @@ public struct PerceptionTracking: Sendable {
     }
   }
 
+  @_spi(SwiftUI)
   public func cancel() {
     let values = state.withCriticalRegion {
       $0.cancelled = true
@@ -154,22 +176,166 @@ public struct PerceptionTracking: Sendable {
       return values
     }
     for (id, perceptionId) in values {
-      switch perceptionId {
-      case .willSet(let token):
+      if let token = perceptionId.willSet {
         list.entries[id]?.removePerceiver(token)
-      case .didSet(let token):
+      }
+      if let token = perceptionId.didSet {
         list.entries[id]?.removePerceiver(token)
-      case .full(let willSetToken, let didSetToken):
-        list.entries[id]?.removePerceiver(willSetToken)
-        list.entries[id]?.removePerceiver(didSetToken)
+      }
+      if let token = perceptionId.deinit {
+        list.entries[id]?.removePerceiver(token)
       }
     }
   }
 
+  @_spi(SwiftUI)
   public var changed: AnyKeyPath? {
     state.withCriticalRegion { $0.changed }
   }
+
+  /// > Important: This is a back-port of Swift's `ObservationTracking.Options`.
+  public struct Options {
+    struct RawValue: OptionSet {
+      var rawValue: Int
+
+      init(rawValue: Int) {
+        self.rawValue = rawValue
+      }
+
+      static var willSet: RawValue { .init(rawValue: 1 << 0) }
+      static var didSet: RawValue { .init(rawValue: 1 << 1) }
+      static var `deinit`: RawValue { .init(rawValue: 1 << 2) }
+      static var continuous: RawValue { .init(rawValue: 1 << 3) }
+      static var updating: RawValue { .init(rawValue: 1 << 4) }
+    }
+    var rawValue: RawValue
+
+    init(rawValue: RawValue) {
+      self.rawValue = rawValue
+    }
+
+    public init() {
+      rawValue = RawValue()
+    }
+
+    public static var willSet: Options { Options(rawValue: .willSet) }
+
+    public static var didSet: Options { Options(rawValue: .didSet) }
+
+    public static var `deinit`: Options { Options(rawValue: .deinit) }
+  }
+
+  /// > Important: This is a back-port of Swift's `ObservationTracking.Event`.
+  public struct Event: ~Copyable {
+    public struct Kind: Equatable, Sendable {
+      enum RawValue {
+        case initial
+        case willSet
+        case didSet
+        case `deinit`
+      }
+
+      var rawValue: RawValue
+
+      public static var initial: Kind { Kind(rawValue: .initial) }
+
+      public static var willSet: Kind { Kind(rawValue: .willSet) }
+
+      public static var didSet: Kind { Kind(rawValue: .didSet) }
+
+      public static var `deinit`: Kind { Kind(rawValue: .deinit) }
+    }
+
+    public private(set) var kind: Kind
+
+    var tracking: PerceptionTracking?
+    var continuousState: _ManagedCriticalState<ContinuousPerception.State>?
+
+    init(_ tracking: PerceptionTracking?, kind: Kind) {
+      self.kind = kind
+      self.tracking = tracking
+    }
+
+    init(
+      _ tracking: PerceptionTracking?,
+      continuousState: _ManagedCriticalState<ContinuousPerception.State>,
+      kind: Kind
+    ) {
+      self.kind = kind
+      self.tracking = tracking
+      self.continuousState = continuousState
+    }
+
+    public func matches(_ keyPath: PartialKeyPath<some Perceptible>) -> Bool {
+      return tracking?.changed == keyPath
+    }
+
+    public func cancel() {
+      tracking?.cancel()
+      if let continuousState {
+        ContinuousPerception.State.cancel(continuousState)
+      }
+    }
+  }
 }
+
+extension PerceptionTracking.Options: SetAlgebra {
+  public init(arrayLiteral elements: PerceptionTracking.Options...) {
+    var rawValue = RawValue()
+    for element in elements {
+      rawValue.rawValue |= element.rawValue.rawValue
+    }
+    self.init(rawValue: rawValue)
+  }
+
+  public func union(_ other: Self) -> Self {
+    Self(rawValue: rawValue.union(other.rawValue))
+  }
+
+  public func intersection(_ other: Self) -> Self {
+    Self(rawValue: rawValue.intersection(other.rawValue))
+  }
+
+  public func symmetricDifference(_ other: Self) -> Self {
+    Self(rawValue: rawValue.symmetricDifference(other.rawValue))
+  }
+
+  public mutating func formUnion(_ other: Self) {
+    rawValue.formUnion(other.rawValue)
+  }
+
+  public mutating func formIntersection(_ other: Self) {
+    rawValue.formIntersection(other.rawValue)
+  }
+
+  public mutating func formSymmetricDifference(_ other: Self) {
+    rawValue.formSymmetricDifference(other.rawValue)
+  }
+
+  public func contains(_ member: Self) -> Bool {
+    rawValue.contains(member.rawValue)
+  }
+
+  @discardableResult
+  public mutating func insert(
+    _ newMember: Self
+  ) -> (inserted: Bool, memberAfterInsert: Self) {
+    let (inserted, memberAfterInsert) = rawValue.insert(newMember.rawValue)
+    return (inserted, Self(rawValue: memberAfterInsert))
+  }
+
+  @discardableResult
+  public mutating func remove(_ member: Self) -> Self? {
+    rawValue.remove(member.rawValue).map { Self(rawValue: $0) }
+  }
+
+  @discardableResult
+  public mutating func update(with newMember: Self) -> Self? {
+    rawValue.update(with: newMember.rawValue).map { Self(rawValue: $0) }
+  }
+}
+
+extension PerceptionTracking.Options: Sendable {}
 
 private func generateAccessList<T>(_ apply: () -> T) -> (T, PerceptionTracking._AccessList?) {
   var accessList: PerceptionTracking._AccessList?
@@ -240,6 +406,68 @@ public func withPerceptionTracking<T>(
   if let accessList {
     PerceptionTracking._installTracking(accessList, onChange: onChange())
   }
+  return result
+}
+
+/// Tracks access to properties, delivering a structured event on each change.
+///
+/// > Important: This is a back-port of Swift's `withObservationTracking(options:_:onChange:)`
+/// > function.
+///
+/// - Parameters:
+///     - options: The events to observe.
+///     - apply: A closure that contains properties to track.
+///     - onChange: The closure invoked when an observed event occurs.
+///
+/// - Returns: The value that the `apply` closure returns if it has a return
+/// value; otherwise, there is no return value.
+@available(iOS, deprecated: 27, renamed: "withObservationTracking")
+@available(macOS, deprecated: 27, renamed: "withObservationTracking")
+@available(watchOS, deprecated: 27, renamed: "withObservationTracking")
+@available(tvOS, deprecated: 27, renamed: "withObservationTracking")
+public func withPerceptionTracking<T>(
+  options: PerceptionTracking.Options,
+  _ apply: () -> T,
+  onChange: @escaping @Sendable (borrowing PerceptionTracking.Event) -> Void
+) -> T {
+  #if DEBUG && canImport(SwiftUI)
+    let apply = { _PerceptionLocals.$isInPerceptionTracking.withValue(true, operation: apply) }
+  #endif
+  let (result, accessList) = generateAccessList(apply)
+  let willSet: (@Sendable (PerceptionTracking) -> Void)?
+  if options.contains(.willSet) {
+    willSet = { tracking in
+      onChange(PerceptionTracking.Event(tracking, kind: .willSet))
+      if !options.rawValue.contains(.continuous) && !options.contains(.didSet) {
+        tracking.cancel()
+      }
+    }
+  } else {
+    willSet = nil
+  }
+  let didSet: (@Sendable (PerceptionTracking) -> Void)?
+  if options.contains(.didSet) {
+    didSet = { tracking in
+      onChange(PerceptionTracking.Event(tracking, kind: .didSet))
+      if !options.rawValue.contains(.continuous) {
+        tracking.cancel()
+      }
+    }
+  } else {
+    didSet = nil
+  }
+  let `deinit`: (@Sendable () -> Void)?
+  if options.contains(.deinit) {
+    `deinit` = {
+      onChange(PerceptionTracking.Event(nil, kind: .deinit))
+    }
+  } else {
+    `deinit` = nil
+  }
+  let tracking = PerceptionTracking(accessList)
+  PerceptionTracking._installTracking(
+    options: options, tracking, willSet: willSet, didSet: didSet, deinit: `deinit`
+  )
   return result
 }
 

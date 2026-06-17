@@ -40,6 +40,7 @@ internal struct _PerceptionRegistrar: Sendable {
     private enum PerceptionKind {
       case willSetTracking(@Sendable (AnyKeyPath) -> Void)
       case didSetTracking(@Sendable (AnyKeyPath) -> Void)
+      case deinitTracking(@Sendable () -> Void)
     }
 
     private struct Perception {
@@ -63,6 +64,15 @@ internal struct _PerceptionRegistrar: Sendable {
       var didSetTracker: (@Sendable (AnyKeyPath) -> Void)? {
         switch kind {
         case .didSetTracking(let tracker):
+          return tracker
+        default:
+          return nil
+        }
+      }
+
+      var deinitTracker: (@Sendable () -> Void)? {
+        switch kind {
+        case .deinitTracking(let tracker):
           return tracker
         default:
           return nil
@@ -101,6 +111,13 @@ internal struct _PerceptionRegistrar: Sendable {
       return id
     }
 
+    internal mutating func registerTracking(deinit perceiver: @Sendable @escaping () -> Void) -> Int
+    {
+      let id = generateId()
+      perceptions[id] = Perception(kind: .deinitTracking(perceiver), properties: [])
+      return id
+    }
+
     internal mutating func cancel(_ id: Int) {
       if let perception = perceptions.removeValue(forKey: id) {
         for keyPath in perception.properties {
@@ -117,6 +134,19 @@ internal struct _PerceptionRegistrar: Sendable {
     internal mutating func cancelAll() {
       perceptions.removeAll()
       lookups.removeAll()
+    }
+
+    internal mutating func deinitialize() -> [@Sendable () -> Void] {
+      var trackers = [@Sendable () -> Void]()
+      let values = perceptions
+      perceptions.removeAll()
+      lookups.removeAll()
+      for value in values.values {
+        if let tracker = value.deinitTracker {
+          trackers.append(tracker)
+        }
+      }
+      return trackers
     }
 
     internal mutating func willSet(keyPath: AnyKeyPath) -> [@Sendable (AnyKeyPath) -> Void] {
@@ -163,12 +193,23 @@ internal struct _PerceptionRegistrar: Sendable {
       state.withCriticalRegion { $0.registerTracking(for: properties, didSet: perceiver) }
     }
 
+    internal func registerTracking(deinit perceiver: @Sendable @escaping () -> Void) -> Int {
+      state.withCriticalRegion { $0.registerTracking(deinit: perceiver) }
+    }
+
     internal func cancel(_ id: Int) {
       state.withCriticalRegion { $0.cancel(id) }
     }
 
     internal func cancelAll() {
       state.withCriticalRegion { $0.cancelAll() }
+    }
+
+    internal func deinitialize() {
+      let tracking = state.withCriticalRegion { $0.deinitialize() }
+      for action in tracking {
+        action()
+      }
     }
 
     internal func willSet<Subject: Perceptible, Member>(
@@ -199,7 +240,7 @@ internal struct _PerceptionRegistrar: Sendable {
     }
 
     deinit {
-      context.cancelAll()
+      context.deinitialize()
     }
   }
 

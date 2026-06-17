@@ -9,11 +9,10 @@
 //
 //===----------------------------------------------------------------------===//
 
-import SwiftSyntax
-import SwiftSyntaxMacros
 import SwiftDiagnostics
+import SwiftSyntax
 import SwiftSyntaxBuilder
-
+import SwiftSyntaxMacros
 
 extension AttributeSyntax {
   var availability: AttributeSyntax? {
@@ -48,7 +47,7 @@ extension IfConfigClauseSyntax {
       return nil
     }
   }
-  
+
   var clonedAsIf: IfConfigClauseSyntax {
     detached.with(\.poundKeyword, .poundIfToken())
   }
@@ -71,7 +70,7 @@ extension IfConfigDeclSyntax {
     } else {
       return with(\.clauses, IfConfigClauseListSyntax(elements))
     }
-    
+
   }
 }
 

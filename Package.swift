@@ -37,7 +37,7 @@ let package = Package(
     .target(
       name: "PerceptionCore",
       dependencies: [
-        .product(name: "IssueReporting", package: "xctest-dynamic-overlay"),
+        .product(name: "IssueReporting", package: "xctest-dynamic-overlay")
       ]
     ),
     .macro(

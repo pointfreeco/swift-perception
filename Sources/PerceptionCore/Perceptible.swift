@@ -9,7 +9,6 @@
 //
 //===----------------------------------------------------------------------===//
 
-
 /// A type that emits notifications to perceivers when underlying data changes.
 ///
 /// > Important: This is a back-port of Swift's `Observable` protocol.
@@ -23,4 +22,4 @@
 @available(macOS, deprecated: 26, renamed: "Observable")
 @available(watchOS, deprecated: 26, renamed: "Observable")
 @available(tvOS, deprecated: 26, renamed: "Observable")
-public protocol Perceptible { }
+public protocol Perceptible {}

@@ -12,43 +12,43 @@
 // NOTE: this cant use Synchronization because it is deployed before that was
 // introduced and availability wont let it be hidden behind an internal type.
 // The Swift internal runtime locking cannot be used since that emits dependent
-// symbols that are not provided by this library - so instead it has to re-implement 
-// all of this on its own... 
+// symbols that are not provided by this library - so instead it has to re-implement
+// all of this on its own...
 
 #if canImport(Darwin)
-import Darwin
+  import Darwin
 #elseif canImport(Glibc)
-import Glibc
+  import Glibc
 #elseif canImport(Musl)
-import Musl
+  import Musl
 #elseif canImport(WinSDK)
-import WinSDK
+  import WinSDK
 #elseif canImport(Bionic)
-import Bionic
+  import Bionic
 #elseif arch(wasm32)
 #else
-#error("Unsupported platform")
+  #error("Unsupported platform")
 #endif
 
 internal struct Lock {
   #if canImport(Darwin)
-  typealias Primitive = os_unfair_lock
+    typealias Primitive = os_unfair_lock
   #elseif canImport(Glibc) || canImport(Musl) || canImport(Bionic)
-  #if os(FreeBSD) || os(OpenBSD)
-  // BSD libc does not annotate the nullability of pthread APIs.
-  // We should replace this with the appropriate API note in the platform
-  // overlay.
-  // https://github.com/swiftlang/swift/issues/81407
-  typealias Primitive = pthread_mutex_t?
-  #else
-  typealias Primitive = pthread_mutex_t
-  #endif
+    #if os(FreeBSD) || os(OpenBSD)
+      // BSD libc does not annotate the nullability of pthread APIs.
+      // We should replace this with the appropriate API note in the platform
+      // overlay.
+      // https://github.com/swiftlang/swift/issues/81407
+      typealias Primitive = pthread_mutex_t?
+    #else
+      typealias Primitive = pthread_mutex_t
+    #endif
   #elseif canImport(WinSDK)
-  typealias Primitive = SRWLOCK
+    typealias Primitive = SRWLOCK
   #elseif arch(wasm32)
-  typealias Primitive = Int
+    typealias Primitive = Int
   #else
-  #error("Unsupported platform")
+    #error("Unsupported platform")
   #endif
 
   typealias PlatformLock = UnsafeMutablePointer<Primitive>
@@ -60,51 +60,51 @@ internal struct Lock {
 
   fileprivate static func initialize(_ platformLock: PlatformLock) {
     #if canImport(Darwin)
-    platformLock.initialize(to: os_unfair_lock())
+      platformLock.initialize(to: os_unfair_lock())
     #elseif canImport(Glibc) || canImport(Musl) || canImport(Bionic)
-    let result = pthread_mutex_init(platformLock, nil)
-    precondition(result == 0, "pthread_mutex_init failed")
+      let result = pthread_mutex_init(platformLock, nil)
+      precondition(result == 0, "pthread_mutex_init failed")
     #elseif canImport(WinSDK)
-    InitializeSRWLock(platformLock)
+      InitializeSRWLock(platformLock)
     #elseif arch(wasm32)
-    platformLock.initialize(to: 0)
+      platformLock.initialize(to: 0)
     #else
-    #error("Unsupported platform")
+      #error("Unsupported platform")
     #endif
   }
 
   fileprivate static func deinitialize(_ platformLock: PlatformLock) {
     #if canImport(Glibc) || canImport(Musl) || canImport(Bionic)
-    let result = pthread_mutex_destroy(platformLock)
-    precondition(result == 0, "pthread_mutex_destroy failed")
+      let result = pthread_mutex_destroy(platformLock)
+      precondition(result == 0, "pthread_mutex_destroy failed")
     #endif
     platformLock.deinitialize(count: 1)
   }
 
   fileprivate static func lock(_ platformLock: PlatformLock) {
     #if canImport(Darwin)
-    os_unfair_lock_lock(platformLock)
+      os_unfair_lock_lock(platformLock)
     #elseif canImport(Glibc) || canImport(Musl) || canImport(Bionic)
-    pthread_mutex_lock(platformLock)
+      pthread_mutex_lock(platformLock)
     #elseif canImport(WinSDK)
-    AcquireSRWLockExclusive(platformLock)
+      AcquireSRWLockExclusive(platformLock)
     #elseif arch(wasm32)
     #else
-    #error("Unsupported platform")
+      #error("Unsupported platform")
     #endif
   }
 
   fileprivate static func unlock(_ platformLock: PlatformLock) {
     #if canImport(Darwin)
-    os_unfair_lock_unlock(platformLock)
+      os_unfair_lock_unlock(platformLock)
     #elseif canImport(Glibc) || canImport(Musl) || canImport(Bionic)
-    let result = pthread_mutex_unlock(platformLock)
-    precondition(result == 0, "pthread_mutex_unlock failed")
+      let result = pthread_mutex_unlock(platformLock)
+      precondition(result == 0, "pthread_mutex_unlock failed")
     #elseif canImport(WinSDK)
-    ReleaseSRWLockExclusive(platformLock)
+      ReleaseSRWLockExclusive(platformLock)
     #elseif arch(wasm32)
     #else
-    #error("Unsupported platform")
+      #error("Unsupported platform")
     #endif
   }
 
@@ -175,7 +175,6 @@ struct _ManagedCriticalState<State> {
 }
 
 extension _ManagedCriticalState: @unchecked Sendable where State: Sendable {}
-
 
 extension _ManagedCriticalState: Identifiable {
   internal var id: ObjectIdentifier {

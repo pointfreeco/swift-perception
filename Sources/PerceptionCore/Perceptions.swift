@@ -13,7 +13,8 @@ import _Concurrency
 
 @usableFromInline
 @_silgen_name("swift_task_addCancellationHandler")
-func _taskAddCancellationHandler(handler: () -> Void) -> UnsafeRawPointer /*CancellationNotificationStatusRecord*/
+func _taskAddCancellationHandler(handler: () -> Void)
+  -> UnsafeRawPointer /*CancellationNotificationStatusRecord*/
 
 @usableFromInline
 @_silgen_name("swift_task_removeCancellationHandler")
@@ -50,7 +51,7 @@ public struct Perceptions<Element: Sendable, Failure: Error>: AsyncSequence, Sen
     case next(Element)
     case finish
   }
-  
+
   struct State {
     enum Continuation {
       case cancelled
@@ -65,7 +66,7 @@ public struct Perceptions<Element: Sendable, Failure: Error>: AsyncSequence, Sen
     var id = 0
     var continuations: [Int: Continuation] = [:]
     var dirty = false
-    
+
     // create a generation id for the unique identification of the continuations
     // this allows the shared awaiting of the willSets.
     // Most likely, there wont be more than a handful of active iterations
@@ -77,7 +78,7 @@ public struct Perceptions<Element: Sendable, Failure: Error>: AsyncSequence, Sen
         return state.id
       }
     }
-    
+
     // the cancellation of awaiting on willSet only ferries in resuming early
     // it is the responsability of the caller to check if the task is actually
     // cancelled after awaiting the willSet to act accordingly.
@@ -93,7 +94,7 @@ public struct Perceptions<Element: Sendable, Failure: Error>: AsyncSequence, Sen
         return continuation
       }?.resume()
     }
-    
+
     // fire off ALL awaiting willChange continuations such that they are no
     // longer pending.
     static func emitWillChange(_ state: _ManagedCriticalState<State>) {
@@ -113,10 +114,13 @@ public struct Perceptions<Element: Sendable, Failure: Error>: AsyncSequence, Sen
         continuation.resume()
       }
     }
-    
+
     // install a willChange continuation into the set of continuations
     // this must take a locally unique id (to the active calls of next)
-    static func willChange(isolation iterationIsolation: isolated (any Actor)? = #isolation, state: _ManagedCriticalState<State>, id: Int) async {
+    static func willChange(
+      isolation iterationIsolation: isolated (any Actor)? = #isolation,
+      state: _ManagedCriticalState<State>, id: Int
+    ) async {
       return await withUnsafeContinuation(isolation: iterationIsolation) { continuation in
         state.withCriticalRegion { state in
           defer { state.dirty = false }
@@ -139,14 +143,14 @@ public struct Perceptions<Element: Sendable, Failure: Error>: AsyncSequence, Sen
       }
     }
   }
-  
+
   // @isolated(any) closures cannot be composed and retain or forward their isolation
   // this basically would be replaced with `{ .next(elementProducer()) }` if that
   // were to become possible.
   enum Emit {
     case iteration(@isolated(any) @Sendable () throws(Failure) -> Iteration)
     case element(@isolated(any) @Sendable () throws(Failure) -> Element)
-    
+
     var isolation: (any Actor)? {
       switch self {
       case .iteration(let closure): closure.isolation
@@ -154,16 +158,16 @@ public struct Perceptions<Element: Sendable, Failure: Error>: AsyncSequence, Sen
       }
     }
   }
-  
+
   let state: _ManagedCriticalState<State>
   let emit: Emit
-  
+
   // internal funnel method for initialziation
   internal init(emit: Emit) {
     self.emit = emit
     self.state = _ManagedCriticalState(State())
   }
-  
+
   /// Constructs an asynchronous sequence for a given closure by tracking changes of `@Perceptible` types.
   ///
   /// The emit closure is responsible for extracting a value out of a single or many `@Perceptible` types.
@@ -176,7 +180,7 @@ public struct Perceptions<Element: Sendable, Failure: Error>: AsyncSequence, Sen
   ) {
     self.init(emit: .element(emit))
   }
-  
+
   /// Constructs an asynchronous sequence for a given closure by tracking changes of `@Perceptible` types.
   ///
   /// The emit closure is responsible for extracting a value out of a single or many `@Perceptible` types. This method
@@ -190,7 +194,7 @@ public struct Perceptions<Element: Sendable, Failure: Error>: AsyncSequence, Sen
   ) -> Perceptions<Element, Failure> {
     .init(emit: .iteration(emit))
   }
-  
+
   public struct Iterator: AsyncIteratorProtocol {
     // the state ivar serves two purposes:
     // 1) to store a critical region of state of the mutations
@@ -198,10 +202,13 @@ public struct Perceptions<Element: Sendable, Failure: Error>: AsyncSequence, Sen
     var state: _ManagedCriticalState<State>?
     let emit: Emit
     var started = false
-    
+
     // this is the primary implementation of the tracking
     // it is bound to be called on the specified isolation of the construction
-    fileprivate static func trackEmission(isolation trackingIsolation: isolated (any Actor)?, state: _ManagedCriticalState<State>, emit: Emit) throws(Failure) -> Iteration {
+    fileprivate static func trackEmission(
+      isolation trackingIsolation: isolated (any Actor)?, state: _ManagedCriticalState<State>,
+      emit: Emit
+    ) throws(Failure) -> Iteration {
       // this ferries in an intermediate form with Result to skip over `withObservationTracking` not handling errors being thrown
       // particularly this case is that the error is also an iteration state transition data point (it terminates the sequence)
       // so we need to hold that to get a chance to catch and clean-up
@@ -220,8 +227,10 @@ public struct Perceptions<Element: Sendable, Failure: Error>: AsyncSequence, Sen
       }
       return try result.get()
     }
-    
-    fileprivate mutating func terminate(throwing failure: Failure? = nil, id: Int) throws(Failure) -> Element? {
+
+    fileprivate mutating func terminate(throwing failure: Failure? = nil, id: Int) throws(Failure)
+      -> Element?
+    {
       // this is purely defensive to any leaking out of iteration generation ids
       state?.withCriticalRegion { state in
         state.continuations.removeValue(forKey: id)
@@ -234,8 +243,11 @@ public struct Perceptions<Element: Sendable, Failure: Error>: AsyncSequence, Sen
         return nil
       }
     }
-    
-    fileprivate mutating func trackEmission(isolation iterationIsolation: isolated (any Actor)?, state: _ManagedCriticalState<State>, id: Int) async throws(Failure) -> Element? {
+
+    fileprivate mutating func trackEmission(
+      isolation iterationIsolation: isolated (any Actor)?, state: _ManagedCriticalState<State>,
+      id: Int
+    ) async throws(Failure) -> Element? {
       guard !Task.isCancelled else {
         // the task was cancelled while awaiting a willChange so ensure a proper termination
         return try terminate(id: id)
@@ -246,8 +258,10 @@ public struct Perceptions<Element: Sendable, Failure: Error>: AsyncSequence, Sen
       case .next(let element): return element
       }
     }
-    
-    public mutating func next(isolation iterationIsolation: isolated (any Actor)? = #isolation) async throws(Failure) -> Element? {
+
+    public mutating func next(isolation iterationIsolation: isolated (any Actor)? = #isolation)
+      async throws(Failure) -> Element?
+    {
       // early exit if the sequence is terminal already
       guard let state else { return nil }
       // set up an id for this generation
@@ -265,12 +279,14 @@ public struct Perceptions<Element: Sendable, Failure: Error>: AsyncSequence, Sen
           // this will mean our next await for the emission will ensure the suspension return of the willChange context
           // back to the trailing edges of the mutations. In short, this enables the transactionality bounded by the
           // isolation of the mutation.
-          await withIsolatedTaskCancellationHandler(operation: {
-            await State.willChange(isolation: iterationIsolation, state: state, id: id)
-          }, onCancel: {
-            // ensure to clean out our continuation uon cancellation
-            State.cancel(state, id: id)
-          }, isolation: iterationIsolation)
+          await withIsolatedTaskCancellationHandler(
+            operation: {
+              await State.willChange(isolation: iterationIsolation, state: state, id: id)
+            },
+            onCancel: {
+              // ensure to clean out our continuation uon cancellation
+              State.cancel(state, id: id)
+            }, isolation: iterationIsolation)
           return try await trackEmission(isolation: iterationIsolation, state: state, id: id)
         }
       } catch {
@@ -283,7 +299,7 @@ public struct Perceptions<Element: Sendable, Failure: Error>: AsyncSequence, Sen
       return try await next(isolation: nil)
     }
   }
-  
+
   public func makeAsyncIterator() -> Iterator {
     Iterator(state: state, emit: emit)
   }

@@ -98,7 +98,9 @@
       }
       #if os(macOS)
         // NB: This failure is triggered out-of-body by the binding.
-        XCTExpectFailure { $0.compactDescription.contains(#"Perceptible state '\Model.text' was accessed"#) }
+        XCTExpectFailure {
+          $0.compactDescription.contains(#"Perceptible state '\Model.text' was accessed"#)
+        }
       #endif
       try await render(FeatureView(model: Model()))
     }
@@ -232,7 +234,9 @@
         }
       }
       // NB: This failure is triggered out-of-body by the binding.
-      XCTExpectFailure { $0.compactDescription.contains(#"Perceptible state '\Model.child' was accessed"#) }
+      XCTExpectFailure {
+        $0.compactDescription.contains(#"Perceptible state '\Model.child' was accessed"#)
+      }
       try await render(FeatureView(model: Model(child: Model())))
     }
 
@@ -250,7 +254,9 @@
         }
       }
       // NB: This failure is triggered out-of-body by the binding.
-      XCTExpectFailure { $0.compactDescription.contains(#"Perceptible state '\Model.child' was accessed"#) }
+      XCTExpectFailure {
+        $0.compactDescription.contains(#"Perceptible state '\Model.child' was accessed"#)
+      }
       try await render(FeatureView(model: Model(child: Model())))
     }
 

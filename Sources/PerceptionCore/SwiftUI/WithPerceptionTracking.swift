@@ -109,6 +109,7 @@
       }
     }
 
+    @_disfavoredOverload
     public init(content: @escaping @autoclosure () -> Content) {
       self.content = _Content(content)
     }

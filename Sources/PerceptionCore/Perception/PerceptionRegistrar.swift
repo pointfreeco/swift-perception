@@ -1,5 +1,3 @@
-public import IssueReporting
-
 #if canImport(Observation)
   public import Observation
 #endif
@@ -7,6 +5,7 @@ public import IssueReporting
   import SwiftUI
 #endif
 #if DEBUG && canImport(SwiftUI)
+  import IssueReporting
   import MachO
 #endif
 
@@ -254,7 +253,6 @@ extension PerceptionRegistrar: Hashable {
 
 #if DEBUG && canImport(SwiftUI)
   extension PerceptionRegistrar {
-    @_transparent
     @usableFromInline
     func check<Subject, Member>(_ keyPath: KeyPath<Subject, Member>) {
       if _isPerceptionCheckingEnabled,
